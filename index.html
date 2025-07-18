@@ -53,7 +53,7 @@
             border: 4px solid;
             border-image: linear-gradient(135deg, #3b82f6, #9333ea) 1;
             background: rgba(0, 0, 0, 0.3);
-            max-width: 100%; /* Ensure it doesn't exceed container */
+            max-width: 100%;
             height: auto;
         }
         
@@ -170,8 +170,8 @@
             font-weight: 700;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             height: 40px;
-            font-size: clamp(0.35rem, 0.8vw, 0.5rem); /* REDUCED: was 0.5rem, 1.2vw, 0.7rem */
-            padding: 0.25rem 0.125rem; /* REDUCED padding */
+            font-size: clamp(0.35rem, 0.8vw, 0.5rem);
+            padding: 0.25rem 0.125rem;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -179,7 +179,7 @@
             align-items: center;
             justify-content: center;
             min-width: 0;
-            letter-spacing: -0.5px; /* Tighter letter spacing */
+            letter-spacing: -0.5px;
         }
         
         /* Bet button styling */
@@ -320,32 +320,35 @@
             filter: drop-shadow(0 0 15px rgba(147, 51, 234, 0.6));
         }
         
-        /* Layout optimization for perfect centering */
+        /* FIXED: Perfect centering layout system */
         .game-layout {
-            display: grid;
-            grid-template-columns: 200px 1fr 200px;
-            grid-template-rows: 1fr;
+            display: flex;
             min-height: 100vh;
-            width: 100vw;
-            max-width: 100vw;
+            width: 100%;
             align-items: center;
-            justify-items: center;
-            overflow-x: hidden;
+            justify-content: center;
+            padding: 1rem;
             box-sizing: border-box;
-            place-items: center; /* Perfect centering */
+            overflow-x: hidden;
+        }
+        
+        /* Desktop layout container */
+        .desktop-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         .left-sidebar {
-            justify-self: center;
-            align-self: center; /* Perfect vertical centering */
-            margin-left: 0;
-            width: 100%;
-            max-width: 200px;
+            width: 200px;
+            flex-shrink: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            height: 100%;
-            justify-content: center; /* Center content vertically */
         }
         
         .center-content {
@@ -356,101 +359,120 @@
             width: 100%;
             max-width: 600px;
             position: relative;
-            padding: 0 1rem;
-            box-sizing: border-box;
-            height: 100%;
+            flex-shrink: 0;
         }
         
         .right-sidebar {
-            justify-self: center;
-            align-self: center; /* Perfect vertical centering */
-            margin-right: 0;
-            width: 100%;
-            max-width: 200px;
-            height: 100%;
+            width: 200px;
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         
-        /* Desktop sidebar alignment - Align with game board top */
+        /* Desktop sidebar alignment - FIXED: Properly align with game board */
         .sidebar-content {
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
-            transform: translateY(-2rem); /* Move up to align with game board */
+            height: 540px; /* Match game board height (500px + 40px multipliers) */
+            justify-content: space-between;
         }
         
-        /* Mobile responsive design */
+        /* Win card positioning - align with top of game board */
+        .win-section {
+            align-self: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        /* Recent hits positioning - align with bottom of game board */
+        .recent-hits-section {
+            align-self: flex-end;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        
+        /* Mobile responsive design - FIXED: Perfect mobile centering */
         @media (max-width: 1024px) {
             .game-layout {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto 1fr auto;
-                gap: 0.5rem;
-                padding: 0.5rem;
+                padding: 0.75rem;
+                align-items: flex-start;
+                justify-content: flex-start;
                 min-height: 100vh;
-                overflow: visible;
-                place-items: center;
             }
             
-            .left-sidebar, .right-sidebar {
-                justify-self: center;
-                align-self: center;
-                margin: 0;
+            .desktop-container {
+                flex-direction: column;
+                gap: 1rem;
                 width: 100%;
-                max-width: 600px;
-                height: auto;
+                max-width: 100%;
+                align-items: center;
+                justify-content: flex-start;
             }
             
-            /* Hide desktop recent hits */
             .left-sidebar {
-                display: none;
+                display: none; /* Hide desktop sidebar on mobile */
+            }
+            
+            .right-sidebar {
+                display: none; /* Hide right sidebar on mobile */
             }
             
             .center-content {
+                width: 100%;
                 max-width: 100%;
-                min-height: 0;
-                flex-shrink: 1;
-                height: auto;
+                padding: 0;
+                margin: 0;
             }
             
-            /* Mobile balance and bet boxes - match game board width */
+            /* FIXED: Mobile element sizing - prevent right-side cutoff */
             .balance-box {
-                min-width: 520px;
-                width: 520px;
-                max-width: calc(100vw - 1rem);
+                width: min(320px, 100%);
+                min-width: min(320px, 100%);
+                max-width: 100%;
             }
             
             .bet-box {
-                min-width: 520px;
-                width: 520px;
-                max-width: calc(100vw - 1rem);
+                width: min(200px, 100%);
+                min-width: min(200px, 100%);
+                max-width: 100%;
             }
             
-            /* Mobile stats container matches game board width */
             .mobile-stats-container {
-                width: 520px;
-                max-width: calc(100vw - 1rem);
+                width: 100%;
+                max-width: 100%;
             }
             
-            /* Ensure canvas fits properly on mobile */
+            /* FIXED: Canvas sizing for mobile */
             #game-canvas {
-                max-width: calc(100vw - 1rem);
+                width: min(600px, 100%);
+                max-width: 100%;
                 height: auto;
             }
             
-            /* Mobile multipliers - even smaller for mobile */
+            /* FIXED: Bet controls mobile sizing */
+            #bet-controls {
+                width: 100%;
+                max-width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            /* Mobile multipliers */
             .multiplier-slot {
-                font-size: clamp(0.3rem, 0.8vw, 0.45rem); /* Smaller for mobile */
+                font-size: clamp(0.3rem, 0.8vw, 0.45rem);
                 height: 32px;
                 padding: 0.25rem 0.125rem;
-                letter-spacing: -0.75px; /* Even tighter on mobile */
+                letter-spacing: -0.75px;
             }
             
             /* Mobile header sizing */
             .gradient-text {
-                font-size: 1.75rem;
+                font-size: clamp(1.5rem, 4vw, 1.75rem);
             }
             
             /* Mobile button sizing */
@@ -462,14 +484,16 @@
             .bet-button {
                 padding: 0.5rem 0.75rem;
                 font-size: 0.75rem;
+                flex: 0 0 auto;
             }
             
-            /* Mobile stats layout */
+            /* Mobile stats layout - FIXED: Better spacing */
             .stats-mobile {
                 display: flex;
-                gap: 0;
+                gap: 0.5rem;
                 width: 100%;
                 justify-content: center;
+                flex-wrap: wrap;
             }
             
             /* Mobile alien positioning */
@@ -491,6 +515,7 @@
                 padding: 0.5rem 0;
                 scrollbar-width: none;
                 -ms-overflow-style: none;
+                width: 100%;
             }
             
             .mobile-recent-hits-horizontal::-webkit-scrollbar {
@@ -507,14 +532,14 @@
             }
         }
         
+        /* Small screen adjustments */
         @media (max-width: 640px) {
             .game-layout {
-                padding: 0.25rem;
-                gap: 0.25rem;
+                padding: 0.5rem;
             }
             
             .gradient-text {
-                font-size: 1.5rem;
+                font-size: clamp(1.25rem, 5vw, 1.5rem);
             }
             
             .btn-primary {
@@ -522,21 +547,22 @@
                 font-size: 0.75rem;
             }
             
-            /* Small screen balance and bet boxes */
+            /* Very small screen sizing */
             .balance-box {
-                min-width: calc(100vw - 1rem);
-                width: calc(100vw - 1rem);
+                width: 100%;
+                min-width: 100%;
+                max-width: 100%;
             }
             
             .bet-box {
-                min-width: calc(100vw - 1rem);
-                width: calc(100vw - 1rem);
+                width: 100%;
+                min-width: 100%;
+                max-width: 100%;
             }
             
-            /* Mobile stats container for small screens */
             .mobile-stats-container {
-                width: calc(100vw - 1rem);
-                max-width: calc(100vw - 1rem);
+                width: 100%;
+                max-width: 100%;
             }
             
             .alien-image {
@@ -546,28 +572,39 @@
             
             /* Smaller multiplier text for very small screens */
             .multiplier-slot {
-                font-size: clamp(0.25rem, 0.7vw, 0.4rem); /* Even smaller for tiny screens */
+                font-size: clamp(0.25rem, 0.7vw, 0.4rem);
                 height: 28px;
                 padding: 0.125rem 0.0625rem;
-                letter-spacing: -1px; /* Very tight spacing */
+                letter-spacing: -1px;
+            }
+            
+            /* Canvas fits perfectly on small screens */
+            #game-canvas {
+                width: 100%;
+                max-width: 100%;
             }
         }
         
-        /* Enable scrolling */
+        /* Enable proper scrolling without horizontal overflow */
         html, body {
             height: 100%;
             overflow-x: hidden;
             overflow-y: auto;
             margin: 0;
             padding: 0;
+            width: 100%;
         }
-
-        /* Perfect centering for all screen sizes */
-        @media (min-width: 1025px) {
-            .game-layout {
-                place-content: center;
-                place-items: center;
-            }
+        
+        /* Ensure no elements cause horizontal scroll */
+        * {
+            max-width: 100%;
+        }
+        
+        /* Container to prevent any overflow */
+        #app {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
         }
     </style>
 </head>
@@ -606,138 +643,142 @@
             🚀 Loading cosmic experience...
         </div>
         
-        <!-- Game Layout Grid -->
+        <!-- FIXED: Perfect centering layout -->
         <div class="game-layout relative z-10">
-            <!-- Left Sidebar (Hidden on Mobile) -->
-            <div class="left-sidebar">
-                <div class="sidebar-content">
-                    <!-- Win Display -->
-                    <div class="mb-4">
-                        <div id="win-card" class="win-card rounded-xl w-48 hidden animate-glow">
-                            <div class="p-4 text-center">
-                                <div id="last-win" class="text-2xl font-bold win-value">+$0.00</div>
-                                <div class="stat-label text-xs mt-1">LAST WIN</div>
+            <div class="desktop-container">
+                <!-- Left Sidebar (Hidden on Mobile) -->
+                <div class="left-sidebar">
+                    <div class="sidebar-content">
+                        <!-- Win Display - Aligned with top of game board -->
+                        <div class="win-section">
+                            <div id="win-card" class="win-card rounded-xl w-48 hidden animate-glow">
+                                <div class="p-4 text-center">
+                                    <div id="last-win" class="text-2xl font-bold win-value">+$0.00</div>
+                                    <div class="stat-label text-xs mt-1">LAST WIN</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Recent Hits -->
-                    <div class="game-card rounded-xl w-48">
-                        <div class="p-4">
-                            <h3 class="stat-value text-sm font-bold mb-3 text-center">RECENT HITS</h3>
-                            <div class="recent-hits-container">
-                                <div id="recent-hits" class="space-y-2">
-                                    <div class="text-blue-300/50 text-xs text-center py-6">No hits yet</div>
+                        
+                        <!-- Recent Hits - Aligned with bottom of game board -->
+                        <div class="recent-hits-section">
+                            <div class="game-card rounded-xl w-48">
+                                <div class="p-4">
+                                    <h3 class="stat-value text-sm font-bold mb-3 text-center">RECENT HITS</h3>
+                                    <div class="recent-hits-container">
+                                        <div id="recent-hits" class="space-y-2">
+                                            <div class="text-blue-300/50 text-xs text-center py-6">No hits yet</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Center Content -->
-            <div class="center-content">
-                <!-- Floating Alien -->
-                <div class="alien-container animate-float">
-                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Alien-uzfEiE9Kl7eFnvILT9jpv6ATb1JQjX.png" alt="Cosmic Alien" class="alien-image" crossorigin="anonymous" />
-                </div>
-
-                <!-- Header -->
-                <div class="text-center mb-4">
-                    <h1 class="text-4xl font-bold gradient-text mb-2">COSMIC PLINKO</h1>
-                    <div class="text-blue-300 text-lg font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</div>
-                </div>
                 
-                <!-- Game Board -->
-                <div class="relative mb-4">
-                    <canvas 
-                        id="game-canvas"
-                        width="600" 
-                        height="500"
-                        class="rounded-xl shadow-2xl backdrop-blur-sm"
-                    ></canvas>
+                <!-- Center Content -->
+                <div class="center-content">
+                    <!-- Floating Alien -->
+                    <div class="alien-container animate-float">
+                        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Alien-uzfEiE9Kl7eFnvILT9jpv6ATb1JQjX.png" alt="Cosmic Alien" class="alien-image" crossorigin="anonymous" />
+                    </div>
+
+                    <!-- Header -->
+                    <div class="text-center mb-4">
+                        <h1 class="text-4xl font-bold gradient-text mb-2">COSMIC PLINKO</h1>
+                        <div class="text-blue-300 text-lg font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</div>
+                    </div>
                     
-                    <!-- Prize Multipliers -->
-                    <div id="multipliers" class="absolute bottom-0 left-0 right-0 flex">
-                        <!-- Multipliers will be generated by JavaScript -->
-                    </div>
-                </div>
-                
-                <!-- Bet Controls -->
-                <div id="bet-controls" class="flex gap-2 mb-4 flex-wrap justify-center">
-                    <!-- Bet buttons will be generated by JavaScript -->
-                </div>
-                
-                <!-- Game Controls -->
-                <div class="flex gap-4 mb-4">
-                    <button 
-                        id="drop-ball-btn"
-                        class="btn-primary text-white font-bold px-8 py-3 rounded-xl shadow-xl"
-                    >
-                        DROP BALL
-                    </button>
-                    <button 
-                        id="reset-btn"
-                        class="reset-button px-6 py-3 rounded-xl transition-all"
-                    >
-                        <span class="inline-block w-5 h-5 mr-2">↻</span>
-                        RESET
-                    </button>
-                </div>
-
-                <!-- Stats - Desktop and Mobile layout -->
-                <div class="flex flex-col gap-2 mb-4 stats-mobile lg:flex-row lg:gap-0 lg:justify-center">
-                    <div class="game-card rounded-xl balance-box mx-auto lg:mx-0">
-                        <div class="p-4 text-center">
-                            <div id="balance" class="text-2xl font-bold stat-value">$100.00</div>
-                            <div class="stat-label text-xs mt-1">BALANCE</div>
+                    <!-- Game Board -->
+                    <div class="relative mb-4">
+                        <canvas 
+                            id="game-canvas"
+                            width="600" 
+                            height="500"
+                            class="rounded-xl shadow-2xl backdrop-blur-sm"
+                        ></canvas>
+                        
+                        <!-- Prize Multipliers -->
+                        <div id="multipliers" class="absolute bottom-0 left-0 right-0 flex">
+                            <!-- Multipliers will be generated by JavaScript -->
                         </div>
                     </div>
-                    <div class="game-card rounded-xl bet-box mx-auto lg:mx-0">
-                        <div class="p-4 text-center">
-                            <div id="bet-amount" class="text-2xl font-bold stat-value">$1.00</div>
-                            <div class="stat-label text-xs mt-1">BET</div>
+                    
+                    <!-- Bet Controls -->
+                    <div id="bet-controls" class="flex gap-2 mb-4 flex-wrap justify-center">
+                        <!-- Bet buttons will be generated by JavaScript -->
+                    </div>
+                    
+                    <!-- Game Controls -->
+                    <div class="flex gap-4 mb-4">
+                        <button 
+                            id="drop-ball-btn"
+                            class="btn-primary text-white font-bold px-8 py-3 rounded-xl shadow-xl"
+                        >
+                            DROP BALL
+                        </button>
+                        <button 
+                            id="reset-btn"
+                            class="reset-button px-6 py-3 rounded-xl transition-all"
+                        >
+                            <span class="inline-block w-5 h-5 mr-2">↻</span>
+                            RESET
+                        </button>
+                    </div>
+
+                    <!-- Stats - Desktop and Mobile layout -->
+                    <div class="flex flex-col gap-2 mb-4 stats-mobile lg:flex-row lg:gap-2 lg:justify-center">
+                        <div class="game-card rounded-xl balance-box mx-auto lg:mx-0">
+                            <div class="p-4 text-center">
+                                <div id="balance" class="text-2xl font-bold stat-value">$100.00</div>
+                                <div class="stat-label text-xs mt-1">BALANCE</div>
+                            </div>
+                        </div>
+                        <div class="game-card rounded-xl bet-box mx-auto lg:mx-0">
+                            <div class="p-4 text-center">
+                                <div id="bet-amount" class="text-2xl font-bold stat-value">$1.00</div>
+                                <div class="stat-label text-xs mt-1">BET</div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Mobile Win Display and Recent Hits (Only visible on mobile) -->
-                <div class="lg:hidden mb-4 mobile-stats-container mx-auto">
-                    <!-- Mobile Win Display -->
-                    <div class="mb-2">
-                        <div id="mobile-win-card" class="win-card rounded-xl hidden animate-glow">
-                            <div class="p-3 text-center">
-                                <div id="mobile-last-win" class="text-lg font-bold win-value">+$0.00</div>
-                                <div class="stat-label text-xs mt-1">LAST WIN</div>
+                    <!-- Mobile Win Display and Recent Hits (Only visible on mobile) -->
+                    <div class="lg:hidden mb-4 mobile-stats-container mx-auto">
+                        <!-- Mobile Win Display -->
+                        <div class="mb-2">
+                            <div id="mobile-win-card" class="win-card rounded-xl hidden animate-glow">
+                                <div class="p-3 text-center">
+                                    <div id="mobile-last-win" class="text-lg font-bold win-value">+$0.00</div>
+                                    <div class="stat-label text-xs mt-1">LAST WIN</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Mobile Recent Hits - HORIZONTAL -->
+                        <div class="game-card rounded-xl">
+                            <div class="p-3">
+                                <h3 class="stat-value text-sm font-bold mb-2 text-center">RECENT HITS</h3>
+                                <div id="mobile-recent-hits" class="mobile-recent-hits-horizontal">
+                                    <div class="text-blue-300/50 text-xs text-center py-4 w-full">No hits yet</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Mobile Recent Hits - HORIZONTAL -->
-                    <div class="game-card rounded-xl">
-                        <div class="p-3">
-                            <h3 class="stat-value text-sm font-bold mb-2 text-center">RECENT HITS</h3>
-                            <div id="mobile-recent-hits" class="mobile-recent-hits-horizontal">
-                                <div class="text-blue-300/50 text-xs text-center py-4 w-full">No hits yet</div>
-                            </div>
-                        </div>
+                    <!-- Instructions -->
+                    <div class="text-center text-blue-300/80 text-sm mb-2" style="font-family: 'Orbitron', monospace;">
+                        Press <kbd class="px-2 py-1 rounded text-sm">SPACE</kbd> or click DROP BALL
+                    </div>
+                    
+                    <!-- Insufficient Balance Warning -->
+                    <div id="insufficient-balance" class="text-purple-300 text-sm font-bold animate-pulse hidden" style="font-family: 'Orbitron', monospace;">
+                        INSUFFICIENT BALANCE
                     </div>
                 </div>
                 
-                <!-- Instructions -->
-                <div class="text-center text-blue-300/80 text-sm mb-2" style="font-family: 'Orbitron', monospace;">
-                    Press <kbd class="px-2 py-1 rounded text-sm">SPACE</kbd> or click DROP BALL
+                <!-- Right Sidebar (Hidden for now) -->
+                <div class="right-sidebar hidden lg:block">
+                    <!-- Future features can go here -->
                 </div>
-                
-                <!-- Insufficient Balance Warning -->
-                <div id="insufficient-balance" class="text-purple-300 text-sm font-bold animate-pulse hidden" style="font-family: 'Orbitron', monospace;">
-                    INSUFFICIENT BALANCE
-                </div>
-            </div>
-            
-            <!-- Right Sidebar (Hidden for now) -->
-            <div class="right-sidebar hidden lg:block">
-                <!-- Future features can go here -->
             </div>
         </div>
     </div>
@@ -1286,7 +1327,7 @@
             });
         }
 
-        // Update mobile recent hits display - HORIZONTAL
+        // Update mobile recent hits display - HORIZONTAL with 6 items and fading effect
         function updateMobileRecentHits() {
             const mobileRecentHitsDiv = document.getElementById('mobile-recent-hits');
             
@@ -1298,13 +1339,14 @@
             mobileRecentHitsDiv.innerHTML = '';
             mobileRecentHitsDiv.className = 'mobile-recent-hits-horizontal'; // Horizontal layout
             
-            gameState.recentHits.slice(0, 5).forEach((hit, index) => {
+            // Show 6 items like desktop, with same fading effect
+            gameState.recentHits.slice(0, 6).forEach((hit, index) => {
                 const div = document.createElement('div');
                 div.className = `mobile-recent-hit-item recent-hit transition-all duration-300 ${
                     index === 0 ? 'animate-pulse border-2 border-purple-400/60' : ''
                 }`;
                 
-                // Apply fade effect like desktop
+                // Apply same fade effect as desktop - 6th item will be half faded
                 div.style.opacity = 1 - index * 0.15;
                 div.style.transform = `scale(${1 - index * 0.05})`;
                 
@@ -1424,8 +1466,8 @@
                         newVy += (Math.random() - 0.5) * 0.5;
                     }
 
-                    // Bottom collision - PERFECTLY aligned with multiplier slots
-                    if (newY > CANVAS_HEIGHT - 75) { // Adjusted for larger board
+                    // Bottom collision - FIXED: Drop all the way to multiplier container
+                    if (newY > CANVAS_HEIGHT - 40) { // Changed from -75 to -40 to reach multiplier top
                         const slotWidth = CANVAS_WIDTH / MULTIPLIERS.length;
                         const slotIndex = Math.floor(newX / slotWidth);
                         const validSlot = Math.max(0, Math.min(MULTIPLIERS.length - 1, slotIndex));
