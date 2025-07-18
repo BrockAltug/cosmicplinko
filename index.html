@@ -155,19 +155,23 @@
             border-color: rgba(147, 51, 234, 1);
         }
         
-        /* Multiplier styling */
+        /* Multiplier styling - Enhanced for desktop visibility */
         .multiplier-slot {
             background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(147, 51, 234, 0.8));
             border: 2px solid rgba(99, 102, 241, 0.6);
             font-family: 'Orbitron', monospace;
             font-weight: 700;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            height: 32px; /* Much skinnier - reduced from 56px (h-14) */
-            font-size: clamp(0.5rem, 1.5vw, 0.75rem); /* Dynamic font size based on viewport */
-            padding: 0.25rem 0.125rem; /* Tighter padding */
-            overflow: hidden; /* Prevent text overflow */
-            white-space: nowrap; /* Keep text on one line */
-            text-overflow: ellipsis; /* Add ellipsis if text is too long */
+            height: 40px; /* Increased height for better visibility */
+            font-size: clamp(0.6rem, 1.8vw, 0.9rem); /* Larger dynamic font size for desktop */
+            padding: 0.375rem 0.25rem; /* More padding */
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0; /* Allow flex shrinking */
         }
         
         /* Bet button styling */
@@ -270,7 +274,7 @@
             font-weight: 700;
         }
 
-        /* Fixed size balance and bet boxes - PERFECTLY match game board width (520px) */
+        /* Fixed size balance and bet boxes - Desktop sizing */
         .balance-box {
             min-width: 320px;
             width: 320px;
@@ -287,9 +291,10 @@
             height: 300px;
         }
 
-        /* Mobile stats container - matches balance + bet width */
+        /* Mobile stats container */
         .mobile-stats-container {
-            width: 320px; /* Same as balance + bet combined on mobile */
+            width: 100%;
+            max-width: 600px;
         }
 
         /* Alien floating animation */
@@ -329,7 +334,7 @@
             align-items: center;
             justify-content: center;
             width: 100%;
-            max-width: 650px;
+            max-width: 750px; /* Increased for larger game board */
             position: relative;
         }
 
@@ -382,8 +387,8 @@
 
             /* Mobile stats container matches game board width */
             .mobile-stats-container {
-                width: 520px; /* Same as game board */
-                max-width: calc(100vw - 1rem); /* Ensure it fits on screen */
+                width: 520px;
+                max-width: calc(100vw - 1rem);
             }
 
             /* Ensure canvas fits properly on mobile */
@@ -392,11 +397,11 @@
                 height: auto;
             }
 
-            /* Ensure multipliers fit within canvas bounds */
+            /* Mobile multipliers */
             .multiplier-slot {
-                font-size: clamp(0.4rem, 1.2vw, 0.625rem); /* Smaller dynamic range for tablet */
-                height: 28px; /* Slightly smaller height */
-                padding: 0.125rem 0.0625rem;
+                font-size: clamp(0.4rem, 1.2vw, 0.625rem);
+                height: 32px;
+                padding: 0.25rem 0.125rem;
             }
 
             /* Mobile header sizing */
@@ -433,6 +438,29 @@
                 width: 50px;
                 height: 50px;
             }
+
+            /* Mobile recent hits - HORIZONTAL layout */
+            .mobile-recent-hits-horizontal {
+                display: flex;
+                gap: 0.5rem;
+                overflow-x: auto;
+                padding: 0.5rem 0;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+
+            .mobile-recent-hits-horizontal::-webkit-scrollbar {
+                display: none;
+            }
+
+            .mobile-recent-hit-item {
+                flex: 0 0 auto;
+                min-width: 80px;
+                padding: 0.5rem;
+                border-radius: 0.5rem;
+                text-align: center;
+                font-size: 0.75rem;
+            }
         }
 
         @media (max-width: 640px) {
@@ -450,7 +478,7 @@
                 font-size: 0.75rem;
             }
 
-            /* Small screen balance and bet boxes - still match available width */
+            /* Small screen balance and bet boxes */
             .balance-box {
                 min-width: calc(100vw - 1rem);
                 width: calc(100vw - 1rem);
@@ -474,10 +502,10 @@
 
             /* Smaller multiplier text for very small screens */
             .multiplier-slot {
-                font-size: clamp(0.35rem, 1vw, 0.5rem); /* Very small dynamic range for mobile */
-                height: 24px; /* Even skinnier on small screens */
+                font-size: clamp(0.35rem, 1vw, 0.5rem);
+                height: 28px;
                 padding: 0.125rem 0.0625rem;
-                letter-spacing: -0.5px; /* Tighter letter spacing */
+                letter-spacing: -0.5px;
             }
         }
 
@@ -569,8 +597,45 @@
                     <div class="text-blue-300 text-lg font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</div>
                 </div>
                 
-                <!-- Stats - Mobile layout with equal widths -->
-                <div class="flex flex-col gap-2 mb-4 stats-mobile lg:flex-row lg:gap-0">
+                <!-- Game Board -->
+                <div class="relative mb-4">
+                    <canvas 
+                        id="game-canvas"
+                        width="600" 
+                        height="500"
+                        class="rounded-xl shadow-2xl backdrop-blur-sm"
+                    ></canvas>
+                    
+                    <!-- Prize Multipliers -->
+                    <div id="multipliers" class="absolute bottom-0 left-0 right-0 flex">
+                        <!-- Multipliers will be generated by JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Bet Controls -->
+                <div id="bet-controls" class="flex gap-2 mb-4 flex-wrap justify-center">
+                    <!-- Bet buttons will be generated by JavaScript -->
+                </div>
+                
+                <!-- Game Controls -->
+                <div class="flex gap-4 mb-4">
+                    <button 
+                        id="drop-ball-btn"
+                        class="btn-primary text-white font-bold px-8 py-3 rounded-xl shadow-xl"
+                    >
+                        DROP BALL
+                    </button>
+                    <button 
+                        id="reset-btn"
+                        class="reset-button px-6 py-3 rounded-xl transition-all"
+                    >
+                        <span class="inline-block w-5 h-5 mr-2">↻</span>
+                        RESET
+                    </button>
+                </div>
+
+                <!-- Stats - Desktop and Mobile layout -->
+                <div class="flex flex-col gap-2 mb-4 stats-mobile lg:flex-row lg:gap-0 lg:justify-center">
                     <div class="game-card rounded-xl balance-box mx-auto lg:mx-0">
                         <div class="p-4 text-center">
                             <div id="balance" class="text-2xl font-bold stat-value">$100.00</div>
@@ -597,52 +662,15 @@
                         </div>
                     </div>
                     
-                    <!-- Mobile Recent Hits -->
+                    <!-- Mobile Recent Hits - HORIZONTAL -->
                     <div class="game-card rounded-xl">
                         <div class="p-3">
                             <h3 class="stat-value text-sm font-bold mb-2 text-center">RECENT HITS</h3>
-                            <div id="mobile-recent-hits" class="space-y-2">
+                            <div id="mobile-recent-hits" class="mobile-recent-hits-horizontal">
                                 <div class="text-blue-300/50 text-xs text-center py-4 w-full">No hits yet</div>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Game Board -->
-                <div class="relative mb-4">
-                    <canvas 
-                        id="game-canvas"
-                        width="520" 
-                        height="450"
-                        class="rounded-xl shadow-2xl backdrop-blur-sm"
-                    ></canvas>
-                    
-                    <!-- Prize Multipliers -->
-                    <div id="multipliers" class="absolute bottom-0 left-0 right-0 flex">
-                        <!-- Multipliers will be generated by JavaScript -->
-                    </div>
-                </div>
-                
-                <!-- Bet Controls -->
-                <div id="bet-controls" class="flex gap-2 mb-4 flex-wrap justify-center">
-                    <!-- Bet buttons will be generated by JavaScript -->
-                </div>
-                
-                <!-- Game Controls -->
-                <div class="flex gap-4 mb-3">
-                    <button 
-                        id="drop-ball-btn"
-                        class="btn-primary text-white font-bold px-8 py-3 rounded-xl shadow-xl"
-                    >
-                        DROP BALL
-                    </button>
-                    <button 
-                        id="reset-btn"
-                        class="reset-button px-6 py-3 rounded-xl transition-all"
-                    >
-                        <span class="inline-block w-5 h-5 mr-2">↻</span>
-                        RESET
-                    </button>
                 </div>
                 
                 <!-- Instructions -->
@@ -683,8 +711,8 @@
         const BET_AMOUNTS = [0.5, 1, 2, 3, 4, 5];
         // THISISTHEODDS: 1000x (0.76%), 100x (2.28%), 50x (4.56%), 10x (9.12%), 5x (13.68%), 2x (18.24%), 1x (18.24%), 0.5x (9.12%), 1x (18.24%), 2x (18.24%), 5x (13.68%), 10x (9.12%), 50x (4.56%), 100x (2.28%), 1000x (0.76%)
         const MULTIPLIERS = [1000, 100, 50, 10, 5, 2, 1, 0.5, 1, 2, 5, 10, 50, 100, 1000];
-        const CANVAS_WIDTH = 520;
-        const CANVAS_HEIGHT = 450;
+        const CANVAS_WIDTH = 600; // Increased from 520
+        const CANVAS_HEIGHT = 500; // Increased from 450
         
         // Audio system
         let audioContext = null;
@@ -919,10 +947,10 @@
         // Initialize pegs in perfect formation - Updated for larger board
         function initializePegs() {
             gameState.pegs = [];
-            const rows = 12;
-            const pegSpacing = 38; // Slightly tighter spacing for more chaos
+            const rows = 13; // Increased for larger board
+            const pegSpacing = 42; // Increased spacing for larger board
             const boardWidth = CANVAS_WIDTH;
-            const startY = 90;
+            const startY = 100;
 
             for (let row = 0; row < rows; row++) {
                 const pegsInRow = row + 4;
@@ -936,7 +964,7 @@
                     
                     gameState.pegs.push({
                         x: startX + col * pegSpacing + randomOffsetX,
-                        y: startY + row * 28 + randomOffsetY, // Slightly tighter vertical spacing
+                        y: startY + row * 30 + randomOffsetY, // Increased vertical spacing
                         hit: false,
                         hitTime: 0
                     });
@@ -1080,7 +1108,7 @@
             const newBall = {
                 id: Date.now() + Math.random(),
                 // MUCH MORE random starting position
-                x: CANVAS_WIDTH / 2 + (Math.random() - 0.5) * 80, // Increased from 15 to 80
+                x: CANVAS_WIDTH / 2 + (Math.random() - 0.5) * 80, // Adjusted for larger board
                 y: 50,
                 // More random initial velocity
                 vx: (Math.random() - 0.5) * 2, // Increased from 0.4 to 2
@@ -1207,7 +1235,7 @@
             });
         }
 
-        // Update mobile recent hits display
+        // Update mobile recent hits display - HORIZONTAL
         function updateMobileRecentHits() {
             const mobileRecentHitsDiv = document.getElementById('mobile-recent-hits');
             
@@ -1217,11 +1245,11 @@
             }
             
             mobileRecentHitsDiv.innerHTML = '';
-            mobileRecentHitsDiv.className = 'space-y-2'; // Change to vertical layout
+            mobileRecentHitsDiv.className = 'mobile-recent-hits-horizontal'; // Horizontal layout
             
             gameState.recentHits.slice(0, 5).forEach((hit, index) => {
                 const div = document.createElement('div');
-                div.className = `recent-hit p-2 rounded-lg text-sm transition-all duration-300 ${
+                div.className = `mobile-recent-hit-item recent-hit transition-all duration-300 ${
                     index === 0 ? 'animate-pulse border-2 border-purple-400/60' : ''
                 }`;
                 
@@ -1230,10 +1258,8 @@
                 div.style.transform = `scale(${1 - index * 0.05})`;
                 
                 div.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-blue-200">${hit.multiplier}x</span>
-                        <span class="text-yellow-300 font-bold">$${hit.winAmount.toFixed(2)}</span>
-                    </div>
+                    <div class="font-bold text-blue-200 text-xs">${hit.multiplier}x</div>
+                    <div class="text-yellow-300 font-bold text-xs">$${hit.winAmount.toFixed(2)}</div>
                 `;
                 
                 mobileRecentHitsDiv.appendChild(div);
@@ -1348,7 +1374,7 @@
                     }
 
                     // Bottom collision - PERFECTLY aligned with multiplier slots
-                    if (newY > CANVAS_HEIGHT - 65) {
+                    if (newY > CANVAS_HEIGHT - 75) { // Adjusted for larger board
                         const slotWidth = CANVAS_WIDTH / MULTIPLIERS.length;
                         const slotIndex = Math.floor(newX / slotWidth);
                         const validSlot = Math.max(0, Math.min(MULTIPLIERS.length - 1, slotIndex));
