@@ -32,7 +32,6 @@
         
         body {
             font-family: 'Exo 2', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            overflow: hidden;
             background: #000;
         }
         
@@ -130,9 +129,15 @@
             animation: float 4s ease-in-out infinite;
         }
         
-        /* Start overlay */
+        /* Start overlay with space-like gradient */
         #start-overlay {
-            background: rgba(30, 58, 138, 0.95);
+            background: linear-gradient(135deg, 
+                #1e1b4b 0%,     /* Dark blue */
+                #312e81 25%,    /* Medium blue */
+                #4c1d95 50%,    /* Purple */
+                #6b7280 75%,    /* Grey */
+                #374151 100%    /* Dark grey */
+            );
             backdrop-filter: blur(15px);
             z-index: 9999;
         }
@@ -155,23 +160,23 @@
             border-color: rgba(147, 51, 234, 1);
         }
         
-        /* Multiplier styling - Enhanced for desktop visibility */
+        /* Multiplier styling - SMALLER font size for desktop */
         .multiplier-slot {
             background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(147, 51, 234, 0.8));
             border: 2px solid rgba(99, 102, 241, 0.6);
             font-family: 'Orbitron', monospace;
             font-weight: 700;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            height: 40px; /* Increased height for better visibility */
-            font-size: clamp(0.6rem, 1.8vw, 0.9rem); /* Larger dynamic font size for desktop */
-            padding: 0.375rem 0.25rem; /* More padding */
+            height: 40px;
+            font-size: clamp(0.5rem, 1.2vw, 0.7rem); /* REDUCED max size from 0.9rem to 0.7rem */
+            padding: 0.375rem 0.25rem;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 0; /* Allow flex shrinking */
+            min-width: 0;
         }
         
         /* Bet button styling */
@@ -317,7 +322,7 @@
             display: grid;
             grid-template-columns: 220px 1fr 220px;
             grid-template-rows: 1fr;
-            height: 100vh;
+            min-height: 100vh; /* Changed from height: 100vh to min-height: 100vh */
             width: 100vw;
             align-items: center;
             justify-items: center;
@@ -350,8 +355,8 @@
                 grid-template-rows: auto 1fr auto;
                 gap: 0.5rem;
                 padding: 0.5rem;
-                height: 100vh;
-                overflow: hidden;
+                min-height: 100vh; /* Changed from height: 100vh to min-height: 100vh */
+                overflow: visible; /* Remove overflow: hidden */
             }
 
             .left-sidebar, .right-sidebar {
@@ -509,10 +514,10 @@
             }
         }
 
-        /* Ensure no scrolling */
+        /* Enable scrolling */
         html, body {
             height: 100%;
-            overflow: hidden;
+            overflow: auto; /* Changed from hidden to auto */
         }
     </style>
 </head>
@@ -528,16 +533,10 @@
             <button id="start-game" class="start-button text-white font-bold px-12 py-6 rounded-xl text-2xl">
                 🚀 START COSMIC EXPERIENCE
             </button>
-            <div class="mt-6 text-base text-blue-300" style="font-family: 'Orbitron', monospace;">
-                <p>✨ Immersive cosmic background video</p>
-                <p>🔊 Professional audio effects</p>
-                <p>🎮 Realistic physics simulation</p>
-                <p>🎵 Epic space soundtrack</p>
-            </div>
         </div>
     </div>
 
-    <div id="app" class="h-screen w-screen relative overflow-hidden">
+    <div id="app" class="h-screen w-screen relative">
         <!-- Cosmic Video Background -->
         <video 
             id="cosmic-video"
