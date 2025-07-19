@@ -370,29 +370,27 @@
             justify-content: center;
         }
         
-        /* Desktop sidebar alignment - FIXED: Properly align with game board */
+        /* FIXED: Desktop sidebar alignment - Align LAST WIN with top of game board */
         .sidebar-content {
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
             height: 540px; /* Match game board height (500px + 40px multipliers) */
-            justify-content: space-between;
+            justify-content: flex-start; /* Changed from space-between to flex-start */
+            padding-top: 80px; /* Add padding to align with game board top (accounts for header) */
         }
         
-        /* Win card positioning - align with top of game board */
+        /* Win card positioning - FIXED: Align with top of game board */
         .win-section {
-            align-self: flex-start;
-            margin-bottom: 1rem;
+            align-self: center;
+            margin-bottom: 2rem; /* Space between win card and recent hits */
         }
         
-        /* Recent hits positioning - align with bottom of game board */
+        /* Recent hits positioning - FIXED: Position below win card */
         .recent-hits-section {
-            align-self: flex-end;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
+            align-self: center;
+            flex-grow: 0; /* Don't grow to fill space */
         }
         
         /* Mobile responsive design - FIXED: Perfect mobile centering */
@@ -649,7 +647,7 @@
                 <!-- Left Sidebar (Hidden on Mobile) -->
                 <div class="left-sidebar">
                     <div class="sidebar-content">
-                        <!-- Win Display - Aligned with top of game board -->
+                        <!-- Win Display - FIXED: Aligned with top of game board -->
                         <div class="win-section">
                             <div id="win-card" class="win-card rounded-xl w-48 hidden animate-glow">
                                 <div class="p-4 text-center">
@@ -659,7 +657,7 @@
                             </div>
                         </div>
                         
-                        <!-- Recent Hits - Aligned with bottom of game board -->
+                        <!-- Recent Hits - FIXED: Positioned below win card -->
                         <div class="recent-hits-section">
                             <div class="game-card rounded-xl w-48">
                                 <div class="p-4">
@@ -770,6 +768,8 @@
                     </div>
                     
                     <!-- Insufficient Balance Warning -->
+                    
+</cut_off_point>
                     <div id="insufficient-balance" class="text-purple-300 text-sm font-bold animate-pulse hidden" style="font-family: 'Orbitron', monospace;">
                         INSUFFICIENT BALANCE
                     </div>
