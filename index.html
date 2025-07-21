@@ -365,9 +365,10 @@ kbd {
     width: 200px;
 }
 
-/* UPDATED: Fixed size recent hits container - Properly contain 6 items */
+/* UPDATED: Fixed size recent hits container - Removed fixed height to allow scrolling for more items */
 .recent-hits-container {
-    height: 280px; /* UPDATED: Fixed height to contain exactly 6 items */
+    /* height: 280px; */ /* REMOVED: Fixed height to allow content to dictate height */
+    max-height: 300px; /* ADDED: Max height to ensure it doesn't grow too large */
     overflow-y: auto; /* UPDATED: Allow scrolling if needed */
     overflow-x: hidden;
     scrollbar-width: thin;
@@ -769,7 +770,7 @@ html, body {
                 <div class="win-section">
                     <div id="win-card" class="win-card rounded-xl w-48 hidden animate-glow">
                         <div class="p-4 text-center">
-                            <div id="last-win" class="text-2xl font-bold win-value">+$0.00</div>
+                            <div id="last-win" class="text-2xl font-bold win-value">$0.00</div>
                             <div class="stat-label text-xs mt-1">LAST WIN</div>
                         </div>
                     </div>
@@ -884,7 +885,7 @@ html, body {
                 <div class="mb-2">
                     <div id="mobile-win-card" class="win-card rounded-xl hidden animate-glow">
                         <div class="p-3 text-center">
-                            <div id="mobile-last-win" class="text-lg font-bold win-value">+$0.00</div>
+                            <div id="mobile-last-win" class="text-lg font-bold win-value">$0.00</div>
                             <div class="stat-label text-xs mt-1">LAST WIN</div>
                         </div>
                     </div>
@@ -1604,14 +1605,15 @@ function updateDesktopRecentHits() {
     }
 
     recentHitsDiv.innerHTML = '';
-    gameState.recentHits.slice(0, 6).forEach((hit, index) => {
+    // Display up to 20 recent hits
+    gameState.recentHits.slice(0, 20).forEach((hit, index) => {
         const div = document.createElement('div');
         div.className = `recent-hit p-2 rounded-lg text-sm transition-all duration-300 ${
             index === 0 ? 'animate-pulse border-2 border-purple-400/60' : ''
         }`;
 
-        div.style.opacity = 1 - index * 0.15;
-        div.style.transform = `scale(${1 - index * 0.05})`;
+        div.style.opacity = 1 - index * 0.05; // Slightly less aggressive fade for more items
+        div.style.transform = `scale(${1 - index * 0.02})`; // Slightly less aggressive scale
 
         div.innerHTML = `
             <div class="flex justify-between items-center">
@@ -1624,7 +1626,7 @@ function updateDesktopRecentHits() {
     });
 }
 
-// Update mobile recent hits display - HORIZONTAL with 6 items and fading effect
+// Update mobile recent hits display - HORIZONTAL with 20 items and fading effect
 function updateMobileRecentHits() {
     const mobileRecentHitsDiv = document.getElementById('mobile-recent-hits');
 
@@ -1636,16 +1638,16 @@ function updateMobileRecentHits() {
     mobileRecentHitsDiv.innerHTML = '';
     mobileRecentHitsDiv.className = 'mobile-recent-hits-horizontal'; // Horizontal layout
 
-    // Show 6 items like desktop, with same fading effect
-    gameState.recentHits.slice(0, 6).forEach((hit, index) => {
+    // Show up to 20 items like desktop, with same fading effect
+    gameState.recentHits.slice(0, 20).forEach((hit, index) => {
         const div = document.createElement('div');
         div.className = `mobile-recent-hit-item recent-hit transition-all duration-300 ${
             index === 0 ? 'animate-pulse border-2 border-purple-400/60' : ''
         }`;
 
-        // Apply same fade effect as desktop - 6th item will be half faded
-        div.style.opacity = 1 - index * 0.15;
-        div.style.transform = `scale(${1 - index * 0.05})`;
+        // Apply same fade effect as desktop
+        div.style.opacity = 1 - index * 0.05;
+        div.style.transform = `scale(${1 - index * 0.02})`;
 
         div.innerHTML = `
             <div class="font-bold text-blue-200 text-xs">${hit.multiplier}x</div>
@@ -1933,7 +1935,8 @@ function startAnimationLoop() {
                     winAmount,
                     timestamp: Date.now()
                 });
-                gameState.recentHits = gameState.recentHits.slice(0, 6);
+                // Keep only the most recent 20 hits
+                gameState.recentHits = gameState.recentHits.slice(0, 20);
 
                 console.log(`🎯 Ball landed in slot ${finalSlotIndex} (${finalMultiplier}x base, ${ball.currentMultiplier.toFixed(2)}x line total, ${(ball.currentMultiplier * finalMultiplier).toFixed(2)}x final total) at x:${ball.x.toFixed(1)}`);
                 playWinSound(finalMultiplier);
@@ -1985,15 +1988,16 @@ function startAnimationLoop() {
             ctx.lineWidth = 2; // Border thickness
             ctx.stroke();
 
-            ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+            // Get ball visuals (color and shadow color) based on hits
+            const { color: ballBodyColor, shadowColor: ballShadowColor } = getBallVisuals(ball.multiplierLineHits);
+
+            ctx.shadowColor = ballShadowColor; // Dynamic glow color
             ctx.shadowBlur = currentGlow; // Dynamic glow
 
-            let ballColor = getOrangeGoldColor(ball.multiplierLineHits); // Dynamically set color based on hits
-
             const gradient = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, 10);
-            gradient.addColorStop(0, ballColor);
-            gradient.addColorStop(0.7, ballColor.replace('1)', '0.4)')); // Adjust opacity for gradient
-            gradient.addColorStop(1, ballColor.replace('1)', '0)')); // Adjust opacity for gradient
+            gradient.addColorStop(0, ballBodyColor);
+            gradient.addColorStop(0.7, ballBodyColor.replace('1)', '0.4)')); // Adjust opacity for gradient
+            gradient.addColorStop(1, ballBodyColor.replace('1)', '0)')); // Adjust opacity for gradient
             ctx.fillStyle = gradient;
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, 10, 0, Math.PI * 2);
@@ -2043,21 +2047,53 @@ function startAnimationLoop() {
     requestAnimationFrame(animate);
 }
 
-// Function to get orange-gold color based on hits
-function getOrangeGoldColor(hits) {
-    const clampedHits = Math.min(hits, 4); // Max 4 stages of color change
-    // Starting RGBA (Gold): 255, 215, 0
-    // Ending RGBA (More orange-gold): 255, 140, 0
+// Function to get progressively brighter blue color based on hits
+function getBrightBlueColor(hits, opacity = 1) {
+    const clampedHits = Math.min(hits, 4); // Max 4 stages of brightness
     
-    const r1 = 255; const g1 = 215; const b1 = 0;
-    const r2 = 255; const g2 = 140; const b2 = 0;
+    // Base blue (original peg color): RGB(99, 102, 241)
+    const r1 = 99;  const g1 = 102; const b1 = 241;
+    // Target brightest blue (e.g., a light, almost cyan blue): RGB(150, 220, 255)
+    const r2 = 150; const g2 = 220; const b2 = 255;
 
     // Linear interpolation for each color component
     const r = r1 + (r2 - r1) * (clampedHits / 4);
     const g = g1 + (g2 - g1) * (clampedHits / 4);
     const b = b1 + (b2 - b1) * (clampedHits / 4);
 
-    return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, 1)`;
+    return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${opacity})`;
+}
+
+// NEW: Function to get ball color and shadow based on multiplier hits
+function getBallVisuals(hits) {
+    const clampedHits = Math.min(hits, 4); // Max 4 stages of color change
+
+    let color;
+    let shadowColor;
+
+    if (clampedHits === 0) {
+        // Default state, before hitting any multiplier lines
+        color = `rgba(255, 230, 150, 1)`; // Light yellow/gold for the ball body
+        shadowColor = 'rgba(255, 215, 0, 0.8)'; // Gold glow
+    } else if (clampedHits === 1) {
+        // 1 hit: Gold (same as multiplier line color)
+        color = `rgba(255, 215, 0, 1)`; // Gold
+        shadowColor = 'rgba(255, 215, 0, 0.8)'; // Gold glow
+    } else if (clampedHits === 2) {
+        // 2 hits: More reddish
+        color = `rgba(255, 100, 0, 1)`; // Orange-red
+        shadowColor = 'rgba(255, 150, 0, 0.8)'; // Orange glow
+    } else if (clampedHits === 3) {
+        // 3 hits: Even more reddish
+        color = `rgba(255, 50, 0, 1)`; // Stronger red-orange
+        shadowColor = 'rgba(255, 100, 0, 0.8)'; // Red-orange glow
+    } else { // clampedHits === 4
+        // 4 hits: Super glowing red
+        color = `rgba(255, 0, 0, 1)`; // Pure red
+        shadowColor = 'rgba(255, 0, 0, 1)'; // Intense red glow
+    }
+
+    return { color, shadowColor };
 }
 
 // Play multiplier hit sound
