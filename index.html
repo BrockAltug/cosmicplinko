@@ -1468,9 +1468,9 @@ async function dropBall() {
                 vy: Math.random() * 0.5,
                 active: true,
                 trail: [],
-                // Add chaos factor for each ball - UPDATED for more natural chaos
                 chaosMultiplier: 0.8 + Math.random() * 0.4, // Wider range for more natural physics (0.8 to 1.2)
-                currentMultiplier: 1, // FIXED: Initialize current multiplier to 1 (base)
+                currentMultiplier: 1, // FIXED: Initialize current multiplier to 1
+                hasHitFirstMultiplierLine: false, // Flag to track first multiplier line hit
                 hitLines: new Set(), // NEW: Track lines hit by this specific ball
                 multiplierLineHits: 0, // NEW: Track number of multiplier lines hit
                 isMultiplierBoosted: false // NEW: Flag for ball having hit a multiplier line
@@ -1861,12 +1861,18 @@ function startAnimationLoop() {
 
                     if (distSq < collisionThresholdSq) {
                         // Ball hit the multiplier line!
-                        ball.currentMultiplier *= line.multiplier; // FIXED: Multiply, not add
+                        if (!ball.hasHitFirstMultiplierLine) {
+                            ball.currentMultiplier *= line.multiplier; // First hit: multiply
+                            ball.hasHitFirstMultiplierLine = true;
+                        } else {
+                            ball.currentMultiplier += line.multiplier; // Subsequent hits: add
+                        }
+                        
                         ball.hitLines.add(line.id); // Mark line as hit for this ball
                         ball.multiplierLineHits = (ball.multiplierLineHits || 0) + 1; // Increment hit counter
                         ball.isMultiplierBoosted = true; // Mark ball as boosted
 
-                        console.log(`⚡ Ball ${ball.id} hit multiplier line on row ${line.row}! Multiplied by ${line.multiplier}x. Current total multiplier: ${ball.currentMultiplier.toFixed(2)}x, Hits: ${ball.multiplierLineHits}`);
+                        console.log(`⚡ Ball ${ball.id} hit multiplier line on row ${line.row}! Multiplier: ${line.multiplier}x. Current total multiplier: ${ball.currentMultiplier.toFixed(2)}x, Hits: ${ball.multiplierLineHits}`);
                         createParticles(ball.x, ball.y, 'rgba(255, 255, 0, 1)', 20); // UPDATED: More yellow particles (20 particles)
                         playMultiplierSound(); // NEW: Play sound on multiplier hit
                     }
@@ -1915,14 +1921,14 @@ function startAnimationLoop() {
                 finalSlotIndex = Math.max(0, Math.min(MULTIPLIERS.length - 1, finalSlotIndex));
 
                 const finalMultiplier = MULTIPLIERS[finalSlotIndex];
-                // FIXED: Win calculation now directly uses ball.currentMultiplier
+                // Win calculation now uses ball.currentMultiplier (sum of line multipliers)
                 const winAmount = gameState.betAmount * ball.currentMultiplier * finalMultiplier;
                 gameState.balance += winAmount;
                 gameState.lastWin = winAmount;
 
                 // Add to recent hits
                 gameState.recentHits.unshift({
-                    // FIXED: Display total multiplier (line multiplier * final slot multiplier)
+                    // Display total multiplier (line multiplier * final slot multiplier)
                     multiplier: (ball.currentMultiplier * finalMultiplier).toFixed(2),
                     winAmount,
                     timestamp: Date.now()
@@ -2000,8 +2006,8 @@ function startAnimationLoop() {
             ctx.restore();
 
             // Draw ball's current multiplier value
-            // FIXED: Display ball.currentMultiplier directly
-            if (ball.currentMultiplier > 1) { // Only display if multiplier is greater than base 1x
+            // Display ball.currentMultiplier directly if it's greater than 1 (initial value)
+            if (ball.currentMultiplier > 1) { 
                 ctx.save();
                 ctx.font = 'bold 10px Orbitron'; // UPDATED: Smaller font for better fit
                 ctx.fillStyle = '#000000'; // Black text for contrast
