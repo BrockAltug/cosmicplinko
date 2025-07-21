@@ -262,7 +262,7 @@ body {
     transition: all 0.3s ease;
     touch-action: manipulation;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a78bfa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a78bfa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3csvg%3e");
     background-repeat: no-repeat;
     background-size: 1.5em 1.5em;
     background-position: right 0.75rem center; /* Adjusted for new padding */
@@ -476,10 +476,10 @@ kbd {
     /* REMOVED: position, top, height, justify-content */
 }
 
-/* UPDATED: Win card positioning - Moved down by 25px */
+/* UPDATED: Win card positioning - Moved up by 10px more */
 .win-section {
     align-self: center;
-    margin-top: 95px; /* UPDATED: Moved down by 25px (85 + 25) */
+    margin-top: 95px; /* UPDATED: Moved up by 10px (105 - 10) */
     margin-bottom: 2rem; /* Space between win card and recent hits */
 }
 
@@ -636,7 +636,7 @@ kbd {
     }
 }
 
-/* Small screen adjustments */
+/* Small screen adjustments for intro overlay */
 @media (max-width: 640px) {
     .game-layout {
         padding: 0.5rem;
@@ -691,6 +691,50 @@ kbd {
     .ball-count-dropdown {
         /* Inherits from game-control-button-base */
     }
+
+    /* Intro overlay specific adjustments for small screens */
+    #start-overlay .text-center {
+        padding-top: 1rem; /* Reduced top padding */
+        padding-bottom: 1rem; /* Reduced bottom padding */
+    }
+
+    #start-overlay h1 {
+        font-size: clamp(2.5rem, 8vw, 3rem); /* Smaller title */
+        margin-bottom: 1rem; /* Reduced margin */
+    }
+
+    #start-overlay p.text-white {
+        font-size: clamp(1rem, 3vw, 1.25rem); /* Smaller subtitle */
+        margin-bottom: 1.5rem; /* Reduced margin */
+    }
+
+    #start-overlay .text-blue-200 {
+        margin-bottom: 1.5rem; /* Reduced margin */
+    }
+
+    #start-overlay h2 {
+        font-size: clamp(1rem, 3.5vw, 1.25rem); /* Smaller "HOW TO PLAY" */
+        margin-bottom: 0.75rem; /* Reduced margin */
+    }
+
+    #start-overlay ol {
+        font-size: clamp(0.875rem, 2.5vw, 1rem); /* Smaller instructions text */
+        line-height: 1.4; /* Tighter line height */
+        margin-bottom: 1rem; /* Reduced margin */
+    }
+
+    #start-overlay ol li {
+        margin-bottom: 0.25rem; /* Reduced space between list items */
+    }
+
+    #start-overlay p.text-center.mt-6 {
+        margin-top: 1rem; /* Reduced margin */
+    }
+
+    #start-overlay button#start-game {
+        font-size: clamp(1.25rem, 4vw, 1.5rem); /* Smaller button text */
+        padding: 1rem 2rem; /* Smaller button padding */
+    }
 }
 
 /* Enable proper scrolling without horizontal overflow */
@@ -720,21 +764,21 @@ html, body {
 <body>
 <!-- Start Overlay for Chrome Autoplay Policy -->
 <div id="start-overlay" class="fixed inset-0 flex items-center justify-center">
-<div class="text-center">
-    <h1 class="text-5xl font-bold gradient-text mb-6">COSMIC PLINKO</h1>
-    <p class="text-white mb-8 text-xl font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</p>
-    <div class="text-blue-200 mb-10 max-w-md mx-auto text-lg text-left">
-        <h2 class="text-yellow-300 font-bold text-center mb-4">HOW TO PLAY:</h2>
-        <ol class="list-decimal list-inside space-y-2">
+<div class="text-center py-4 px-2">
+    <h1 class="text-5xl font-bold gradient-text mb-4">COSMIC PLINKO</h1>
+    <p class="text-white mb-6 text-xl font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</p>
+    <div class="text-blue-200 mb-8 max-w-md mx-auto text-lg text-left">
+        <h2 class="text-yellow-300 font-bold text-center mb-3">HOW TO PLAY:</h2>
+        <ol class="list-decimal list-inside space-y-1">
             <li>Drop balls into the cosmic board from the top.</li>
             <li>Watch them bounce off pegs and fall into prize slots at the bottom.</li>
             <li>Random multiplier lines (2x-5x) can appear across the board. If your ball passes through one, its current multiplier increases!</li>
             <li>These line multipliers stack! Hit all four lines, each with a 5x multiplier, and your ball will carry a massive <span class="text-yellow-300 font-bold">20x multiplier</span> to the final prize slot.</li>
             <li>The final prize slot multiplier (e.g., 1000x) is then multiplied by your ball's accumulated line multiplier. This means you can achieve an incredible <span class="text-yellow-300 font-bold">20,000x MAX WIN!</span></li>
         </ol>
-        <p class="text-center mt-6">Will the stars align in your favor?</p>
+        <p class="text-center mt-4">Will the stars align in your favor?</p>
     </div>
-    <button id="start-game" class="start-button text-white font-bold px-12 py-6 rounded-xl text-2xl">
+    <button id="start-game" class="start-button text-white font-bold px-8 py-4 rounded-xl text-xl">
         🚀 START COSMIC EXPERIENCE
     </button>
 </div>
@@ -1236,18 +1280,18 @@ function initializeUI() {
 
     // UPDATED: Color mapping for each multiplier value - Better gradient progression
     const getMultiplierColor = (multiplier) => {
-        switch(multiplier) {
-            case 1000: return 'rgba(88, 28, 135, 0.9)'; // Dark purple (highest)
-            case 100: return 'rgba(124, 58, 237, 0.9)'; // Medium purple
-            case 50: return 'rgba(139, 92, 246, 0.9)'; // Light purple
-            case 10: return 'rgba(168, 85, 247, 0.9)'; // Lighter purple
-            case 5: return 'rgba(196, 181, 253, 0.9)'; // Very light purple
-            case 2: return 'rgba(221, 214, 254, 0.9)'; // Pale purple
-            case 1: return 'rgba(180, 180, 200, 0.9)'; // Muted light purple/grey for 1x
-            case 0.5: return 'rgba(107, 114, 128, 0.9)'; // Grey (lowest)
-            default: return 'rgba(59, 130, 246, 0.9)'; // Fallback light blue
-        }
-    };
+    switch(multiplier) {
+        case 1000: return 'rgba(88, 28, 135, 0.9)'; // Dark purple (highest)
+        case 100: return 'rgba(124, 58, 237, 0.9)'; // Medium purple
+        case 50: return 'rgba(139, 92, 246, 0.9)'; // Light purple
+        case 10: return 'rgba(168, 85, 247, 0.9)'; // Lighter purple
+        case 5: return 'rgba(196, 181, 253, 0.9)'; // Very light purple
+        case 2: return 'rgba(180, 170, 240, 0.9)'; // UPDATED: More muted purple for 2x
+        case 1: return 'rgba(180, 180, 200, 0.9)'; // Muted light purple/grey for 1x
+        case 0.5: return 'rgba(107, 114, 128, 0.9)'; // Grey (lowest)
+        default: return 'rgba(59, 130, 246, 0.9)'; // Fallback light blue
+    }
+};
 
     MULTIPLIERS.forEach((multiplier, index) => {
         const div = document.createElement('div');
