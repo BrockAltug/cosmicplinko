@@ -266,6 +266,9 @@ body {
     background-repeat: no-repeat;
     background-size: 1.5em 1.5em;
     background-position: right 0.75rem center; /* Adjusted for new padding */
+    text-align: center; /* ADDED: Center text within the dropdown */
+    text-align-last: center; /* ADDED: For cross-browser compatibility with centered dropdown text */
+    text-transform: uppercase; /* ADDED: Make text uppercase */
 }
 
 .ball-count-dropdown:hover {
@@ -293,6 +296,19 @@ body {
     height: 50px; /* Desktop fixed height */
     padding: 0.75rem 1.5rem; /* Standardized padding */
     font-size: 0.875rem; /* Standardized font size */
+}
+
+/* Game Controls Container */
+#game-controls-container {
+    /* Default desktop styles */
+    display: flex;
+    gap: 1rem; /* Original gap-4 (16px) */
+    margin-bottom: 1rem; /* Original mb-4 (16px) */
+    align-items: center;
+    justify-content: center; /* Ensure it's centered on desktop too */
+    width: 100%;
+    max-width: 100%;
+    flex-wrap: nowrap; /* Keep on one line by default */
 }
 
 /* Text styling */
@@ -595,11 +611,14 @@ kbd {
     }
 
     /* NEW: Mobile adjustments for game control buttons */
+    #game-controls-container {
+        gap: 0.5rem; /* Smaller gap for mobile */
+    }
     .game-control-button-base {
-        min-width: 120px; /* Mobile fixed width */
-        height: 40px; /* Mobile fixed height */
-        padding: 0.5rem 1rem; /* Smaller padding for mobile */
-        font-size: 0.75rem; /* Smaller font for mobile */
+        min-width: 104px; /* Adjusted for tablets/larger phones */
+        height: 38px; /* Slightly smaller height */
+        padding: 0.4rem 0.8rem; /* Adjusted padding */
+        font-size: 0.75rem; /* Keep font size consistent with previous mobile */
     }
     
     /* Mobile stats layout - FIXED: Better spacing */
@@ -690,6 +709,15 @@ kbd {
     /* UPDATED: Small screen ball count dropdown */
     .ball-count-dropdown {
         /* Inherits from game-control-button-base */
+    }
+
+    #game-controls-container {
+        gap: 0.25rem; /* Even smaller gap for very small screens */
+    }
+    .game-control-button-base {
+        min-width: 100px; /* Adjusted for very small phones (3 * 100 + 2 * 4 = 308px, fits 320px screen) */
+        height: 36px; /* Slightly smaller height */
+        font-size: 0.7rem; /* Slightly smaller font */
     }
 
     /* Intro overlay specific adjustments for small screens */
@@ -869,7 +897,7 @@ html, body {
             </div>
             
             <!-- Game Controls -->
-            <div class="flex gap-4 mb-4 items-center">
+            <div id="game-controls-container" class="flex gap-4 mb-4 items-center">
                 <!-- Ball Count Dropdown -->
                 <select 
                     id="ball-count-select"
