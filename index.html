@@ -15,6 +15,7 @@
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/space%20-rvNZSIyJXLKZtJ6lczTy1NjfJHRzuH.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/buttonchange-zhwkWSbkfOGp9jJXv7jjNtm1wlKYBK.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Alien-uzfEiE9Kl7eFnvILT9jpv6ATb1JQjX.png" as="image" type="image/png">
+<link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/multi-Vx6Sza2V4G6OjyVV8iifmGIT0l93DL.mp3" as="audio" type="audio/mpeg">
 
 <!-- Google Fonts for Anime/Retro Style -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -191,7 +192,6 @@ body {
     align-items: center;
     justify-content: center;
     min-width: 0;
-    /* REMOVED: letter-spacing: -0.5px; */
     position: relative;
     z-index: 10;
     backdrop-filter: blur(8px);
@@ -265,9 +265,7 @@ body {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a78bfa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-size: 1.5em 1.5em;
-    /* Default desktop padding */
-    padding: 0.75rem 2.25rem 0.75rem 1.5rem; 
-    background-position: right 0.5rem center;
+    background-position: right 0.75rem center; /* Adjusted for new padding */
 }
 
 .ball-count-dropdown:hover {
@@ -281,6 +279,20 @@ body {
     outline: none;
     border-color: #8b5cf6;
     box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+/* NEW: Base styling for all game control buttons to ensure consistent size */
+.game-control-button-base {
+    flex-shrink: 0;
+    flex-grow: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-width: 180px; /* Desktop fixed width */
+    height: 50px; /* Desktop fixed height */
+    padding: 0.75rem 1.5rem; /* Standardized padding */
+    font-size: 0.875rem; /* Standardized font size */
 }
 
 /* Text styling */
@@ -390,16 +402,17 @@ kbd {
 /* Alien floating animation */
 .alien-container {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 100;
+    top: -50px; /* Positioned above the header */
+    right: 50%; /* Center horizontally */
+    transform: translateX(50%); /* Adjust for half its width to truly center */
+    z-index: 20; /* Ensure it's above other elements */
     pointer-events: none;
 }
 
 .alien-image {
-    width: 80px;
-    height: 80px;
-    filter: drop-shadow(0 0 15px rgba(147, 51, 234, 0.6));
+    width: 40px; /* Smaller for desktop */
+    height: 40px; /* Smaller for desktop */
+    filter: drop-shadow(0 0 15px rgba(147, 51, 234, 0.6)) blur(25px); /* Increased blur */
 }
 
 /* FIXED: Perfect centering layout system */
@@ -465,7 +478,7 @@ kbd {
 /* UPDATED: Win card positioning - Moved down by 25px */
 .win-section {
     align-self: center;
-    margin-top: 85px; /* UPDATED: Moved down by 25px (60 + 25) */
+    margin-top: 110px; /* UPDATED: Moved down by 25px (85 + 25) */
     margin-bottom: 2rem; /* Space between win card and recent hits */
 }
 
@@ -527,11 +540,16 @@ kbd {
         max-width: 100%;
     }
     
-    /* FIXED: Canvas sizing for mobile */
-    #game-canvas {
-        width: min(600px, 100%);
-        max-width: 100%;
-        height: auto;
+    /* Mobile alien positioning */
+    .alien-container {
+        top: -30px; /* Adjusted for mobile to be above title */
+        right: 50%;
+        transform: translateX(50%);
+    }
+    
+    .alien-image {
+        width: 40px; /* Made smaller for tablet/mobile */
+        height: 40px; /* Made smaller for tablet/mobile */
     }
     
     /* FIXED: Bet controls mobile sizing */
@@ -543,12 +561,14 @@ kbd {
         gap: 0.5rem;
     }
     
-    /* Mobile multipliers */
+    /* Mobile multipliers - UPDATED: Smaller font for better fit on tablets */
     .multiplier-slot {
-        font-size: clamp(0.3rem, 0.8vw, 0.45rem);
+        font-size: clamp(0.25rem, 0.5vw, 0.4rem); /* Adjusted clamp values */
         height: 32px;
-        padding: 0.25rem 0.125rem;
-        letter-spacing: -0.75px;
+        padding: 0.1rem 0.05rem; /* Reduced padding */
+        letter-spacing: 0px; /* Adjusted letter spacing to prevent overhang */
+        flex-basis: 0; /* Allow shrinking */
+        flex-grow: 1; /* Allow growing */
     }
     
     /* Mobile header sizing */
@@ -558,8 +578,7 @@ kbd {
     
     /* Mobile button sizing */
     .btn-primary {
-        padding: 0.75rem 1.5rem;
-        font-size: 0.875rem;
+        /* Inherits from game-control-button-base */
     }
     
     .bet-button {
@@ -570,9 +589,16 @@ kbd {
     
     /* UPDATED: Mobile ball count dropdown - Match reset button sizing */
     .ball-count-dropdown {
-        padding: 0.75rem 1.5rem; /* Match reset button padding */
-        font-size: 0.875rem; /* Match reset button font size */
-        background-position: right 0.75rem center; /* Adjust arrow position */
+        /* Inherits from game-control-button-base */
+        background-position: right 0.5rem center; /* Adjust arrow position */
+    }
+
+    /* NEW: Mobile adjustments for game control buttons */
+    .game-control-button-base {
+        min-width: 120px; /* Mobile fixed width */
+        height: 40px; /* Mobile fixed height */
+        padding: 0.5rem 1rem; /* Smaller padding for mobile */
+        font-size: 0.75rem; /* Smaller font for mobile */
     }
     
     /* Mobile stats layout - FIXED: Better spacing */
@@ -582,17 +608,6 @@ kbd {
         width: 100%;
         justify-content: center;
         flex-wrap: wrap;
-    }
-    
-    /* Mobile alien positioning */
-    .alien-container {
-        top: 5px;
-        right: 5px;
-    }
-    
-    .alien-image {
-        width: 50px;
-        height: 50px;
     }
     
     /* Mobile recent hits - HORIZONTAL layout */
@@ -631,8 +646,7 @@ kbd {
     }
     
     .btn-primary {
-        padding: 0.5rem 1rem;
-        font-size: 0.75rem;
+        /* Inherits from game-control-button-base */
     }
     
     /* Very small screen sizing */
@@ -660,10 +674,10 @@ kbd {
     
     /* Smaller multiplier text for very small screens */
     .multiplier-slot {
-        font-size: clamp(0.25rem, 0.7vw, 0.4rem);
+        font-size: clamp(0.2rem, 0.6vw, 0.35rem); /* Slightly smaller font */
         height: 28px;
-        padding: 0.125rem 0.0625rem;
-        letter-spacing: -1px;
+        padding: 0.05rem 0.025rem; /* Even smaller padding */
+        letter-spacing: 0px;
     }
     
     /* Canvas fits perfectly on small screens */
@@ -674,9 +688,7 @@ kbd {
 
     /* UPDATED: Small screen ball count dropdown */
     .ball-count-dropdown {
-        padding: 0.5rem 1rem; /* Match reset button padding */
-        font-size: 0.75rem; /* Match reset button font size */
-        background-position: right 0.5rem center; /* Adjust arrow position */
+        /* Inherits from game-control-button-base */
     }
 }
 
@@ -709,9 +721,17 @@ html, body {
 <div class="text-center">
     <h1 class="text-5xl font-bold gradient-text mb-6">COSMIC PLINKO</h1>
     <p class="text-white mb-8 text-xl font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</p>
-    <p class="text-blue-200 mb-10 max-w-md mx-auto text-lg">
-        Click START to enable audio, video, and begin your cosmic gaming experience!
-    </p>
+    <div class="text-blue-200 mb-10 max-w-md mx-auto text-lg text-left">
+        <h2 class="text-yellow-300 font-bold text-center mb-4">HOW TO PLAY:</h2>
+        <ol class="list-decimal list-inside space-y-2">
+            <li>Drop balls into the cosmic board from the top.</li>
+            <li>Watch them bounce off pegs and fall into prize slots at the bottom.</li>
+            <li>Random multiplier lines (2x-5x) can appear across the board. If your ball passes through one, its current multiplier increases!</li>
+            <li>These line multipliers stack! Hit all four lines, each with a 5x multiplier, and your ball will carry a massive <span class="text-yellow-300 font-bold">20x multiplier</span> to the final prize slot.</li>
+            <li>The final prize slot multiplier (e.g., 1000x) is then multiplied by your ball's accumulated line multiplier. This means you can achieve an incredible <span class="text-yellow-300 font-bold">20,000x MAX WIN!</span></li>
+        </ol>
+        <p class="text-center mt-6">Will the stars align in your favor?</p>
+    </div>
     <button id="start-game" class="start-button text-white font-bold px-12 py-6 rounded-xl text-2xl">
         🚀 START COSMIC EXPERIENCE
     </button>
@@ -774,11 +794,10 @@ html, body {
         <div class="center-content">
             <!-- Floating Alien -->
             <div class="alien-container animate-float">
-                <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Alien-uzfEiE9Kl7eFnvILT9jpv6ATb1JQjX.png" alt="Cosmic Alien" class="alien-image" crossorigin="anonymous" />
+                <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Alien-uzfEiE9Kl7eFnvILT9jpv6ATb1JQjX.png" alt="Cosmic Alien" crossorigin="anonymous" class="alien-image" />
             </div>
-
             <!-- Header -->
-            <div class="text-center mb-4">
+            <div class="text-center mb-4 relative w-full">
                 <h1 class="text-4xl font-bold gradient-text mb-2">COSMIC PLINKO</h1>
                 <div class="text-blue-300 text-lg font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</div>
             </div>
@@ -808,24 +827,29 @@ html, body {
                 <!-- Ball Count Dropdown -->
                 <select 
                     id="ball-count-select"
-                    class="ball-count-dropdown rounded-xl transition-all"
+                    class="ball-count-dropdown game-control-button-base rounded-xl transition-all"
                 >
                     <option value="1">1 Ball</option>
                     <option value="2">2 Balls</option>
                     <option value="3">3 Balls</option>
                     <option value="4">4 Balls</option>
                     <option value="5">5 Balls</option>
+                    <option value="6">6 Balls</option>
+                    <option value="7">7 Balls</option>
+                    <option value="8">8 Balls</option>
+                    <option value="9">9 Balls</option>
+                    <option value="10">10 Balls</option>
                 </select>
                 
                 <button 
                     id="drop-ball-btn"
-                    class="btn-primary text-white font-bold px-8 py-3 rounded-xl shadow-xl"
+                    class="btn-primary game-control-button-base text-white font-bold rounded-xl shadow-xl"
                 >
                     DROP BALL
                 </button>
                 <button 
                     id="reset-btn"
-                    class="reset-button px-6 py-3 rounded-xl transition-all"
+                    class="reset-button game-control-button-base rounded-xl transition-all"
                 >
                     <span class="inline-block w-5 h-5 mr-2">↻</span>
                     RESET
@@ -930,7 +954,8 @@ let audioBuffers = {
     sound3: null,
     ballDrop: null,
     spaceSong: null,
-    buttonChange: null
+    buttonChange: null,
+    multi: null // NEW: Multiplier hit sound
 };
 
 // Background music source node for looping
@@ -1032,16 +1057,17 @@ async function initializeAudio() {
 
         // Load all sounds in parallel
         console.log('📦 Loading all audio files...');
-        const [sound1, sound2, sound3, ballDrop, spaceSong, buttonChange] = await Promise.all([
+        const [sound1, sound2, sound3, ballDrop, spaceSong, buttonChange, multi] = await Promise.all([
             loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1-2blBIg4gAwWnvcOcAfJ18csMkgrmpR.mp3', 'Sound 1'),
             loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/2-DRu5ntJp8KOAyep8t2NrS0u4K8m0uz.mp3', 'Sound 2'),
             loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3-Xl9zw4BwCvupErIVwySJUpAGUw7Ia1.mp3', 'Sound 3'),
             loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balldrop-hCisqCs6oFv8HlHGRhoc1rKeFevo0M.mp3', 'Ball Drop'),
             loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/space%20-rvNZSIyJXLKZtJ6lczTy1NjfJHRzuH.mp3', 'Space Song'),
-            loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/buttonchange-zhwkWSbkfOGp9jJXv7jjNtm1wlKYBK.mp3', 'Button Change')
+            loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/buttonchange-zhwkWSbkfOGp9jJXv7jjNtm1wlKYBK.mp3', 'Button Change'),
+            loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/multi-Vx6Sza2V4G6OjyVV8iifmGIT0l93DL.mp3', 'Multiplier Hit') // NEW: Load multiplier hit sound
         ]);
 
-        audioBuffers = { sound1, sound2, sound3, ballDrop, spaceSong, buttonChange };
+        audioBuffers = { sound1, sound2, sound3, ballDrop, spaceSong, buttonChange, multi };
         gameState.audioInitialized = true;
         
         console.log('🎉 Audio system fully initialized');
@@ -1176,7 +1202,9 @@ function initializePegs() {
                 y: startY + row * 30 + randomOffsetY, // Increased vertical spacing
                 hit: false,
                 hitTime: 0,
-                row: row // Store row index with peg
+                row: row, // Store row index with peg
+                boostedHit: false, // NEW: Flag if hit by a boosted ball
+                boostedHitTime: 0 // NEW: Time for boosted hit glow
             };
             gameState.pegs.push(newPeg);
             gameState.pegsByRow[row].push(newPeg); // Add to pegsByRow
@@ -1190,7 +1218,7 @@ function initializeUI() {
     const betControls = document.getElementById('bet-controls');
     betControls.innerHTML = '';
 
-    BET_AMOUNTS.forEach(amount => {
+    BET_AMOUNTS.forEach(amount => { /* FIXED: Corrected typo from BET_AMOUNnts to BET_AMOUNTS */
         const button = document.createElement('button');
         button.className = `bet-button px-4 py-2 text-sm rounded-lg transition-all ${
             gameState.betAmount === amount ? 'active' : ''
@@ -1312,8 +1340,8 @@ function playWinSound(multiplier) {
 }
 
 // Create particles
-function createParticles(x, y, color) {
-    for (let i = 0; i < 6; i++) {
+function createParticles(x, y, color, count = 6) { // Added 'count' parameter with default
+    for (let i = 0; i < count; i++) { // Loop 'count' times
         gameState.particles.push({
             x,
             y,
@@ -1353,7 +1381,8 @@ function generateMultiplierLines() {
                 const peg2 = pegsInThisRow[startIndex + 1];
                 
                 // Assign a specific random multiplier (2x, 3x, 4x, or 5x)
-                const assignedMultiplier = 2 + Math.floor(Math.random() * 4);
+                const possibleLineMultipliers = [2, 3, 4, 5]; // UPDATED: Only 2x-5x
+                const assignedMultiplier = possibleLineMultipliers[Math.floor(Math.random() * possibleLineMultipliers.length)];
 
                 gameState.multiplierLines.push({
                     id: `line-${rowIndex}-${startIndex}`,
@@ -1397,6 +1426,9 @@ async function dropBall() {
     const totalBet = gameState.betAmount * gameState.ballCount;
     gameState.balance -= totalBet;
 
+    // Determine delay per ball
+    const delayPerBall = gameState.ballCount > 2 ? 400 : 100; // 400ms if >2 balls, else 100ms
+
     // Drop multiple balls with slight delays and spacing
     for (let i = 0; i < gameState.ballCount; i++) {
         setTimeout(() => {
@@ -1414,12 +1446,13 @@ async function dropBall() {
                 chaosMultiplier: 0.8 + Math.random() * 0.4,
                 currentMultiplier: 1, // NEW: Initialize current multiplier for this ball
                 hitLines: new Set(), // NEW: Track lines hit by this specific ball
-                multiplierLineHits: 0 // NEW: Track number of multiplier lines hit
+                multiplierLineHits: 0, // NEW: Track number of multiplier lines hit
+                isMultiplierBoosted: false // NEW: Flag for ball having hit a multiplier line
             };
 
             gameState.balls.push(newBall);
             console.log(`🎾 Ball ${i+1}/${gameState.ballCount} dropped at x:${newBall.x.toFixed(1)}, chaos:${newBall.chaosMultiplier.toFixed(2)}`);
-        }, i * 100); // 100ms delay between each ball
+        }, i * delayPerBall); // Use dynamic delay
     }
 }
 
@@ -1460,6 +1493,8 @@ function resetGame() {
     gameState.pegs.forEach(peg => {
         peg.hit = false;
         peg.hitTime = 0;
+        peg.boostedHit = false; // Reset boosted hit state
+        peg.boostedHitTime = 0;
     });
 
     // Hide win cards on reset
@@ -1622,6 +1657,24 @@ function setupEventListeners() {
     });
 }
 
+// Function to get progressively brighter blue color based on hits
+function getBrightBlueColor(hits, opacity = 1) {
+    const clampedHits = Math.min(hits, 4); // Max 4 stages of brightness
+    
+    // Base blue (original peg color): RGB(99, 102, 241)
+    const r1 = 99;  const g1 = 102; const b1 = 241;
+    // Target brightest blue (e.g., a light, almost cyan blue): RGB(150, 220, 255)
+    const r2 = 150; const g2 = 220; const b2 = 255;
+
+    // Linear interpolation for each color component
+    const r = r1 + (r2 - r1) * (clampedHits / 4);
+    const g = g1 + (g2 - g1) * (clampedHits / 4);
+    const b = b1 + (b2 - b1) * (clampedHits / 4);
+
+    return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${opacity})`;
+}
+
+
 // Animation loop (120fps) - FIXED: Much more chaotic physics
 function startAnimationLoop() {
     let lastTime = 0;
@@ -1646,19 +1699,28 @@ function startAnimationLoop() {
             peg.hitTime = peg.hit ? Math.max(0, peg.hitTime - 1) : 0;
             peg.hit = peg.hitTime > 0;
 
+            peg.boostedHitTime = peg.boostedHit ? Math.max(0, peg.boostedHitTime - 1) : 0;
+            peg.boostedHit = peg.boostedHitTime > 0; // Reset if time runs out
+
             const glowIntensity = peg.hit ? 0.9 : 0.4;
             const size = peg.hit ? 6 : 4;
+
+            // Determine peg color based on whether it was hit by a boosted ball
+            // Use getBrightBlueColor for pegs hit by multiplier-boosted balls
+            const pegColor = peg.boostedHit ? getBrightBlueColor(peg.boostedHitTime / 25 * 4, glowIntensity) : `rgba(99, 102, 241, ${glowIntensity})`; 
+            const innerPegColor = peg.boostedHit ? getBrightBlueColor(peg.boostedHitTime / 25 * 4, glowIntensity * 1.2) : `rgba(167, 139, 250, ${glowIntensity})`; 
+
             ctx.save();
-            ctx.shadowColor = `rgba(99, 102, 241, ${glowIntensity})`;
+            ctx.shadowColor = pegColor;
             ctx.shadowBlur = 12;
             ctx.beginPath();
             ctx.arc(peg.x, peg.y, size, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(99, 102, 241, ${glowIntensity})`;
+            ctx.fillStyle = pegColor;
             ctx.fill();
             ctx.shadowBlur = 0;
             ctx.beginPath();
             ctx.arc(peg.x, peg.y, size * 0.5, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(167, 139, 250, ${glowIntensity})`;
+            ctx.fillStyle = innerPegColor;
             ctx.fill();
             ctx.restore();
         });
@@ -1746,6 +1808,10 @@ function startAnimationLoop() {
                 if (distSq < 300) { // Larger collision radius
                     peg.hit = true;
                     peg.hitTime = 25;
+                    if (ball.isMultiplierBoosted) { // If the current ball is boosted
+                        peg.boostedHit = true;
+                        peg.boostedHitTime = 25; // Same duration as regular hit
+                    }
                     const angle = Math.atan2(dy, dx);
 
                     // MUCH MORE random bounce
@@ -1776,9 +1842,11 @@ function startAnimationLoop() {
                         }
                         ball.hitLines.add(line.id); // Mark line as hit for this ball
                         ball.multiplierLineHits = (ball.multiplierLineHits || 0) + 1; // Increment hit counter
+                        ball.isMultiplierBoosted = true; // Mark ball as boosted
 
                         console.log(`⚡ Ball ${ball.id} hit multiplier line on row ${line.row}! Added ${line.multiplier}x. Current total multiplier: ${ball.currentMultiplier.toFixed(2)}x, Hits: ${ball.multiplierLineHits}`);
-                        createParticles(ball.x, ball.y, 'rgba(255, 255, 0, 1)'); // Yellow particles for line hit
+                        createParticles(ball.x, ball.y, 'rgba(255, 255, 0, 1)', 20); // UPDATED: More yellow particles (20 particles)
+                        playMultiplierSound(); // NEW: Play sound on multiplier hit
                     }
                 }
             });
@@ -1862,10 +1930,7 @@ function startAnimationLoop() {
             ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
             ctx.shadowBlur = currentGlow; // Dynamic glow
 
-            let ballColor = 'rgba(255, 215, 0, 1)'; // Default gold
-            if (ball.multiplierLineHits > 0) {
-                ballColor = 'rgba(218, 165, 32, 1)'; // Darker gold
-            }
+            let ballColor = getOrangeGoldColor(ball.multiplierLineHits); // Dynamically set color based on hits
 
             const gradient = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, 10);
             gradient.addColorStop(0, ballColor);
@@ -1885,12 +1950,11 @@ function startAnimationLoop() {
             // Draw ball's current multiplier value
             if (ball.currentMultiplier > 1) { // Only display if multiplier is active
                 ctx.save();
-                ctx.font = 'bold 12px Orbitron'; // Smaller font for ball
-                ctx.fillStyle = '#000000'; // UPDATED: Black text for contrast
+                ctx.font = 'bold 10px Orbitron'; // UPDATED: Smaller font for better fit
+                ctx.fillStyle = '#000000'; // Black text for contrast
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                // Removed text shadow for better visibility with black font
-                ctx.fillText(`${ball.currentMultiplier.toFixed(0)}x`, ball.x, ball.y);
+                ctx.fillText(`${ball.currentMultiplier.toFixed(0)}x`, ball.x, ball.y + 1); // UPDATED: Slight Y offset
                 ctx.restore();
             }
         });
@@ -1918,6 +1982,44 @@ function startAnimationLoop() {
         requestAnimationFrame(animate);
     }
     requestAnimationFrame(animate);
+}
+
+// Function to get orange-gold color based on hits
+function getOrangeGoldColor(hits) {
+    const clampedHits = Math.min(hits, 4); // Max 4 stages of color change
+    // Starting RGBA (Gold): 255, 215, 0
+    // Ending RGBA (More orange-gold): 255, 140, 0
+    
+    const r1 = 255; const g1 = 215; const b1 = 0;
+    const r2 = 255; const g2 = 140; const b2 = 0;
+
+    // Linear interpolation for each color component
+    const r = r1 + (r2 - r1) * (clampedHits / 4);
+    const g = g1 + (g2 - g1) * (clampedHits / 4);
+    const b = b1 + (b2 - b1) * (clampedHits / 4);
+
+    return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, 1)`;
+}
+
+// Play multiplier hit sound
+function playMultiplierSound() {
+    if (!gameState.audioInitialized || !audioContext || !audioBuffers.multi) {
+        console.warn('⚠️ Multiplier hit audio not ready');
+        return;
+    }
+
+    try {
+        const source = audioContext.createBufferSource();
+        const gainNode = audioContext.createGain();
+        source.buffer = audioBuffers.multi;
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        gainNode.gain.setValueAtTime(0.4, audioContext.currentTime); // Adjust volume as needed
+        source.start(audioContext.currentTime);
+        console.log('⚡ Multiplier hit sound played');
+    } catch (error) {
+        console.error('❌ Error playing multiplier hit sound:', error);
+    }
 }
 
 // Initialize start button
