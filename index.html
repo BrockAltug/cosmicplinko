@@ -23,1702 +23,1907 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-    /* Custom CSS for enhanced performance and styling */
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        /* FIXED: Disable double tap zoom on mobile */
-        touch-action: manipulation;
-    }
-    
-    body {
-        font-family: 'Exo 2', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: #000;
-        /* FIXED: Disable double tap zoom */
-        touch-action: manipulation;
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
-    
-    /* Video optimization for 120fps */
-    #cosmic-video {
-        will-change: transform;
-        backface-visibility: hidden;
-        perspective: 1000px;
-        transform: translateZ(0) scale(1.15);
-        filter: brightness(0.6) saturate(1.2);
-    }
-    
-    /* Canvas optimization - UPDATED: Solid purple border like multipliers */
-    #game-canvas {
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: optimize-contrast;
-        image-rendering: crisp-edges;
-        will-change: contents;
-        border: 4px solid rgb(147, 51, 234) !important; /* Solid purple border matching multipliers */
-        background: rgba(0, 0, 0, 0.3);
-        max-width: 100%;
-        height: auto;
-        position: relative;
-        z-index: 1;
-    }
-    
-    /* Button hover effects */
-    .btn-primary {
-        background: rgba(59, 130, 246, 0.8);
-        border: 3px solid rgba(99, 102, 241, 0.6);
-        transition: all 0.3s ease;
-        font-family: 'Orbitron', monospace;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
-        touch-action: manipulation;
-    }
-    
-    .btn-primary:hover:not(:disabled) {
-        background: rgba(59, 130, 246, 1);
-        border-color: rgba(147, 51, 234, 0.8);
-        transform: scale(1.05);
-        box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
-    }
-    
-    .btn-primary:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
-    
-    /* Card styling */
-    .game-card {
-        background: rgba(59, 130, 246, 0.15);
-        backdrop-filter: blur(12px);
-        border: 3px solid;
-        border-image: linear-gradient(135deg, #3b82f6, #9333ea) 1;
-    }
-    
-    /* Gradient text */
-    .gradient-text {
-        background: linear-gradient(135deg, #60a5fa, #818cf8, #a78bfa, #c084fc);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-family: 'Orbitron', monospace;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-    }
-    
-    /* Animation keyframes */
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.6; }
-    }
-    
-    @keyframes glow {
-        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
-        50% { box-shadow: 0 0 40px rgba(147, 51, 234, 0.6); }
-    }
-    
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-15px); }
-    }
-    
-    .animate-pulse {
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    
-    .animate-glow {
-        animation: glow 3s ease-in-out infinite;
-    }
-    
-    .animate-float {
-        animation: float 4s ease-in-out infinite;
-    }
-    
-    /* Start overlay with space-like gradient */
-    #start-overlay {
-        background: linear-gradient(135deg,
-            #1e1b4b 0%,     /* Dark blue */
-            #312e81 25%,    /* Medium blue */
-            #4c1d95 50%,    /* Purple */
-            #6b7280 75%,    /* Grey */
-            #374151 100%    /* Dark grey */
-        );
-        backdrop-filter: blur(15px);
-        z-index: 9999;
-    }
-    
-    .start-button {
-        background: rgba(59, 130, 246, 0.9);
-        border: 4px solid rgba(99, 102, 241, 0.8);
-        transition: all 0.4s ease;
-        box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
-        font-family: 'Orbitron', monospace;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        touch-action: manipulation;
-    }
-    
-    .start-button:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 60px rgba(147, 51, 234, 0.8);
-        background: rgba(59, 130, 246, 1);
-        border-color: rgba(147, 51, 234, 1);
-    }
-    
-    /* FIXED: Multiplier styling - Gold text color and ensure visibility above canvas */
-    .multiplier-slot {
-        font-family: 'Orbitron', monospace;
-        font-weight: 700;
-        color: #ffd700 !important; /* UPDATED: Gold yellow text color */
-        text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-        height: 40px;
-        font-size: clamp(0.35rem, 0.8vw, 0.5rem);
-        padding: 0.25rem 0.125rem;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 0;
-        letter-spacing: -0.5px;
-        position: relative;
-        z-index: 10;
-        backdrop-filter: blur(8px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        border: 2px solid rgb(147, 51, 234) !important; /* Solid purple border */
-    }
-    
-    /* FIXED: Multipliers container - Ensure it's above canvas */
-    #multipliers {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        display: flex;
-        z-index: 10;
-    }
-    
-    /* Bet button styling */
-    .bet-button {
-        border: 2px solid rgba(99, 102, 241, 0.6);
-        background: rgba(59, 130, 246, 0.2);
-        font-family: 'Orbitron', monospace;
-        font-weight: 700;
-        transition: all 0.3s ease;
-        color: #a78bfa;
-        touch-action: manipulation;
-    }
-    
-    .bet-button:hover {
-        background: rgba(59, 130, 246, 0.4);
-        border-color: #6366f1;
-        transform: scale(1.05);
-        color: white;
-    }
-    
-    .bet-button.active {
-        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-        border-color: #a78bfa;
-        color: white;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-    }
-    
-    /* Reset button styling */
-    .reset-button {
-        border: 3px solid rgba(147, 51, 234, 0.6);
-        background: rgba(59, 130, 246, 0.1);
-        color: #a78bfa;
-        font-family: 'Orbitron', monospace;
-        font-weight: 700;
-        transition: all 0.3s ease;
-        touch-action: manipulation;
-    }
-    
-    .reset-button:hover {
-        background: rgba(147, 51, 234, 0.2);
-        border-color: #8b5cf6;
-        color: #c084fc;
-        transform: scale(1.05);
-    }
-    
-    /* UPDATED: Ball count dropdown styling - Match reset button exactly */
-    .ball-count-dropdown {
-        border: 3px solid rgba(147, 51, 234, 0.6);
-        background: rgba(59, 130, 246, 0.1);
-        color: #a78bfa;
-        font-family: 'Orbitron', monospace;
-        font-weight: 700;
-        transition: all 0.3s ease;
-        touch-action: manipulation;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a78bfa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 0.5rem center;
-        background-repeat: no-repeat;
-        background-size: 1.5em 1.5em;
-        padding: 0.75rem 2.25rem 0.75rem 1.5rem; /* UPDATED: Match reset button padding */
-    }
-    
-    .ball-count-dropdown:hover {
-        background: rgba(147, 51, 234, 0.2);
-        border-color: #8b5cf6;
-        color: #c084fc;
-        transform: scale(1.05);
-    }
-    
-    .ball-count-dropdown:focus {
-        outline: none;
-        border-color: #8b5cf6;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-    }
-    
-    /* Text styling */
-    .stat-label {
-        color: rgba(168, 162, 158, 0.8);
-        font-family: 'Orbitron', monospace;
-        font-weight: 400;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    
-    .stat-value {
-        font-family: 'Orbitron', monospace;
-        font-weight: 700;
-        color: #60a5fa;
-    }
-    
-    /* Win card special styling */
-    .win-card {
-        background: rgba(255, 215, 0, 0.1);
-        border: 3px solid rgba(255, 215, 0, 0.4);
-        box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
-    }
-    
-    .win-value {
-        color: #ffd700;
-        font-family: 'Orbitron', monospace;
-        font-weight: 900;
-        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-    }
-    
-    /* Recent hits styling */
-    .recent-hit {
-        background: rgba(59, 130, 246, 0.3);
-        border: 2px solid rgba(99, 102, 241, 0.4);
-        font-family: 'Orbitron', monospace;
-        transition: all 0.3s ease;
-    }
-    
-    .recent-hit:hover {
-        transform: scale(1.02);
-        border-color: rgba(168, 85, 247, 0.6);
-    }
-    
-    /* Status indicators */
-    .status-indicator {
-        background: rgba(59, 130, 246, 0.8);
-        border: 2px solid rgba(99, 102, 241, 0.6);
-        font-family: 'Orbitron', monospace;
-        font-weight: 700;
-    }
-    
-    /* Keyboard key styling */
-    kbd {
-        background: rgba(59, 130, 246, 0.3);
-        border: 2px solid rgba(99, 102, 241, 0.5);
-        color: #a78bfa;
-        font-family: 'Orbitron', monospace;
-        font-weight: 700;
-    }
-    
-    /* Fixed size balance and bet boxes - Desktop sizing */
-    .balance-box {
-        min-width: 320px;
-        width: 320px;
-    }
-    
-    .bet-box {
-        min-width: 200px;
-        width: 200px;
-    }
-    
-    /* Fixed size recent hits container */
-    .recent-hits-container {
-        min-height: 300px;
-        height: 300px;
-    }
-    
-    /* Mobile stats container */
-    .mobile-stats-container {
-        width: 100%;
-        max-width: 600px;
-    }
-    
-    /* Alien floating animation */
-    .alien-container {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        z-index: 100;
-        pointer-events: none;
-    }
-    
-    .alien-image {
-        width: 80px;
-        height: 80px;
-        filter: drop-shadow(0 0 15px rgba(147, 51, 234, 0.6));
-    }
-    
-    /* FIXED: Perfect centering layout system */
+/* Custom CSS for enhanced performance and styling */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    /* FIXED: Disable double tap zoom on mobile */
+    touch-action: manipulation;
+}
+
+body {
+    font-family: 'Exo 2', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #000;
+    /* FIXED: Disable double tap zoom */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Video optimization for 120fps */
+#cosmic-video {
+    will-change: transform;
+    backface-visibility: hidden;
+    perspective: 1000px;
+    transform: translateZ(0) scale(1.15);
+    filter: brightness(0.6) saturate(1.2);
+}
+
+/* Canvas optimization - UPDATED: Solid purple border like multipliers */
+#game-canvas {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: optimize-contrast;
+    image-rendering: crisp-edges;
+    will-change: contents;
+    border: 4px solid rgb(147, 51, 234) !important; /* Solid purple border matching multipliers */
+    background: rgba(0, 0, 0, 0.3);
+    max-width: 100%;
+    height: auto;
+    position: relative;
+    z-index: 1;
+}
+
+/* Button hover effects */
+.btn-primary {
+    background: rgba(59, 130, 246, 0.8);
+    border: 3px solid rgba(99, 102, 241, 0.6);
+    transition: all 0.3s ease;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+    touch-action: manipulation;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: rgba(59, 130, 246, 1);
+    border-color: rgba(147, 51, 234, 0.8);
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+}
+
+.btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Card styling */
+.game-card {
+    background: rgba(59, 130, 246, 0.15);
+    backdrop-filter: blur(12px);
+    border: 3px solid;
+    border-image: linear-gradient(135deg, #3b82f6, #9333ea) 1;
+}
+
+/* Gradient text */
+.gradient-text {
+    background: linear-gradient(135deg, #60a5fa, #818cf8, #a78bfa, #c084fc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Animation keyframes */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+    50% { box-shadow: 0 0 40px rgba(147, 51, 234, 0.6); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-glow {
+    animation: glow 3s ease-in-out infinite;
+}
+
+.animate-float {
+    animation: float 4s ease-in-out infinite;
+}
+
+/* Start overlay with space-like gradient */
+#start-overlay {
+    background: linear-gradient(135deg,
+        #1e1b4b 0%,     /* Dark blue */
+        #312e81 25%,    /* Medium blue */
+        #4c1d95 50%,    /* Purple */
+        #6b7280 75%,    /* Grey */
+        #374151 100%    /* Dark grey */
+    );
+    backdrop-filter: blur(15px);
+    z-index: 9999;
+}
+
+.start-button {
+    background: rgba(59, 130, 246, 0.9);
+    border: 4px solid rgba(99, 102, 241, 0.8);
+    transition: all 0.4s ease;
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    touch-action: manipulation;
+}
+
+.start-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 60px rgba(147, 51, 234, 0.8);
+    background: rgba(59, 130, 246, 1);
+    border-color: rgba(147, 51, 234, 1);
+}
+
+/* FIXED: Multiplier styling - Gold text color and ensure visibility above canvas */
+.multiplier-slot {
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    color: #ffd700 !important; /* UPDATED: Gold yellow text color */
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+    height: 40px;
+    font-size: clamp(0.35rem, 0.8vw, 0.5rem);
+    padding: 0.25rem 0.125rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    /* REMOVED: letter-spacing: -0.5px; */
+    position: relative;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgb(147, 51, 234) !important; /* Solid purple border */
+}
+
+/* FIXED: Multipliers container - Ensure it's above canvas */
+#multipliers {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    z-index: 10;
+}
+
+/* Bet button styling */
+.bet-button {
+    border: 2px solid rgba(99, 102, 241, 0.6);
+    background: rgba(59, 130, 246, 0.2);
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    color: #a78bfa;
+    touch-action: manipulation;
+}
+
+.bet-button:hover {
+    background: rgba(59, 130, 246, 0.4);
+    border-color: #6366f1;
+    transform: scale(1.05);
+    color: white;
+}
+
+.bet-button.active {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    border-color: #a78bfa;
+    color: white;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+/* Reset button styling */
+.reset-button {
+    border: 3px solid rgba(147, 51, 234, 0.6);
+    background: rgba(59, 130, 246, 0.1);
+    color: #a78bfa;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    touch-action: manipulation;
+}
+
+.reset-button:hover {
+    background: rgba(147, 51, 234, 0.2);
+    border-color: #8b5cf6;
+    color: #c084fc;
+    transform: scale(1.05);
+}
+
+/* UPDATED: Ball count dropdown styling - Match reset button exactly */
+.ball-count-dropdown {
+    border: 3px solid rgba(147, 51, 234, 0.6);
+    background: rgba(59, 130, 246, 0.1);
+    color: #a78bfa;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    touch-action: manipulation;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a78bfa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    /* Default desktop padding */
+    padding: 0.75rem 2.25rem 0.75rem 1.5rem; 
+    background-position: right 0.5rem center;
+}
+
+.ball-count-dropdown:hover {
+    background: rgba(147, 51, 234, 0.2);
+    border-color: #8b5cf6;
+    color: #c084fc;
+    transform: scale(1.05);
+}
+
+.ball-count-dropdown:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+/* Text styling */
+.stat-label {
+    color: rgba(168, 162, 158, 0.8);
+    font-family: 'Orbitron', monospace;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-value {
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    color: #60a5fa;
+}
+
+/* Win card special styling */
+.win-card {
+    background: rgba(255, 215, 0, 0.1);
+    border: 3px solid rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
+}
+
+.win-value {
+    color: #ffd700;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+/* Recent hits styling */
+.recent-hit {
+    background: rgba(59, 130, 246, 0.3);
+    border: 2px solid rgba(99, 102, 241, 0.4);
+    font-family: 'Orbitron', monospace;
+    transition: all 0.3s ease;
+}
+
+.recent-hit:hover {
+    transform: scale(1.02);
+    border-color: rgba(168, 85, 247, 0.6);
+}
+
+/* Status indicators */
+.status-indicator {
+    background: rgba(59, 130, 246, 0.8);
+    border: 2px solid rgba(99, 102, 241, 0.6);
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+}
+
+/* Keyboard key styling */
+kbd {
+    background: rgba(59, 130, 246, 0.3);
+    border: 2px solid rgba(99, 102, 241, 0.5);
+    color: #a78bfa;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+}
+
+/* Fixed size balance and bet boxes - Desktop sizing */
+.balance-box {
+    min-width: 320px;
+    width: 320px;
+}
+
+.bet-box {
+    min-width: 200px;
+    width: 200px;
+}
+
+/* UPDATED: Fixed size recent hits container - Properly contain 6 items */
+.recent-hits-container {
+    height: 280px; /* UPDATED: Fixed height to contain exactly 6 items */
+    overflow-y: auto; /* UPDATED: Allow scrolling if needed */
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 102, 241, 0.6) transparent;
+}
+
+/* Custom scrollbar for recent hits */
+.recent-hits-container::-webkit-scrollbar {
+    width: 4px;
+}
+
+.recent-hits-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+}
+
+.recent-hits-container::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.6);
+    border-radius: 2px;
+}
+
+.recent-hits-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.8);
+}
+
+/* Mobile stats container */
+.mobile-stats-container {
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Alien floating animation */
+.alien-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.alien-image {
+    width: 80px;
+    height: 80px;
+    filter: drop-shadow(0 0 15px rgba(147, 51, 234, 0.6));
+}
+
+/* FIXED: Perfect centering layout system */
+.game-layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+/* Desktop layout container */
+.desktop-container {
+    display: flex;
+    align-items: flex-start; /* Changed from center to flex-start for better alignment */
+    justify-content: center;
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.left-sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* REMOVED: position: relative; */
+}
+
+.center-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.right-sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* UPDATED: Desktop sidebar alignment - Stacked and moved down 25px */
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    /* REMOVED: position: absolute, top, height, justify-content */
+}
+
+/* UPDATED: Win card positioning - Moved down by 25px */
+.win-section {
+    align-self: center;
+    margin-top: 85px; /* UPDATED: Moved down by 25px (60 + 25) */
+    margin-bottom: 2rem; /* Space between win card and recent hits */
+}
+
+/* UPDATED: Recent hits positioning - Now stacks under win-section */
+.recent-hits-section {
+    align-self: center;
+    /* REMOVED: position: absolute, bottom */
+    width: 192px; /* Match sidebar width minus padding */
+}
+
+/* Mobile responsive design - FIXED: Perfect mobile centering */
+@media (max-width: 1024px) {
     .game-layout {
-        display: flex;
+        padding: 0.75rem;
+        align-items: flex-start;
+        justify-content: flex-start;
         min-height: 100vh;
-        width: 100%;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
-        box-sizing: border-box;
-        overflow-x: hidden;
     }
     
-    /* Desktop layout container */
     .desktop-container {
-        display: flex;
-        align-items: flex-start; /* UPDATED: Changed from center to flex-start for better alignment */
-        justify-content: center;
-        gap: 2rem;
+        flex-direction: column;
+        gap: 1rem;
         width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
+        max-width: 100%;
+        align-items: center;
+        justify-content: flex-start;
     }
     
     .left-sidebar {
-        width: 200px;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .center-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        max-width: 600px;
-        position: relative;
-        flex-shrink: 0;
+        display: none; /* Hide desktop sidebar on mobile */
     }
     
     .right-sidebar {
-        width: 200px;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: none; /* Hide right sidebar on mobile */
     }
     
-    /* FIXED: Desktop sidebar alignment - Perfect alignment with game board */
-    .sidebar-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    .center-content {
         width: 100%;
-        height: auto; /* UPDATED: Remove fixed height */
-        justify-content: flex-start;
-        margin-top: 160px; /* UPDATED: Match the exact top position of the game board */
-    }
-    
-    /* Win card positioning - FIXED: Align with top of game board */
-    .win-section {
-        align-self: center;
-        margin-bottom: 2rem; /* Space between win card and recent hits */
-    }
-    
-    /* Recent hits positioning - FIXED: Position below win card */
-    .recent-hits-section {
-        align-self: center;
-        flex-grow: 0; /* Don't grow to fill space */
-    }
-    
-    /* Mobile responsive design - FIXED: Perfect mobile centering */
-    @media (max-width: 1024px) {
-        .game-layout {
-            padding: 0.75rem;
-            align-items: flex-start;
-            justify-content: flex-start;
-            min-height: 100vh;
-        }
-        
-        .desktop-container {
-            flex-direction: column;
-            gap: 1rem;
-            width: 100%;
-            max-width: 100%;
-            align-items: center;
-            justify-content: flex-start;
-        }
-        
-        .left-sidebar {
-            display: none; /* Hide desktop sidebar on mobile */
-        }
-        
-        .right-sidebar {
-            display: none; /* Hide right sidebar on mobile */
-        }
-        
-        .center-content {
-            width: 100%;
-            max-width: 100%;
-            padding: 0;
-            margin: 0;
-        }
-        
-        /* FIXED: Mobile element sizing - prevent right-side cutoff */
-        .balance-box {
-            width: min(320px, 100%);
-            min-width: min(320px, 100%);
-            max-width: 100%;
-        }
-        
-        .bet-box {
-            width: min(200px, 100%);
-            min-width: min(200px, 100%);
-            max-width: 100%;
-        }
-        
-        .mobile-stats-container {
-            width: 100%;
-            max-width: 100%;
-        }
-        
-        /* FIXED: Canvas sizing for mobile */
-        #game-canvas {
-            width: min(600px, 100%);
-            max-width: 100%;
-            height: auto;
-        }
-        
-        /* FIXED: Bet controls mobile sizing */
-        #bet-controls {
-            width: 100%;
-            max-width: 100%;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        
-        /* Mobile multipliers */
-        .multiplier-slot {
-            font-size: clamp(0.3rem, 0.8vw, 0.45rem);
-            height: 32px;
-            padding: 0.25rem 0.125rem;
-            letter-spacing: -0.75px;
-        }
-        
-        /* Mobile header sizing */
-        .gradient-text {
-            font-size: clamp(1.5rem, 4vw, 1.75rem);
-        }
-        
-        /* Mobile button sizing */
-        .btn-primary {
-            padding: 0.75rem 1.5rem;
-            font-size: 0.875rem;
-        }
-        
-        .bet-button {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.75rem;
-            flex: 0 0 auto;
-        }
-        
-        /* Mobile ball count dropdown - UPDATED: Match mobile button sizing */
-        .ball-count-dropdown {
-            padding: 0.75rem 2rem 0.75rem 1rem;
-            font-size: 0.875rem;
-        }
-        
-        /* Mobile stats layout - FIXED: Better spacing */
-        .stats-mobile {
-            display: flex;
-            gap: 0.5rem;
-            width: 100%;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        /* Mobile alien positioning */
-        .alien-container {
-            top: 5px;
-            right: 5px;
-        }
-        
-        .alien-image {
-            width: 50px;
-            height: 50px;
-        }
-        
-        /* Mobile recent hits - HORIZONTAL layout */
-        .mobile-recent-hits-horizontal {
-            display: flex;
-            gap: 0.5rem;
-            overflow-x: auto;
-            padding: 0.5rem 0;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            width: 100%;
-        }
-        
-        .mobile-recent-hits-horizontal::-webkit-scrollbar {
-            display: none;
-        }
-        
-        .mobile-recent-hit-item {
-            flex: 0 0 auto;
-            min-width: 80px;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            text-align: center;
-            font-size: 0.75rem;
-        }
-    }
-    
-    /* Small screen adjustments */
-    @media (max-width: 640px) {
-        .game-layout {
-            padding: 0.5rem;
-        }
-        
-        .gradient-text {
-            font-size: clamp(1.25rem, 5vw, 1.5rem);
-        }
-        
-        .btn-primary {
-            padding: 0.5rem 1rem;
-            font-size: 0.75rem;
-        }
-        
-        /* Very small screen sizing */
-        .balance-box {
-            width: 100%;
-            min-width: 100%;
-            max-width: 100%;
-        }
-        
-        .bet-box {
-            width: 100%;
-            min-width: 100%;
-            max-width: 100%;
-        }
-        
-        .mobile-stats-container {
-            width: 100%;
-            max-width: 100%;
-        }
-        
-        .alien-image {
-            width: 40px;
-            height: 40px;
-        }
-        
-        /* Smaller multiplier text for very small screens */
-        .multiplier-slot {
-            font-size: clamp(0.25rem, 0.7vw, 0.4rem);
-            height: 28px;
-            padding: 0.125rem 0.0625rem;
-            letter-spacing: -1px;
-        }
-        
-        /* Canvas fits perfectly on small screens */
-        #game-canvas {
-            width: 100%;
-            max-width: 100%;
-        }
-
-        /* Small screen ball count dropdown */
-        .ball-count-dropdown {
-            padding: 0.5rem 1.75rem 0.5rem 0.75rem;
-            font-size: 0.75rem;
-        }
-    }
-    
-    /* Enable proper scrolling without horizontal overflow */
-    html, body {
-        height: 100%;
-        overflow-x: hidden;
-        overflow-y: auto;
-        margin: 0;
+        max-width: 100%;
         padding: 0;
-        width: 100%;
+        margin: 0;
     }
     
-    /* Ensure no elements cause horizontal scroll */
-    * {
+    /* FIXED: Mobile element sizing - prevent right-side cutoff */
+    .balance-box {
+        width: min(320px, 100%);
+        min-width: min(320px, 100%);
         max-width: 100%;
     }
     
-    /* Container to prevent any overflow */
-    #app {
+    .bet-box {
+        width: min(200px, 100%);
+        min-width: min(200px, 100%);
+        max-width: 100%;
+    }
+    
+    .mobile-stats-container {
         width: 100%;
         max-width: 100%;
-        overflow-x: hidden;
     }
+    
+    /* FIXED: Canvas sizing for mobile */
+    #game-canvas {
+        width: min(600px, 100%);
+        max-width: 100%;
+        height: auto;
+    }
+    
+    /* FIXED: Bet controls mobile sizing */
+    #bet-controls {
+        width: 100%;
+        max-width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    /* Mobile multipliers */
+    .multiplier-slot {
+        font-size: clamp(0.3rem, 0.8vw, 0.45rem);
+        height: 32px;
+        padding: 0.25rem 0.125rem;
+        letter-spacing: -0.75px;
+    }
+    
+    /* Mobile header sizing */
+    .gradient-text {
+        font-size: clamp(1.5rem, 4vw, 1.75rem);
+    }
+    
+    /* Mobile button sizing */
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .bet-button {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        flex: 0 0 auto;
+    }
+    
+    /* UPDATED: Mobile ball count dropdown - Match reset button sizing */
+    .ball-count-dropdown {
+        padding: 0.75rem 1.5rem; /* Match reset button padding */
+        font-size: 0.875rem; /* Match reset button font size */
+        background-position: right 0.75rem center; /* Adjust arrow position */
+    }
+    
+    /* Mobile stats layout - FIXED: Better spacing */
+    .stats-mobile {
+        display: flex;
+        gap: 0.5rem;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    /* Mobile alien positioning */
+    .alien-container {
+        top: 5px;
+        right: 5px;
+    }
+    
+    .alien-image {
+        width: 50px;
+        height: 50px;
+    }
+    
+    /* Mobile recent hits - HORIZONTAL layout */
+    .mobile-recent-hits-horizontal {
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding: 0.5rem 0;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        width: 100%;
+    }
+    
+    .mobile-recent-hits-horizontal::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .mobile-recent-hit-item {
+        flex: 0 0 auto;
+        min-width: 80px;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        text-align: center;
+        font-size: 0.75rem;
+    }
+}
+
+/* Small screen adjustments */
+@media (max-width: 640px) {
+    .game-layout {
+        padding: 0.5rem;
+    }
+    
+    .gradient-text {
+        font-size: clamp(1.25rem, 5vw, 1.5rem);
+    }
+    
+    .btn-primary {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Very small screen sizing */
+    .balance-box {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+    }
+    
+    .bet-box {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+    }
+    
+    .mobile-stats-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .alien-image {
+        width: 40px;
+        height: 40px;
+    }
+    
+    /* Smaller multiplier text for very small screens */
+    .multiplier-slot {
+        font-size: clamp(0.25rem, 0.7vw, 0.4rem);
+        height: 28px;
+        padding: 0.125rem 0.0625rem;
+        letter-spacing: -1px;
+    }
+    
+    /* Canvas fits perfectly on small screens */
+    #game-canvas {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* UPDATED: Small screen ball count dropdown */
+    .ball-count-dropdown {
+        padding: 0.5rem 1rem; /* Match reset button padding */
+        font-size: 0.75rem; /* Match reset button font size */
+        background-position: right 0.5rem center; /* Adjust arrow position */
+    }
+}
+
+/* Enable proper scrolling without horizontal overflow */
+html, body {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Ensure no elements cause horizontal scroll */
+* {
+    max-width: 100%;
+}
+
+/* Container to prevent any overflow */
+#app {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
 </style>
 </head>
 <body>
 <!-- Start Overlay for Chrome Autoplay Policy -->
 <div id="start-overlay" class="fixed inset-0 flex items-center justify-center">
-    <div class="text-center">
-        <h1 class="text-5xl font-bold gradient-text mb-6">COSMIC PLINKO</h1>
-        <p class="text-white mb-8 text-xl font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</p>
-        <p class="text-blue-200 mb-10 max-w-md mx-auto text-lg">
-            Click START to enable audio, video, and begin your cosmic gaming experience!
-        </p>
-        <button id="start-game" class="start-button text-white font-bold px-12 py-6 rounded-xl text-2xl">
-            🚀 START COSMIC EXPERIENCE
-        </button>
-    </div>
+<div class="text-center">
+    <h1 class="text-5xl font-bold gradient-text mb-6">COSMIC PLINKO</h1>
+    <p class="text-white mb-8 text-xl font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</p>
+    <p class="text-blue-200 mb-10 max-w-md mx-auto text-lg">
+        Click START to enable audio, video, and begin your cosmic gaming experience!
+    </p>
+    <button id="start-game" class="start-button text-white font-bold px-12 py-6 rounded-xl text-2xl">
+        🚀 START COSMIC EXPERIENCE
+    </button>
+</div>
 </div>
 
 <div id="app" class="h-screen w-screen relative">
-    <!-- Cosmic Video Background -->
-    <video 
-        id="cosmic-video"
-        class="absolute inset-0 w-full h-full object-cover"
-        loop 
-        playsinline
-        preload="auto"
-        crossorigin="anonymous"
-        style="display: none;"
-    >
-        <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BackGround-mxRb0rKXSqoh1DHNoh7HMJMnl40Ut8.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-    
-    <!-- Loading Indicator -->
-    <div id="loading-indicator" class="absolute top-4 left-4 status-indicator text-white px-3 py-2 rounded-lg text-sm" style="display: none;">
-        🚀 Loading cosmic experience...
-    </div>
-    
-    <!-- FIXED: Perfect centering layout -->
-    <div class="game-layout relative z-10">
-        <div class="desktop-container">
-            <!-- Left Sidebar (Hidden on Mobile) -->
-            <div class="left-sidebar">
-                <div class="sidebar-content">
-                    <!-- Win Display - FIXED: Aligned with top of game board -->
-                    <div class="win-section">
-                        <div id="win-card" class="win-card rounded-xl w-48 hidden animate-glow">
-                            <div class="p-4 text-center">
-                                <div id="last-win" class="text-2xl font-bold win-value">+$0.00</div>
-                                <div class="stat-label text-xs mt-1">LAST WIN</div>
-                            </div>
+<!-- Cosmic Video Background -->
+<video 
+    id="cosmic-video"
+    class="absolute inset-0 w-full h-full object-cover"
+    loop 
+    playsinline
+    preload="auto"
+    crossorigin="anonymous"
+    style="display: none;"
+>
+    <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BackGround-mxRb0rKXSqoh1DHNoh7HMJMnl40Ut8.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+
+<!-- Loading Indicator -->
+<div id="loading-indicator" class="absolute top-4 left-4 status-indicator text-white px-3 py-2 rounded-lg text-sm" style="display: none;">
+    🚀 Loading cosmic experience...
+</div>
+
+<!-- FIXED: Perfect centering layout -->
+<div class="game-layout relative z-10">
+    <div class="desktop-container">
+        <!-- Left Sidebar (Hidden on Mobile) -->
+        <div class="left-sidebar">
+            <div class="sidebar-content">
+                <!-- Win Display - UPDATED: Positioned relative to game board start -->
+                <div class="win-section">
+                    <div id="win-card" class="win-card rounded-xl w-48 hidden animate-glow">
+                        <div class="p-4 text-center">
+                            <div id="last-win" class="text-2xl font-bold win-value">+$0.00</div>
+                            <div class="stat-label text-xs mt-1">LAST WIN</div>
                         </div>
                     </div>
-                    
-                    <!-- Recent Hits - FIXED: Positioned below win card -->
-                    <div class="recent-hits-section">
-                        <div class="game-card rounded-xl w-48">
-                            <div class="p-4">
-                                <h3 class="stat-value text-sm font-bold mb-3 text-center">RECENT HITS</h3>
-                                <div class="recent-hits-container">
-                                    <div id="recent-hits" class="space-y-2">
-                                        <div class="text-blue-300/50 text-xs text-center py-6">No hits yet</div>
-                                    </div>
+                </div>
+                
+                <!-- Recent Hits - UPDATED: Bottom aligned with game board bottom -->
+                <div class="recent-hits-section">
+                    <div class="game-card rounded-xl w-48">
+                        <div class="p-4">
+                            <h3 class="stat-value text-sm font-bold mb-3 text-center">RECENT HITS</h3>
+                            <div class="recent-hits-container">
+                                <div id="recent-hits" class="space-y-2">
+                                    <div class="text-blue-300/50 text-xs text-center py-6">No hits yet</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+        
+        <!-- Center Content -->
+        <div class="center-content">
+            <!-- Floating Alien -->
+            <div class="alien-container animate-float">
+                <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Alien-uzfEiE9Kl7eFnvILT9jpv6ATb1JQjX.png" alt="Cosmic Alien" class="alien-image" crossorigin="anonymous" />
+            </div>
+
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h1 class="text-4xl font-bold gradient-text mb-2">COSMIC PLINKO</h1>
+                <div class="text-blue-300 text-lg font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</div>
+            </div>
             
-            <!-- Center Content -->
-            <div class="center-content">
-                <!-- Floating Alien -->
-                <div class="alien-container animate-float">
-                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Alien-uzfEiE9Kl7eFnvILT9jpv6ATb1JQjX.png" alt="Cosmic Alien" class="alien-image" crossorigin="anonymous" />
-                </div>
-
-                <!-- Header -->
-                <div class="text-center mb-4">
-                    <h1 class="text-4xl font-bold gradient-text mb-2">COSMIC PLINKO</h1>
-                    <div class="text-blue-300 text-lg font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</div>
-                </div>
+            <!-- Game Board -->
+            <div class="relative mb-4">
+                <canvas 
+                    id="game-canvas"
+                    width="600" 
+                    height="500"
+                    class="rounded-xl shadow-2xl backdrop-blur-sm"
+                ></canvas>
                 
-                <!-- Game Board -->
-                <div class="relative mb-4">
-                    <canvas 
-                        id="game-canvas"
-                        width="600" 
-                        height="500"
-                        class="rounded-xl shadow-2xl backdrop-blur-sm"
-                    ></canvas>
-                    
-                    <!-- FIXED: Prize Multipliers - Now properly visible above canvas -->
-                    <div id="multipliers" class="absolute bottom-0 left-0 right-0 flex">
-                        <!-- Multipliers will be generated by JavaScript -->
-                    </div>
-                </div>
-                
-                <!-- Bet Controls -->
-                <div id="bet-controls" class="flex gap-2 mb-4 flex-wrap justify-center">
-                    <!-- Bet buttons will be generated by JavaScript -->
-                </div>
-                
-                <!-- Game Controls -->
-                <div class="flex gap-4 mb-4 items-center">
-                    <!-- Ball Count Dropdown -->
-                    <select 
-                        id="ball-count-select"
-                        class="ball-count-dropdown rounded-xl transition-all"
-                    >
-                        <option value="1">1 Ball</option>
-                        <option value="2">2 Balls</option>
-                        <option value="3">3 Balls</option>
-                        <option value="4">4 Balls</option>
-                        <option value="5">5 Balls</option>
-                    </select>
-                    
-                    <button 
-                        id="drop-ball-btn"
-                        class="btn-primary text-white font-bold px-8 py-3 rounded-xl shadow-xl"
-                    >
-                        DROP BALL
-                    </button>
-                    <button 
-                        id="reset-btn"
-                        class="reset-button px-6 py-3 rounded-xl transition-all"
-                    >
-                        <span class="inline-block w-5 h-5 mr-2">↻</span>
-                        RESET
-                    </button>
-                </div>
-
-                <!-- Total Bet Display -->
-                <div id="total-bet-display" class="text-center text-blue-300 text-sm mb-4" style="font-family: 'Orbitron', monospace;">
-                    $1.00 × 1 ball = $1.00
-                </div>
-
-                <!-- Stats - Desktop and Mobile layout -->
-                <div class="flex flex-col gap-2 mb-4 stats-mobile lg:flex-row lg:gap-2 lg:justify-center">
-                    <div class="game-card rounded-xl balance-box mx-auto lg:mx-0">
-                        <div class="p-4 text-center">
-                            <div id="balance" class="text-2xl font-bold stat-value">$100.00</div>
-                            <div class="stat-label text-xs mt-1">BALANCE</div>
-                        </div>
-                    </div>
-                    <div class="game-card rounded-xl bet-box mx-auto lg:mx-0">
-                        <div class="p-4 text-center">
-                            <div id="bet-amount" class="text-2xl font-bold stat-value">$1.00</div>
-                            <div class="stat-label text-xs mt-1">BET PER BALL</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mobile Win Display and Recent Hits (Only visible on mobile) -->
-                <div class="lg:hidden mb-4 mobile-stats-container mx-auto">
-                    <!-- Mobile Win Display -->
-                    <div class="mb-2">
-                        <div id="mobile-win-card" class="win-card rounded-xl hidden animate-glow">
-                            <div class="p-3 text-center">
-                                <div id="mobile-last-win" class="text-lg font-bold win-value">+$0.00</div>
-                                <div class="stat-label text-xs mt-1">LAST WIN</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Mobile Recent Hits - HORIZONTAL -->
-                    <div class="game-card rounded-xl">
-                        <div class="p-3">
-                            <h3 class="stat-value text-sm font-bold mb-2 text-center">RECENT HITS</h3>
-                            <div id="mobile-recent-hits" class="mobile-recent-hits-horizontal">
-                                <div class="text-blue-300/50 text-xs text-center py-4 w-full">No hits yet</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Instructions -->
-                <div class="text-center text-blue-300/80 text-sm mb-2" style="font-family: 'Orbitron', monospace;">
-                    Press <kbd class="px-2 py-1 rounded text-sm">SPACE</kbd> or click DROP BALL
-                </div>
-                
-                <!-- Insufficient Balance Warning -->
-                <div id="insufficient-balance" class="text-purple-300 text-sm font-bold animate-pulse hidden" style="font-family: 'Orbitron', monospace;">
-                    INSUFFICIENT BALANCE
+                <!-- FIXED: Prize Multipliers - Now properly visible above canvas -->
+                <div id="multipliers" class="absolute bottom-0 left-0 right-0 flex">
+                    <!-- Multipliers will be generated by JavaScript -->
                 </div>
             </div>
             
-            <!-- Right Sidebar (Hidden for now) -->
-            <div class="right-sidebar hidden lg:block">
-                <!-- Future features can go here -->
+            <!-- Bet Controls -->
+            <div id="bet-controls" class="flex gap-2 mb-4 flex-wrap justify-center">
+                <!-- Bet buttons will be generated by JavaScript -->
             </div>
+            
+            <!-- Game Controls -->
+            <div class="flex gap-4 mb-4 items-center">
+                <!-- Ball Count Dropdown -->
+                <select 
+                    id="ball-count-select"
+                    class="ball-count-dropdown rounded-xl transition-all"
+                >
+                    <option value="1">1 Ball</option>
+                    <option value="2">2 Balls</option>
+                    <option value="3">3 Balls</option>
+                    <option value="4">4 Balls</option>
+                    <option value="5">5 Balls</option>
+                </select>
+                
+                <button 
+                    id="drop-ball-btn"
+                    class="btn-primary text-white font-bold px-8 py-3 rounded-xl shadow-xl"
+                >
+                    DROP BALL
+                </button>
+                <button 
+                    id="reset-btn"
+                    class="reset-button px-6 py-3 rounded-xl transition-all"
+                >
+                    <span class="inline-block w-5 h-5 mr-2">↻</span>
+                    RESET
+                </button>
+            </div>
+
+            <!-- Total Bet Display -->
+            <div id="total-bet-display" class="text-center text-blue-300 text-sm mb-4" style="font-family: 'Orbitron', monospace;">
+                $1.00 × 1 ball = $1.00
+            </div>
+
+            <!-- Stats - Desktop and Mobile layout -->
+            <div class="flex flex-col gap-2 mb-4 stats-mobile lg:flex-row lg:gap-2 lg:justify-center">
+                <div class="game-card rounded-xl balance-box mx-auto lg:mx-0">
+                    <div class="p-4 text-center">
+                        <div id="balance" class="text-2xl font-bold stat-value">$100.00</div>
+                        <div class="stat-label text-xs mt-1">BALANCE</div>
+                    </div>
+                </div>
+                <div class="game-card rounded-xl bet-box mx-auto lg:mx-0">
+                    <div class="p-4 text-center">
+                        <div id="bet-amount" class="text-2xl font-bold stat-value">$1.00</div>
+                        <div class="stat-label text-xs mt-1">BET PER BALL</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Win Display and Recent Hits (Only visible on mobile) -->
+            <div class="lg:hidden mb-4 mobile-stats-container mx-auto">
+                <!-- Mobile Win Display -->
+                <div class="mb-2">
+                    <div id="mobile-win-card" class="win-card rounded-xl hidden animate-glow">
+                        <div class="p-3 text-center">
+                            <div id="mobile-last-win" class="text-lg font-bold win-value">+$0.00</div>
+                            <div class="stat-label text-xs mt-1">LAST WIN</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile Recent Hits - HORIZONTAL -->
+                <div class="game-card rounded-xl">
+                    <div class="p-3">
+                        <h3 class="stat-value text-sm font-bold mb-2 text-center">RECENT HITS</h3>
+                        <div id="mobile-recent-hits" class="mobile-recent-hits-horizontal">
+                            <div class="text-blue-300/50 text-xs text-center py-4 w-full">No hits yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Instructions -->
+            <div class="text-center text-blue-300/80 text-sm mb-2" style="font-family: 'Orbitron', monospace;">
+                Press <kbd class="px-2 py-1 rounded text-sm">SPACE</kbd> or click DROP BALL
+            </div>
+            
+            <!-- Insufficient Balance Warning -->
+            <div id="insufficient-balance" class="text-purple-300 text-sm font-bold animate-pulse hidden" style="font-family: 'Orbitron', monospace;">
+                INSUFFICIENT BALANCE
+            </div>
+        </div>
+        
+        <!-- Right Sidebar (Hidden for now) -->
+        <div class="right-sidebar hidden lg:block">
+            <!-- Future features can go here -->
         </div>
     </div>
 </div>
+</div>
 
 <script>
-    // Game State
-    let gameState = {
-        balance: 100,
-        betAmount: 1,
-        ballCount: 1,
-        lastWin: 0,
-        audioInitialized: false,
-        videoLoaded: false,
-        gameStarted: false,
-        balls: [],
-        pegs: [],
-        particles: [],
-        recentHits: [],
-        lastDropTime: 0
-    };
+// Game State
+let gameState = {
+    balance: 100,
+    betAmount: 1,
+    ballCount: 1,
+    lastWin: 0,
+    audioInitialized: false,
+    videoLoaded: false,
+    gameStarted: false,
+    balls: [],
+    pegs: [],
+    pegsByRow: {}, // NEW: Store pegs grouped by row for easier line generation
+    particles: [],
+    recentHits: [],
+    lastDropTime: 0,
+    multiplierLines: [], // NEW: Active multiplier lines for the current drop
+    lineAnimationTime: 0 // NEW: For animating the multiplier lines
+};
 
-    // Constants - UPDATED: Added $10 bet option
-    const BET_AMOUNTS = [0.5, 1, 2, 3, 4, 5, 10];
-    // THISISTHEODDS: 1000x (0.76%), 100x (2.28%), 50x (4.56%), 10x (9.12%), 5x (13.68%), 2x (18.24%), 1x (18.24%), 0.5x (9.12%), 1x (18.24%), 2x (18.24%), 5x (13.68%), 10x (9.12%), 50x (4.56%), 100x (2.28%), 1000x (0.76%)
-    const MULTIPLIERS = [1000, 100, 50, 10, 5, 2, 1, 0.5, 1, 2, 5, 10, 50, 100, 1000];
-    const CANVAS_WIDTH = 600; // Increased from 520
-    const CANVAS_HEIGHT = 500; // Increased from 450
+// Constants - UPDATED: Added $10 bet option
+const BET_AMOUNTS = [0.5, 1, 2, 3, 4, 5, 10];
+// THISISTHEODDS: 1000x (0.76%), 100x (2.28%), 50x (4.56%), 10x (9.12%), 5x (13.68%), 2x (18.24%), 1x (18.24%), 0.5x (9.12%), 1x (18.24%), 2x (18.24%), 5x (13.68%), 10x (9.12%), 50x (4.56%), 100x (2.28%), 1000x (0.76%)
+const MULTIPLIERS = [1000, 100, 50, 10, 5, 2, 1, 0.5, 1, 2, 5, 10, 50, 100, 1000];
+const CANVAS_WIDTH = 600; // Increased from 520
+const CANVAS_HEIGHT = 500; // Increased from 450
+
+// Audio system
+let audioContext = null;
+let audioBuffers = {
+    sound1: null,
+    sound2: null,
+    sound3: null,
+    ballDrop: null,
+    spaceSong: null,
+    buttonChange: null
+};
+
+// Background music source node for looping
+let backgroundMusicSource = null;
+let backgroundMusicGain = null;
+
+// Canvas and video references
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+const video = document.getElementById('cosmic-video');
+
+// UI Update Timer - separate from game physics
+let uiUpdateInterval;
+
+// Check if mobile
+function isMobile() {
+    return window.innerWidth <= 1024;
+}
+
+// Start game function - handles Chrome autoplay restrictions
+async function startGame() {
+    console.log('🚀 Starting Cosmic Plinko...');
     
-    // Audio system
-    let audioContext = null;
-    let audioBuffers = {
-        sound1: null,
-        sound2: null,
-        sound3: null,
-        ballDrop: null,
-        spaceSong: null,
-        buttonChange: null
-    };
-
-    // Background music source node for looping
-    let backgroundMusicSource = null;
-    let backgroundMusicGain = null;
-
-    // Canvas and video references
-    const canvas = document.getElementById('game-canvas');
-    const ctx = canvas.getContext('2d');
-    const video = document.getElementById('cosmic-video');
-    
-    // UI Update Timer - separate from game physics
-    let uiUpdateInterval;
-
-    // Check if mobile
-    function isMobile() {
-        return window.innerWidth <= 1024;
-    }
-    
-    // Start game function - handles Chrome autoplay restrictions
-    async function startGame() {
-        console.log('🚀 Starting Cosmic Plinko...');
+    try {
+        // Hide start overlay
+        document.getElementById('start-overlay').style.display = 'none';
+        document.getElementById('loading-indicator').style.display = 'block';
         
-        try {
-            // Hide start overlay
-            document.getElementById('start-overlay').style.display = 'none';
-            document.getElementById('loading-indicator').style.display = 'block';
-            
-            // Initialize audio context FIRST (must be done on user interaction)
-            await initializeAudio();
-            
-            // Start video with audio
-            await startVideo();
-            
-            // Start background music
-            startBackgroundMusic();
-            
-            // Initialize game
-            gameState.gameStarted = true;
-            initializePegs();
-            initializeUI();
-            setupEventListeners();
-            startAnimationLoop();
-            startUIUpdateLoop(); // Start separate UI update loop
-            
-            document.getElementById('loading-indicator').style.display = 'none';
-            console.log('✅ Game started successfully');
-            
-        } catch (error) {
-            console.error('❌ Failed to start game:', error);
-            alert('Failed to start game. Please refresh and try again.');
-        }
-    }
-
-    // Initialize audio system - MUST be called on user interaction
-    async function initializeAudio() {
-        console.log('🔊 Initializing audio system...');
+        // Initialize audio context FIRST (must be done on user interaction)
+        await initializeAudio();
         
-        try {
-            // Create audio context (must be done on user gesture)
-            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContextClass) {
-                throw new Error('Web Audio API not supported');
-            }
-            audioContext = new AudioContextClass();
-
-            // Resume audio context (required by Chrome)
-            if (audioContext.state === 'suspended') {
-                await audioContext.resume();
-            }
-            
-            console.log('🎵 Audio context state:', audioContext.state);
-            
-            // Load all audio files
-            const loadAudio = async (url, name) => {
-                try {
-                    console.log(`📥 Loading ${name} from ${url}`);
-                    const response = await fetch(url, { 
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'audio/*'
-                        }
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    
-                    const arrayBuffer = await response.arrayBuffer();
-                    console.log(`🔄 Decoding ${name}...`);
-                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                    console.log(`✅ ${name} loaded successfully`);
-                    return audioBuffer;
-                } catch (error) {
-                    console.error(`❌ Failed to load ${name}:`, error);
-                    return null;
-                }
-            };
-
-            // Load all sounds in parallel
-            console.log('📦 Loading all audio files...');
-            const [sound1, sound2, sound3, ballDrop, spaceSong, buttonChange] = await Promise.all([
-                loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1-2blBIg4gAwWnvcOcAfJ18csMkgrmpR.mp3', 'Sound 1'),
-                loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/2-DRu5ntJp8KOAyep8t2NrS0u4K8m0uz.mp3', 'Sound 2'),
-                loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3-Xl9zw4BwCvupErIVwySJUpAGUw7Ia1.mp3', 'Sound 3'),
-                loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balldrop-hCisqCs6oFv8HlHGRhoc1rKeFevo0M.mp3', 'Ball Drop'),
-                loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/space%20-rvNZSIyJXLKZtJ6lczTy1NjfJHRzuH.mp3', 'Space Song'),
-                loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/buttonchange-zhwkWSbkfOGp9jJXv7jjNtm1wlKYBK.mp3', 'Button Change')
-            ]);
-
-            audioBuffers = { sound1, sound2, sound3, ballDrop, spaceSong, buttonChange };
-            gameState.audioInitialized = true;
-            
-            console.log('🎉 Audio system fully initialized');
-            
-        } catch (error) {
-            console.error('❌ Audio initialization failed:', error);
-            throw error;
-        }
+        // Start video with audio
+        await startVideo();
+        
+        // Start background music
+        startBackgroundMusic();
+        
+        // Initialize game
+        gameState.gameStarted = true;
+        initializePegs();
+        initializeUI();
+        setupEventListeners();
+        startAnimationLoop();
+        startUIUpdateLoop(); // Start separate UI update loop
+        
+        document.getElementById('loading-indicator').style.display = 'none';
+        console.log('✅ Game started successfully');
+        
+    } catch (error) {
+        console.error('❌ Failed to start game:', error);
+        alert('Failed to start game. Please refresh and try again.');
     }
+}
 
-    // Start background music loop
-    function startBackgroundMusic() {
-        if (!gameState.audioInitialized || !audioContext || !audioBuffers.spaceSong) {
-            console.warn('⚠️ Background music not ready');
-            return;
+// Initialize audio system - MUST be called on user interaction
+async function initializeAudio() {
+    console.log('🔊 Initializing audio system...');
+    
+    try {
+        // Create audio context (must be done on user gesture)
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+            throw new Error('Web Audio API not supported');
         }
+        audioContext = new AudioContextClass();
 
-        try {
-            // Stop existing background music if playing
-            if (backgroundMusicSource) {
-                backgroundMusicSource.stop();
-            }
-
-            // Create new source and gain nodes
-            backgroundMusicSource = audioContext.createBufferSource();
-            backgroundMusicGain = audioContext.createGain();
-
-            // Set up the audio chain
-            backgroundMusicSource.buffer = audioBuffers.spaceSong;
-            backgroundMusicSource.connect(backgroundMusicGain);
-            backgroundMusicGain.connect(audioContext.destination);
-
-            // Set volume (lower for background music)
-            backgroundMusicGain.gain.setValueAtTime(0.3, audioContext.currentTime);
-
-            // Enable looping
-            backgroundMusicSource.loop = true;
-
-            // Handle when the source ends (shouldn't happen with loop=true, but just in case)
-            backgroundMusicSource.onended = () => {
-                console.log('🎵 Background music ended, restarting...');
-                setTimeout(startBackgroundMusic, 100); // Restart after brief delay
-            };
-
-            // Start playing
-            backgroundMusicSource.start(audioContext.currentTime);
-            
-            console.log('🎵 Background space music started');
-        } catch (error) {
-            console.error('❌ Error starting background music:', error);
+        // Resume audio context (required by Chrome)
+        if (audioContext.state === 'suspended') {
+            await audioContext.resume();
         }
-    }
-
-    // Play button change sound
-    function playButtonChangeSound() {
-        if (!gameState.audioInitialized || !audioContext || !audioBuffers.buttonChange) {
-            console.warn('⚠️ Button change audio not ready');
-            return;
-        }
-
-        try {
-            const source = audioContext.createBufferSource();
-            const gainNode = audioContext.createGain();
-            source.buffer = audioBuffers.buttonChange;
-            source.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime); // Reduced from 0.6
-            source.start(audioContext.currentTime);
-            console.log('🔘 Button change sound played');
-        } catch (error) {
-            console.error('❌ Error playing button change sound:', error);
-        }
-    }
-
-    // Start video with audio
-    async function startVideo() {
-        console.log('📹 Starting video...');
-        try {
-            video.style.display = 'block';
-            video.muted = false; // Enable audio
-            video.volume = 0.08; // Set volume to 8% (reduced from 15%)
-            video.currentTime = 0;
-
-            // Force play (user interaction allows this)
-            await video.play();
-            gameState.videoLoaded = true;
-            console.log('✅ Video playing with audio');
-
-            // Setup video event listeners
-            video.addEventListener('ended', () => {
-                console.log('🔄 Video ended, restarting...');
-                video.currentTime = 0;
-                video.play().catch(console.error);
-            });
-
-        } catch (error) {
-            console.error('❌ Video failed to start:', error);
-            // Fallback: try muted
+        
+        console.log('🎵 Audio context state:', audioContext.state);
+        
+        // Load all audio files
+        const loadAudio = async (url, name) => {
             try {
-                video.muted = true;
-                await video.play();
-                console.log('📹 Video playing muted (fallback)');
-            } catch (mutedError) {
-                console.error('❌ Even muted video failed:', mutedError);
-            }
-        }
-    }
-
-    // Initialize pegs in perfect formation - Updated for larger board
-    function initializePegs() {
-        gameState.pegs = [];
-        const rows = 13; // Increased for larger board
-        const pegSpacing = 42; // Increased spacing for larger board
-        const boardWidth = CANVAS_WIDTH;
-        const startY = 100;
-
-        for (let row = 0; row < rows; row++) {
-            const pegsInRow = row + 4;
-            const totalWidth = (pegsInRow - 1) * pegSpacing;
-            const startX = (boardWidth - totalWidth) / 2;
-
-            for (let col = 0; col < pegsInRow; col++) {
-                // Add slight random offset to each peg for more chaos
-                const randomOffsetX = (Math.random() - 0.5) * 4;
-                const randomOffsetY = (Math.random() - 0.5) * 3;
-                
-                gameState.pegs.push({
-                    x: startX + col * pegSpacing + randomOffsetX,
-                    y: startY + row * 30 + randomOffsetY, // Increased vertical spacing
-                    hit: false,
-                    hitTime: 0
+                console.log(`📥 Loading ${name} from ${url}`);
+                const response = await fetch(url, { 
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'audio/*'
+                    }
                 });
-            }
-        }
-    }
-
-    // Initialize UI elements
-    function initializeUI() {
-        // Generate bet controls
-        const betControls = document.getElementById('bet-controls');
-        betControls.innerHTML = '';
-
-        BET_AMOUNTS.forEach(amount => {
-            const button = document.createElement('button');
-            button.className = `bet-button px-4 py-2 text-sm rounded-lg transition-all ${
-                gameState.betAmount === amount ? 'active' : ''
-            }`;
-            button.textContent = `$${amount.toFixed(2)}`;
-            button.onclick = () => setBetAmount(amount);
-            betControls.appendChild(button);
-        });
-
-        // Generate multipliers - UPDATED: Better gradient colors and gold text
-        const multipliersDiv = document.getElementById('multipliers');
-        multipliersDiv.innerHTML = '';
-
-        // UPDATED: Color mapping for each multiplier value - Better gradient progression
-        const getMultiplierColor = (multiplier) => {
-            switch(multiplier) {
-                case 1000: return 'rgba(88, 28, 135, 0.9)'; // Dark purple (highest)
-                case 100: return 'rgba(124, 58, 237, 0.9)'; // Medium purple
-                case 50: return 'rgba(139, 92, 246, 0.9)'; // Light purple
-                case 10: return 'rgba(168, 85, 247, 0.9)'; // Lighter purple
-                case 5: return 'rgba(196, 181, 253, 0.9)'; // Very light purple
-                case 2: return 'rgba(221, 214, 254, 0.9)'; // Pale purple
-                case 1: return 'rgba(147, 197, 253, 0.9)'; // UPDATED: Light blue (brighter than 0.5x)
-                case 0.5: return 'rgba(107, 114, 128, 0.9)'; // Grey (lowest)
-                default: return 'rgba(59, 130, 246, 0.9)'; // Fallback light blue
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const arrayBuffer = await response.arrayBuffer();
+                console.log(`🔄 Decoding ${name}...`);
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                console.log(`✅ ${name} loaded successfully`);
+                return audioBuffer;
+            } catch (error) {
+                console.error(`❌ Failed to load ${name}:`, error);
+                return null;
             }
         };
 
-        MULTIPLIERS.forEach((multiplier, index) => {
-            const div = document.createElement('div');
-            div.className = 'multiplier-slot flex-1 flex items-center justify-center font-bold border-r-2 border-purple-500 last:border-r-0';
-            div.style.background = getMultiplierColor(multiplier);
-            div.style.border = '2px solid rgb(147, 51, 234)'; // Solid purple border
-            div.style.color = '#ffd700'; // Gold text color
-            div.textContent = `${multiplier}x`;
-            multipliersDiv.appendChild(div);
+        // Load all sounds in parallel
+        console.log('📦 Loading all audio files...');
+        const [sound1, sound2, sound3, ballDrop, spaceSong, buttonChange] = await Promise.all([
+            loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1-2blBIg4gAwWnvcOcAfJ18csMkgrmpR.mp3', 'Sound 1'),
+            loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/2-DRu5ntJp8KOAyep8t2NrS0u4K8m0uz.mp3', 'Sound 2'),
+            loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3-Xl9zw4BwCvupErIVwySJUpAGUw7Ia1.mp3', 'Sound 3'),
+            loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balldrop-hCisqCs6oFv8HlHGRhoc1rKeFevo0M.mp3', 'Ball Drop'),
+            loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/space%20-rvNZSIyJXLKZtJ6lczTy1NjfJHRzuH.mp3', 'Space Song'),
+            loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/buttonchange-zhwkWSbkfOGp9jJXv7jjNtm1wlKYBK.mp3', 'Button Change')
+        ]);
+
+        audioBuffers = { sound1, sound2, sound3, ballDrop, spaceSong, buttonChange };
+        gameState.audioInitialized = true;
+        
+        console.log('🎉 Audio system fully initialized');
+        
+    } catch (error) {
+        console.error('❌ Audio initialization failed:', error);
+        throw error;
+    }
+}
+
+// Start background music loop
+function startBackgroundMusic() {
+    if (!gameState.audioInitialized || !audioContext || !audioBuffers.spaceSong) {
+        console.warn('⚠️ Background music not ready');
+        return;
+    }
+
+    try {
+        // Stop existing background music if playing
+        if (backgroundMusicSource) {
+            backgroundMusicSource.stop();
+        }
+
+        // Create new source and gain nodes
+        backgroundMusicSource = audioContext.createBufferSource();
+        backgroundMusicGain = audioContext.createGain();
+
+        // Set up the audio chain
+        backgroundMusicSource.buffer = audioBuffers.spaceSong;
+        backgroundMusicSource.connect(backgroundMusicGain);
+        backgroundMusicGain.connect(audioContext.destination);
+
+        // Set volume (lower for background music)
+        backgroundMusicGain.gain.setValueAtTime(0.3, audioContext.currentTime);
+
+        // Enable looping
+        backgroundMusicSource.loop = true;
+
+        // Handle when the source ends (shouldn't happen with loop=true, but just in case)
+        backgroundMusicSource.onended = () => {
+            console.log('🎵 Background music ended, restarting...');
+            setTimeout(startBackgroundMusic, 100); // Restart after brief delay
+        };
+
+        // Start playing
+        backgroundMusicSource.start(audioContext.currentTime);
+        
+        console.log('🎵 Background space music started');
+    } catch (error) {
+        console.error('❌ Error starting background music:', error);
+    }
+}
+
+// Play button change sound
+function playButtonChangeSound() {
+    if (!gameState.audioInitialized || !audioContext || !audioBuffers.buttonChange) {
+        console.warn('⚠️ Button change audio not ready');
+        return;
+    }
+
+    try {
+        const source = audioContext.createBufferSource();
+        const gainNode = audioContext.createGain();
+        source.buffer = audioBuffers.buttonChange;
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime); // Reduced from 0.6
+        source.start(audioContext.currentTime);
+        console.log('🔘 Button change sound played');
+    } catch (error) {
+        console.error('❌ Error playing button change sound:', error);
+    }
+}
+
+// Start video with audio
+async function startVideo() {
+    console.log('📹 Starting video...');
+    try {
+        video.style.display = 'block';
+        video.muted = false; // Enable audio
+        video.volume = 0.08; // Set volume to 8% (reduced from 15%)
+        video.currentTime = 0;
+
+        // Force play (user interaction allows this)
+        await video.play();
+        gameState.videoLoaded = true;
+        console.log('✅ Video playing with audio');
+
+        // Setup video event listeners
+        video.addEventListener('ended', () => {
+            console.log('🔄 Video ended, restarting...');
+            video.currentTime = 0;
+            video.play().catch(console.error);
         });
 
-        // Update total bet display
-        updateTotalBetDisplay();
+    } catch (error) {
+        console.error('❌ Video failed to start:', error);
+        // Fallback: try muted
+        try {
+            video.muted = true;
+            await video.play();
+            console.log('📹 Video playing muted (fallback)');
+        } catch (mutedError) {
+            console.error('❌ Even muted video failed:', mutedError);
+        }
     }
+}
+
+// Initialize pegs in perfect formation - Updated for larger board
+function initializePegs() {
+    gameState.pegs = [];
+    gameState.pegsByRow = {}; // Reset pegs by row
+    const rows = 13; // Increased for larger board
+    const pegSpacing = 42; // Increased spacing for larger board
+    const boardWidth = CANVAS_WIDTH;
+    const startY = 100;
+
+    for (let row = 0; row < rows; row++) {
+        const pegsInRow = row + 4;
+        const totalWidth = (pegsInRow - 1) * pegSpacing;
+        const startX = (boardWidth - totalWidth) / 2;
+        
+        gameState.pegsByRow[row] = []; // Initialize array for this row
+
+        for (let col = 0; col < pegsInRow; col++) {
+            // Add slight random offset to each peg for more chaos
+            const randomOffsetX = (Math.random() - 0.5) * 4;
+            const randomOffsetY = (Math.random() - 0.5) * 3;
+            
+            const newPeg = {
+                x: startX + col * pegSpacing + randomOffsetX,
+                y: startY + row * 30 + randomOffsetY, // Increased vertical spacing
+                hit: false,
+                hitTime: 0,
+                row: row // Store row index with peg
+            };
+            gameState.pegs.push(newPeg);
+            gameState.pegsByRow[row].push(newPeg); // Add to pegsByRow
+        }
+    }
+}
+
+// Initialize UI elements
+function initializeUI() {
+    // Generate bet controls
+    const betControls = document.getElementById('bet-controls');
+    betControls.innerHTML = '';
+
+    BET_AMOUNTS.forEach(amount => {
+        const button = document.createElement('button');
+        button.className = `bet-button px-4 py-2 text-sm rounded-lg transition-all ${
+            gameState.betAmount === amount ? 'active' : ''
+        }`;
+        button.textContent = `$${amount.toFixed(2)}`;
+        button.onclick = () => setBetAmount(amount);
+        betControls.appendChild(button);
+    });
+
+    // Generate multipliers - UPDATED: Better gradient colors and gold text
+    const multipliersDiv = document.getElementById('multipliers');
+    multipliersDiv.innerHTML = '';
+
+    // UPDATED: Color mapping for each multiplier value - Better gradient progression
+    const getMultiplierColor = (multiplier) => {
+        switch(multiplier) {
+            case 1000: return 'rgba(88, 28, 135, 0.9)'; // Dark purple (highest)
+            case 100: return 'rgba(124, 58, 237, 0.9)'; // Medium purple
+            case 50: return 'rgba(139, 92, 246, 0.9)'; // Light purple
+            case 10: return 'rgba(168, 85, 247, 0.9)'; // Lighter purple
+            case 5: return 'rgba(196, 181, 253, 0.9)'; // Very light purple
+            case 2: return 'rgba(221, 214, 254, 0.9)'; // Pale purple
+            case 1: return 'rgba(180, 180, 200, 0.9)'; // UPDATED: Muted light purple/grey for 1x
+            case 0.5: return 'rgba(107, 114, 128, 0.9)'; // Grey (lowest)
+            default: return 'rgba(59, 130, 246, 0.9)'; // Fallback light blue
+        }
+    };
+
+    MULTIPLIERS.forEach((multiplier, index) => {
+        const div = document.createElement('div');
+        div.className = 'multiplier-slot flex-1 flex items-center justify-center font-bold border-r-2 border-purple-500 last:border-r-0';
+        div.style.background = getMultiplierColor(multiplier);
+        div.style.border = '2px solid rgb(147, 51, 234)'; // Solid purple border
+        div.style.color = '#ffd700'; // Gold text color
+        div.textContent = `${multiplier}x`;
+        multipliersDiv.appendChild(div);
+    });
 
     // Update total bet display
-    function updateTotalBetDisplay() {
-        const totalBet = gameState.betAmount * gameState.ballCount;
-        const ballText = gameState.ballCount === 1 ? 'ball' : 'balls';
-        document.getElementById('total-bet-display').textContent = 
-            `$${gameState.betAmount.toFixed(2)} × ${gameState.ballCount} ${ballText} = $${totalBet.toFixed(2)}`;
+    updateTotalBetDisplay();
+}
+
+// Update total bet display
+function updateTotalBetDisplay() {
+    const totalBet = gameState.betAmount * gameState.ballCount;
+    const ballText = gameState.ballCount === 1 ? 'ball' : 'balls';
+    document.getElementById('total-bet-display').textContent = 
+        `$${gameState.betAmount.toFixed(2)} × ${gameState.ballCount} ${ballText} = $${totalBet.toFixed(2)}`;
+}
+
+// Play ball drop sound
+function playBallDropSound() {
+    if (!gameState.audioInitialized || !audioContext || !audioBuffers.ballDrop) {
+        console.warn('⚠️ Ball drop audio not ready');
+        return;
     }
+
+    try {
+        const source = audioContext.createBufferSource();
+        const gainNode = audioContext.createGain();
+        source.buffer = audioBuffers.ballDrop;
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        gainNode.gain.setValueAtTime(0.7, audioContext.currentTime);
+        source.start(audioContext.currentTime);
+        console.log('🎾 Ball drop sound played');
+    } catch (error) {
+        console.error('❌ Error playing ball drop sound:', error);
+    }
+}
+
+// Play win sound
+function playWinSound(multiplier) {
+    if (!gameState.audioInitialized || !audioContext) {
+        console.warn('⚠️ Audio not initialized');
+        return;
+    }
+
+    try {
+        let buffer = null;
+        let soundType = '';
+
+        if (multiplier === 0.5 || multiplier === 1 || multiplier === 2) {
+            buffer = audioBuffers.sound1;
+            soundType = 'Sound 1 (0.5x, 1x, 2x)';
+        } else if (multiplier === 5 || multiplier === 10) {
+            buffer = audioBuffers.sound2;
+            soundType = 'Sound 2 (5x, 10x)';
+        } else if (multiplier === 50 || multiplier === 100 || multiplier === 1000) {
+            buffer = audioBuffers.sound3;
+            soundType = 'Sound 3 (50x, 100x, 1000x)';
+        }
+
+        if (!buffer) {
+            console.log(`🔇 No sound assigned for multiplier: ${multiplier}x`);
+            return;
+        }
+
+        const source = audioContext.createBufferSource();
+        const gainNode = audioContext.createGain();
+        source.buffer = buffer;
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        // Set volume based on multiplier
+        if (multiplier === 100 || multiplier === 1000) {
+            gainNode.gain.setValueAtTime(0.9, audioContext.currentTime);
+        } else if (multiplier === 10 || multiplier === 50) {
+            gainNode.gain.setValueAtTime(0.8, audioContext.currentTime);
+        } else {
+            gainNode.gain.setValueAtTime(0.7, audioContext.currentTime);
+        }
+
+        source.start(audioContext.currentTime);
+        console.log(`🎵 ${soundType} played for ${multiplier}x win`);
+    } catch (error) {
+        console.error('❌ Error playing win sound:', error);
+    }
+}
+
+// Create particles
+function createParticles(x, y, color) {
+    for (let i = 0; i < 6; i++) {
+        gameState.particles.push({
+            x,
+            y,
+            vx: (Math.random() - 0.5) * 4,
+            vy: (Math.random() - 0.5) * 4,
+            life: 40,
+            maxLife: 40,
+            color
+        });
+    }
+}
+
+// Helper function for distance from point to line segment (squared)
+function distToSegmentSquared(p, v, w) {
+    const l2 = (w.x - v.x) * (w.x - v.x) + (w.y - v.y) * (w.y - v.y);
+    if (l2 === 0) return (p.x - v.x) * (p.x - v.x) + (p.y - v.y) * (p.y - v.y);
+    let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+    t = Math.max(0, Math.min(1, t));
+    const projectionX = v.x + t * (w.x - v.x);
+    const projectionY = v.y + t * (w.y - v.y);
+    return (p.x - projectionX) * (p.x - projectionX) + (p.y - projectionY) * (p.y - projectionY);
+}
+
+// NEW: Generate multiplier lines for the current drop
+function generateMultiplierLines() {
+    gameState.multiplierLines = []; // Clear previous lines
+    const targetRows = [3, 6, 9, 12]; // Rows to consider (0-indexed)
+    const lineSpawnChance = 0.6; // 60% chance for a line to spawn on a target row
+
+    targetRows.forEach(rowIndex => {
+        if (Math.random() < lineSpawnChance) {
+            const pegsInThisRow = gameState.pegsByRow[rowIndex];
+            if (pegsInThisRow && pegsInThisRow.length >= 2) {
+                // Pick two adjacent pegs randomly
+                const startIndex = Math.floor(Math.random() * (pegsInThisRow.length - 1));
+                const peg1 = pegsInThisRow[startIndex];
+                const peg2 = pegsInThisRow[startIndex + 1];
+                
+                // Assign a specific random multiplier (2x, 3x, 4x, or 5x)
+                const assignedMultiplier = 2 + Math.floor(Math.random() * 4);
+
+                gameState.multiplierLines.push({
+                    id: `line-${rowIndex}-${startIndex}`,
+                    peg1: { x: peg1.x, y: peg1.y },
+                    peg2: { x: peg2.x, y: peg2.y },
+                    row: rowIndex,
+                    active: true,
+                    multiplier: assignedMultiplier, // Store the assigned multiplier
+                    hitByBalls: new Set() // Track which balls hit this line
+                });
+                console.log(`✨ Multiplier line spawned on row ${rowIndex} between x:${peg1.x.toFixed(1)} and x:${peg2.x.toFixed(1)} with ${assignedMultiplier}x`);
+            }
+        }
+    });
+}
+
+// FIXED: Check if can drop ball - Updated for multiple balls
+function canDropBall() {
+    const currentTime = Date.now();
+    const timeUntilNextDrop = Math.max(0, 300 - (currentTime - gameState.lastDropTime));
+    const hasActiveBalls = gameState.balls.some(ball => ball.active);
+    const totalBet = gameState.betAmount * gameState.ballCount;
+    return timeUntilNextDrop === 0 && gameState.balance >= totalBet && !hasActiveBalls;
+}
+
+// Drop ball function - UPDATED: Drop multiple balls
+async function dropBall() {
+    if (!gameState.gameStarted) return;
+
+    // Use centralized check
+    if (!canDropBall()) return;
+
+    // NEW: Generate new multiplier lines for this drop
+    generateMultiplierLines();
 
     // Play ball drop sound
-    function playBallDropSound() {
-        if (!gameState.audioInitialized || !audioContext || !audioBuffers.ballDrop) {
-            console.warn('⚠️ Ball drop audio not ready');
-            return;
-        }
+    playBallDropSound();
 
-        try {
-            const source = audioContext.createBufferSource();
-            const gainNode = audioContext.createGain();
-            source.buffer = audioBuffers.ballDrop;
-            source.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            gainNode.gain.setValueAtTime(0.7, audioContext.currentTime);
-            source.start(audioContext.currentTime);
-            console.log('🎾 Ball drop sound played');
-        } catch (error) {
-            console.error('❌ Error playing ball drop sound:', error);
-        }
+    // Update state
+    gameState.lastDropTime = Date.now();
+    const totalBet = gameState.betAmount * gameState.ballCount;
+    gameState.balance -= totalBet;
+
+    // Drop multiple balls with slight delays and spacing
+    for (let i = 0; i < gameState.ballCount; i++) {
+        setTimeout(() => {
+            const newBall = {
+                id: Date.now() + Math.random() + i,
+                // Spread balls across the top with more randomness
+                x: CANVAS_WIDTH / 2 + (Math.random() - 0.5) * 100 + (i - gameState.ballCount/2) * 20,
+                y: 50 + i * 5, // Slight vertical offset
+                // More random initial velocity
+                vx: (Math.random() - 0.5) * 2,
+                vy: Math.random() * 0.5,
+                active: true,
+                trail: [],
+                // Add chaos factor for each ball
+                chaosMultiplier: 0.8 + Math.random() * 0.4,
+                currentMultiplier: 1, // NEW: Initialize current multiplier for this ball
+                hitLines: new Set(), // NEW: Track lines hit by this specific ball
+                multiplierLineHits: 0 // NEW: Track number of multiplier lines hit
+            };
+
+            gameState.balls.push(newBall);
+            console.log(`🎾 Ball ${i+1}/${gameState.ballCount} dropped at x:${newBall.x.toFixed(1)}, chaos:${newBall.chaosMultiplier.toFixed(2)}`);
+        }, i * 100); // 100ms delay between each ball
     }
+}
 
-    // Play win sound
-    function playWinSound(multiplier) {
-        if (!gameState.audioInitialized || !audioContext) {
-            console.warn('⚠️ Audio not initialized');
-            return;
-        }
-
-        try {
-            let buffer = null;
-            let soundType = '';
-
-            if (multiplier === 0.5 || multiplier === 1 || multiplier === 2) {
-                buffer = audioBuffers.sound1;
-                soundType = 'Sound 1 (0.5x, 1x, 2x)';
-            } else if (multiplier === 5 || multiplier === 10) {
-                buffer = audioBuffers.sound2;
-                soundType = 'Sound 2 (5x, 10x)';
-            } else if (multiplier === 50 || multiplier === 100 || multiplier === 1000) {
-                buffer = audioBuffers.sound3;
-                soundType = 'Sound 3 (50x, 100x, 1000x)';
-            }
-
-            if (!buffer) {
-                console.log(`🔇 No sound assigned for multiplier: ${multiplier}x`);
-                return;
-            }
-
-            const source = audioContext.createBufferSource();
-            const gainNode = audioContext.createGain();
-            source.buffer = buffer;
-            source.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            // Set volume based on multiplier
-            if (multiplier === 100 || multiplier === 1000) {
-                gainNode.gain.setValueAtTime(0.9, audioContext.currentTime);
-            } else if (multiplier === 10 || multiplier === 50) {
-                gainNode.gain.setValueAtTime(0.8, audioContext.currentTime);
-            } else {
-                gainNode.gain.setValueAtTime(0.7, audioContext.currentTime);
-            }
-
-            source.start(audioContext.currentTime);
-            console.log(`🎵 ${soundType} played for ${multiplier}x win`);
-        } catch (error) {
-            console.error('❌ Error playing win sound:', error);
-        }
+// Set bet amount - WITH BUTTON SOUND
+function setBetAmount(amount) {
+    if (gameState.betAmount !== amount) {
+        playButtonChangeSound();
+        gameState.betAmount = amount;
+        initializeUI(); // Refresh bet buttons and total display
     }
+}
 
-    // Create particles
-    function createParticles(x, y, color) {
-        for (let i = 0; i < 6; i++) {
-            gameState.particles.push({
-                x,
-                y,
-                vx: (Math.random() - 0.5) * 4,
-                vy: (Math.random() - 0.5) * 4,
-                life: 40,
-                maxLife: 40,
-                color
-            });
-        }
+// Set ball count - WITH BUTTON SOUND
+function setBallCount(count) {
+    if (gameState.ballCount !== count) {
+        playButtonChangeSound();
+        gameState.ballCount = count;
+        updateTotalBetDisplay();
     }
+}
 
-    // FIXED: Check if can drop ball - Updated for multiple balls
-    function canDropBall() {
-        const currentTime = Date.now();
-        const timeUntilNextDrop = Math.max(0, 300 - (currentTime - gameState.lastDropTime));
+// Reset game - WITH BUTTON SOUND
+function resetGame() {
+    playButtonChangeSound();
+
+    gameState.balance = 100;
+    gameState.betAmount = 1;
+    gameState.ballCount = 1;
+    gameState.lastWin = 0;
+    gameState.lastDropTime = 0;
+    gameState.balls = [];
+    gameState.particles = [];
+    gameState.recentHits = [];
+    gameState.multiplierLines = []; // NEW: Clear multiplier lines on reset
+    gameState.lineAnimationTime = 0; // Reset line animation time
+
+    // Reset pegs
+    gameState.pegs.forEach(peg => {
+        peg.hit = false;
+        peg.hitTime = 0;
+    });
+
+    // Hide win cards on reset
+    document.getElementById('win-card').classList.add('hidden');
+    document.getElementById('mobile-win-card').classList.add('hidden');
+
+    // Reset ball count dropdown
+    document.getElementById('ball-count-select').value = '1';
+
+    // Regenerate pegs with new random positions
+    initializePegs();
+    initializeUI();
+}
+
+// Separate UI update loop - runs independently of game physics
+function startUIUpdateLoop() {
+    uiUpdateInterval = setInterval(() => {
+        // Update balance display
+        document.getElementById('balance').textContent = `$${gameState.balance.toFixed(2)}`;
+        document.getElementById('bet-amount').textContent = `$${gameState.betAmount.toFixed(2)}`;
+
+        // Update win display - ONLY show/update when there's actually a win
+        if (gameState.lastWin > 0) {
+            // Desktop win card
+            document.getElementById('last-win').textContent = `+$${gameState.lastWin.toFixed(2)}`;
+            document.getElementById('win-card').classList.remove('hidden');
+
+            // Mobile win card
+            document.getElementById('mobile-last-win').textContent = `+$${gameState.lastWin.toFixed(2)}`;
+            document.getElementById('mobile-win-card').classList.remove('hidden');
+        }
+
+        // Update drop button state using centralized check
+        const dropBtn = document.getElementById('drop-ball-btn');
         const hasActiveBalls = gameState.balls.some(ball => ball.active);
         const totalBet = gameState.betAmount * gameState.ballCount;
-        return timeUntilNextDrop === 0 && gameState.balance >= totalBet && !hasActiveBalls;
-    }
+        dropBtn.disabled = !canDropBall();
 
-    // Drop ball function - UPDATED: Drop multiple balls
-    async function dropBall() {
-        if (!gameState.gameStarted) return;
-
-        // Use centralized check
-        if (!canDropBall()) return;
-
-        // Play ball drop sound
-        playBallDropSound();
-
-        // Update state
-        gameState.lastDropTime = Date.now();
-        const totalBet = gameState.betAmount * gameState.ballCount;
-        gameState.balance -= totalBet;
-
-        // Drop multiple balls with slight delays and spacing
-        for (let i = 0; i < gameState.ballCount; i++) {
-            setTimeout(() => {
-                const newBall = {
-                    id: Date.now() + Math.random() + i,
-                    // Spread balls across the top with more randomness
-                    x: CANVAS_WIDTH / 2 + (Math.random() - 0.5) * 100 + (i - gameState.ballCount/2) * 20,
-                    y: 50 + i * 5, // Slight vertical offset
-                    // More random initial velocity
-                    vx: (Math.random() - 0.5) * 2,
-                    vy: Math.random() * 0.5,
-                    active: true,
-                    trail: [],
-                    // Add chaos factor for each ball
-                    chaosMultiplier: 0.8 + Math.random() * 0.4
-                };
-
-                gameState.balls.push(newBall);
-                console.log(`🎾 Ball ${i+1}/${gameState.ballCount} dropped at x:${newBall.x.toFixed(1)}, chaos:${newBall.chaosMultiplier.toFixed(2)}`);
-            }, i * 100); // 100ms delay between each ball
-        }
-    }
-
-    // Set bet amount - WITH BUTTON SOUND
-    function setBetAmount(amount) {
-        if (gameState.betAmount !== amount) {
-            playButtonChangeSound();
-            gameState.betAmount = amount;
-            initializeUI(); // Refresh bet buttons and total display
-        }
-    }
-
-    // Set ball count - WITH BUTTON SOUND
-    function setBallCount(count) {
-        if (gameState.ballCount !== count) {
-            playButtonChangeSound();
-            gameState.ballCount = count;
-            updateTotalBetDisplay();
-        }
-    }
-
-    // Reset game - WITH BUTTON SOUND
-    function resetGame() {
-        playButtonChangeSound();
-
-        gameState.balance = 100;
-        gameState.betAmount = 1;
-        gameState.ballCount = 1;
-        gameState.lastWin = 0;
-        gameState.lastDropTime = 0;
-        gameState.balls = [];
-        gameState.particles = [];
-        gameState.recentHits = [];
-
-        // Reset pegs
-        gameState.pegs.forEach(peg => {
-            peg.hit = false;
-            peg.hitTime = 0;
-        });
-
-        // Hide win cards on reset
-        document.getElementById('win-card').classList.add('hidden');
-        document.getElementById('mobile-win-card').classList.add('hidden');
-
-        // Reset ball count dropdown
-        document.getElementById('ball-count-select').value = '1';
-
-        // Regenerate pegs with new random positions
-        initializePegs();
-        initializeUI();
-    }
-
-    // Separate UI update loop - runs independently of game physics
-    function startUIUpdateLoop() {
-        uiUpdateInterval = setInterval(() => {
-            // Update balance display
-            document.getElementById('balance').textContent = `$${gameState.balance.toFixed(2)}`;
-            document.getElementById('bet-amount').textContent = `$${gameState.betAmount.toFixed(2)}`;
-
-            // Update win display - ONLY show/update when there's actually a win
-            if (gameState.lastWin > 0) {
-                // Desktop win card
-                document.getElementById('last-win').textContent = `+$${gameState.lastWin.toFixed(2)}`;
-                document.getElementById('win-card').classList.remove('hidden');
-
-                // Mobile win card
-                document.getElementById('mobile-last-win').textContent = `+$${gameState.lastWin.toFixed(2)}`;
-                document.getElementById('mobile-win-card').classList.remove('hidden');
-            }
-
-            // Update drop button state using centralized check
-            const dropBtn = document.getElementById('drop-ball-btn');
-            const hasActiveBalls = gameState.balls.some(ball => ball.active);
-            const totalBet = gameState.betAmount * gameState.ballCount;
-            dropBtn.disabled = !canDropBall();
-
-            // Update button text based on state
-            if (hasActiveBalls) {
-                const activeBallCount = gameState.balls.filter(ball => ball.active).length;
-                dropBtn.textContent = `${activeBallCount} BALL${activeBallCount > 1 ? 'S' : ''} IN PLAY...`;
-            } else if (gameState.balance < totalBet) {
-                dropBtn.textContent = 'INSUFFICIENT BALANCE';
-            } else {
-                const ballText = gameState.ballCount === 1 ? 'BALL' : 'BALLS';
-                dropBtn.textContent = `DROP ${gameState.ballCount} ${ballText}`;
-            }
-
-            // Show/hide insufficient balance warning
-            const insufficientBalance = document.getElementById('insufficient-balance');
-            if (gameState.balance < totalBet) {
-                insufficientBalance.classList.remove('hidden');
-            } else {
-                insufficientBalance.classList.add('hidden');
-            }
-
-            // Update recent hits
-            updateRecentHits();
-        }, 16); // ~60fps UI updates
-    }
-
-    // Update recent hits display
-    function updateRecentHits() {
-        const mobile = isMobile();
-
-        if (mobile) {
-            updateMobileRecentHits();
+        // Update button text based on state
+        if (hasActiveBalls) {
+            const activeBallCount = gameState.balls.filter(ball => ball.active).length;
+            dropBtn.textContent = `${activeBallCount} BALL${activeBallCount > 1 ? 'S' : ''} IN PLAY...`;
+        } else if (gameState.balance < totalBet) {
+            dropBtn.textContent = 'INSUFFICIENT BALANCE';
         } else {
-            updateDesktopRecentHits();
+            const ballText = gameState.ballCount === 1 ? 'BALL' : 'BALLS';
+            dropBtn.textContent = `DROP ${gameState.ballCount} ${ballText}`;
         }
+
+        // Show/hide insufficient balance warning
+        const insufficientBalance = document.getElementById('insufficient-balance');
+        if (gameState.balance < totalBet) {
+            insufficientBalance.classList.remove('hidden');
+        } else {
+            insufficientBalance.classList.add('hidden');
+        }
+
+        // Update recent hits
+        updateRecentHits();
+    }, 16); // ~60fps UI updates
+}
+
+// Update recent hits display
+function updateRecentHits() {
+    const mobile = isMobile();
+
+    if (mobile) {
+        updateMobileRecentHits();
+    } else {
+        updateDesktopRecentHits();
+    }
+}
+
+// Update desktop recent hits display
+function updateDesktopRecentHits() {
+    const recentHitsDiv = document.getElementById('recent-hits');
+
+    if (gameState.recentHits.length === 0) {
+        recentHitsDiv.innerHTML = '<div class="text-blue-300/50 text-xs text-center py-6">No hits yet</div>';
+        return;
     }
 
-    // Update desktop recent hits display
-    function updateDesktopRecentHits() {
-        const recentHitsDiv = document.getElementById('recent-hits');
+    recentHitsDiv.innerHTML = '';
+    gameState.recentHits.slice(0, 6).forEach((hit, index) => {
+        const div = document.createElement('div');
+        div.className = `recent-hit p-2 rounded-lg text-sm transition-all duration-300 ${
+            index === 0 ? 'animate-pulse border-2 border-purple-400/60' : ''
+        }`;
 
-        if (gameState.recentHits.length ===  0) {
-            recentHitsDiv.innerHTML = '<div class="text-blue-300/50 text-xs text-center py-6">No hits yet</div>';
+        div.style.opacity = 1 - index * 0.15;
+        div.style.transform = `scale(${1 - index * 0.05})`;
+
+        div.innerHTML = `
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-blue-200">${hit.multiplier}x</span>
+                <span class="text-yellow-300 font-bold">$${hit.winAmount.toFixed(2)}</span>
+            </div>
+        `;
+
+        recentHitsDiv.appendChild(div);
+    });
+}
+
+// Update mobile recent hits display - HORIZONTAL with 6 items and fading effect
+function updateMobileRecentHits() {
+    const mobileRecentHitsDiv = document.getElementById('mobile-recent-hits');
+
+    if (gameState.recentHits.length === 0) {
+        mobileRecentHitsDiv.innerHTML = '<div class="text-blue-300/50 text-xs text-center py-4 w-full">No hits yet</div>';
+        return;
+    }
+
+    mobileRecentHitsDiv.innerHTML = '';
+    mobileRecentHitsDiv.className = 'mobile-recent-hits-horizontal'; // Horizontal layout
+
+    // Show 6 items like desktop, with same fading effect
+    gameState.recentHits.slice(0, 6).forEach((hit, index) => {
+        const div = document.createElement('div');
+        div.className = `mobile-recent-hit-item recent-hit transition-all duration-300 ${
+            index === 0 ? 'animate-pulse border-2 border-purple-400/60' : ''
+        }`;
+
+        // Apply same fade effect as desktop - 6th item will be half faded
+        div.style.opacity = 1 - index * 0.15;
+        div.style.transform = `scale(${1 - index * 0.05})`;
+
+        div.innerHTML = `
+            <div class="font-bold text-blue-200 text-xs">${hit.multiplier}x</div>
+            <div class="text-yellow-300 font-bold text-xs">$${hit.winAmount.toFixed(2)}</div>
+        `;
+
+        mobileRecentHitsDiv.appendChild(div);
+    });
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    // Drop ball button
+    document.getElementById('drop-ball-btn').addEventListener('click', dropBall);
+
+    // Reset button
+    document.getElementById('reset-btn').addEventListener('click', resetGame);
+
+    // Ball count dropdown
+    document.getElementById('ball-count-select').addEventListener('change', (event) => {
+        setBallCount(parseInt(event.target.value));
+    });
+
+    // Keyboard controls
+    document.addEventListener('keydown', (event) => {
+        if (event.code === 'Space' && gameState.gameStarted) {
+            event.preventDefault();
+            dropBall();
+        }
+    });
+
+    // Handle window resize for responsive updates
+    window.addEventListener('resize', () => {
+        updateRecentHits();
+    });
+}
+
+// Animation loop (120fps) - FIXED: Much more chaotic physics
+function startAnimationLoop() {
+    let lastTime = 0;
+    const targetFPS = 120;
+    const frameInterval = 1000 / targetFPS;
+
+    function animate(currentTime) {
+        if (currentTime - lastTime < frameInterval) {
+            requestAnimationFrame(animate);
             return;
         }
+        lastTime = currentTime;
 
-        recentHitsDiv.innerHTML = '';
-        gameState.recentHits.slice(0, 6).forEach((hit, index) => {
-            const div = document.createElement('div');
-            div.className = `recent-hit p-3 rounded-lg text-sm transition-all duration-300 ${
-                index === 0 ? 'animate-pulse border-2 border-purple-400/60' : ''
-            }`;
+        // Increment line animation time
+        gameState.lineAnimationTime += 0.05; // Adjust speed of electricity flow
 
-            div.style.opacity = 1 - index * 0.15;
-            div.style.transform = `scale(${1 - index * 0.05})`;
+        // Clear canvas
+        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-            div.innerHTML = `
-                <div class="flex justify-between items-center">
-                    <span class="font-bold text-blue-200">${hit.multiplier}x</span>
-                    <span class="text-yellow-300 font-bold">$${hit.winAmount.toFixed(2)}</span>
-                </div>
-            `;
+        // Update and draw pegs
+        gameState.pegs.forEach(peg => {
+            peg.hitTime = peg.hit ? Math.max(0, peg.hitTime - 1) : 0;
+            peg.hit = peg.hitTime > 0;
 
-            recentHitsDiv.appendChild(div);
-        });
-    }
-
-    // Update mobile recent hits display - HORIZONTAL with 6 items and fading effect
-    function updateMobileRecentHits() {
-        const mobileRecentHitsDiv = document.getElementById('mobile-recent-hits');
-
-        if (gameState.recentHits.length === 0) {
-            mobileRecentHitsDiv.innerHTML = '<div class="text-blue-300/50 text-xs text-center py-4 w-full">No hits yet</div>';
-            return;
-        }
-
-        mobileRecentHitsDiv.innerHTML = '';
-        mobileRecentHitsDiv.className = 'mobile-recent-hits-horizontal'; // Horizontal layout
-
-        // Show 6 items like desktop, with same fading effect
-        gameState.recentHits.slice(0, 6).forEach((hit, index) => {
-            const div = document.createElement('div');
-            div.className = `mobile-recent-hit-item recent-hit transition-all duration-300 ${
-                index === 0 ? 'animate-pulse border-2 border-purple-400/60' : ''
-            }`;
-
-            // Apply same fade effect as desktop - 6th item will be half faded
-            div.style.opacity = 1 - index * 0.15;
-            div.style.transform = `scale(${1 - index * 0.05})`;
-
-            div.innerHTML = `
-                <div class="font-bold text-blue-200 text-xs">${hit.multiplier}x</div>
-                <div class="text-yellow-300 font-bold text-xs">$${hit.winAmount.toFixed(2)}</div>
-            `;
-
-            mobileRecentHitsDiv.appendChild(div);
-        });
-    }
-
-    // Setup event listeners
-    function setupEventListeners() {
-        // Drop ball button
-        document.getElementById('drop-ball-btn').addEventListener('click', dropBall);
-
-        // Reset button
-        document.getElementById('reset-btn').addEventListener('click', resetGame);
-
-        // Ball count dropdown
-        document.getElementById('ball-count-select').addEventListener('change', (event) => {
-            setBallCount(parseInt(event.target.value));
+            const glowIntensity = peg.hit ? 0.9 : 0.4;
+            const size = peg.hit ? 6 : 4;
+            ctx.save();
+            ctx.shadowColor = `rgba(99, 102, 241, ${glowIntensity})`;
+            ctx.shadowBlur = 12;
+            ctx.beginPath();
+            ctx.arc(peg.x, peg.y, size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(99, 102, 241, ${glowIntensity})`;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.arc(peg.x, peg.y, size * 0.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(167, 139, 250, ${glowIntensity})`;
+            ctx.fill();
+            ctx.restore();
         });
 
-        // Keyboard controls
-        document.addEventListener('keydown', (event) => {
-            if (event.code === 'Space' && gameState.gameStarted) {
-                event.preventDefault();
-                dropBall();
-            }
-        });
-
-        // Handle window resize for responsive updates
-        window.addEventListener('resize', () => {
-            updateRecentHits();
-        });
-    }
-
-    // Animation loop (120fps) - FIXED: Much more chaotic physics
-    function startAnimationLoop() {
-        let lastTime = 0;
-        const targetFPS = 120;
-        const frameInterval = 1000 / targetFPS;
-
-        function animate(currentTime) {
-            if (currentTime - lastTime < frameInterval) {
-                requestAnimationFrame(animate);
-                return;
-            }
-            lastTime = currentTime;
-
-            // Clear canvas
-            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-            // Update and draw pegs
-            gameState.pegs.forEach(peg => {
-                peg.hitTime = peg.hit ? Math.max(0, peg.hitTime - 1) : 0;
-                peg.hit = peg.hitTime > 0;
-
-                const glowIntensity = peg.hit ? 0.9 : 0.4;
-                const size = peg.hit ? 6 : 4;
+        // NEW: Draw multiplier lines with electricity effect and text
+        gameState.multiplierLines.forEach(line => {
+            if (line.active) {
                 ctx.save();
-                ctx.shadowColor = `rgba(99, 102, 241, ${glowIntensity})`;
-                ctx.shadowBlur = 12;
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.8)'; // Gold color for lines
+                ctx.shadowColor = 'rgba(255, 215, 0, 0.6)';
+                ctx.shadowBlur = 15; // Stronger glow
+
+                // Calculate line vector
+                const dx = line.peg2.x - line.peg1.x;
+                const dy = line.peg2.y - line.peg1.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx);
+
+                // Perpendicular vector for offset
+                const perpDx = -Math.sin(angle);
+                const perpDy = Math.cos(angle);
+
+                const numSegments = 15; // More segments for a jagged look
+                const maxJaggedOffset = 6; // Max perpendicular offset for jaggedness (increased)
+                const flowFrequency = 8; // Higher frequency for more "wiggly" base
+                const jitterMagnitude = 2; // Smaller random jitter for smoother crackle
+
                 ctx.beginPath();
-                ctx.arc(peg.x, peg.y, size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(99, 102, 241, ${glowIntensity})`;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                ctx.beginPath();
-                ctx.arc(peg.x, peg.y, size * 0.5, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(167, 139, 250, ${glowIntensity})`;
-                ctx.fill();
+                ctx.moveTo(line.peg1.x, line.peg1.y);
+
+                for (let i = 0; i <= numSegments; i++) {
+                    const t = i / numSegments; // Normalized position along the line
+                    const currentX = line.peg1.x + dx * t;
+                    const currentY = line.peg1.y + dy * t;
+
+                    // Base wave for flowing motion
+                    const baseWaveOffset = Math.sin(gameState.lineAnimationTime * 0.03 + t * Math.PI * flowFrequency) * maxJaggedOffset;
+                    // Add random jitter for electricity crackle
+                    const jitter = (Math.random() - 0.5) * jitterMagnitude;
+                    const offset = baseWaveOffset + jitter;
+                    
+                    ctx.lineTo(currentX + perpDx * offset, currentY + perpDy * offset);
+                }
+                ctx.stroke();
                 ctx.restore();
-            });
 
-            // Update balls - MUCH MORE CHAOTIC PHYSICS
-            gameState.balls = gameState.balls.map(ball => {
-                if (!ball.active) return ball;
+                // Draw the multiplier text
+                ctx.save();
+                ctx.font = 'bold 14px Orbitron';
+                ctx.fillStyle = '#ffd700'; // Gold text color
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+                ctx.shadowBlur = 8;
 
-                const speedMultiplier = 0.45; // Changed from 0.6 to 0.45 for slower speed
-                let newX = ball.x + ball.vx * speedMultiplier;
-                const newY = ball.y + ball.vy * speedMultiplier;
-                let newVx = ball.vx;
-                let newVy = ball.vy + 0.2; // Stronger gravity
+                // Position text slightly above the midpoint of the line
+                const midX = (line.peg1.x + line.peg2.x) / 2;
+                const midY = (line.peg1.y + line.peg2.y) / 2 - 15; // Offset upwards
 
-                // Add random air resistance/turbulence
-                newVx += (Math.random() - 0.5) * 0.1 * ball.chaosMultiplier;
-                newVy += (Math.random() - 0.5) * 0.05 * ball.chaosMultiplier;
+                ctx.fillText(`${line.multiplier}x`, midX, midY); // Display the assigned multiplier
+                ctx.restore();
+            }
+        });
 
-                // Collision detection with pegs - MORE CHAOTIC
-                for (const peg of gameState.pegs) {
-                    const dx = newX - peg.x;
-                    const dy = newY - peg.y;
-                    const distSq = dx * dx + dy * dy;
-                    if (distSq < 300) { // Larger collision radius
-                        peg.hit = true;
-                        peg.hitTime = 25;
-                        const angle = Math.atan2(dy, dx);
+        // Update balls - MUCH MORE CHAOTIC PHYSICS
+        gameState.balls = gameState.balls.map(ball => {
+            if (!ball.active) return ball;
 
-                        // MUCH MORE random bounce
-                        const bounceForce = 2.5 + Math.random() * 2; // Random bounce strength
-                        const randomAngle = angle + (Math.random() - 0.5) * 1.2; // More random angle
+            const speedMultiplier = 0.45; // Changed from 0.6 to 0.45 for slower speed
+            let newX = ball.x + ball.vx * speedMultiplier;
+            const newY = ball.y + ball.vy * speedMultiplier;
+            let newVx = ball.vx;
+            let newVy = ball.vy + 0.2; // Stronger gravity
 
-                        newVx = Math.cos(randomAngle) * bounceForce * ball.chaosMultiplier;
-                        newVy = Math.abs(Math.sin(randomAngle) * bounceForce) + Math.random() * 1.5;
+            // Add random air resistance/turbulence
+            newVx += (Math.random() - 0.5) * 0.1 * ball.chaosMultiplier;
+            newVy += (Math.random() - 0.5) * 0.05 * ball.chaosMultiplier;
 
-                        createParticles(peg.x, peg.y, 'rgba(99, 102, 241, 0.8)');
-                        break;
+            // Collision detection with pegs - MORE CHAOTIC
+            for (const peg of gameState.pegs) {
+                const dx = newX - peg.x;
+                const dy = newY - peg.y;
+                const distSq = dx * dx + dy * dy;
+                if (distSq < 300) { // Larger collision radius
+                    peg.hit = true;
+                    peg.hitTime = 25;
+                    const angle = Math.atan2(dy, dx);
+
+                    // MUCH MORE random bounce
+                    const bounceForce = 2.5 + Math.random() * 2; // Random bounce strength
+                    const randomAngle = angle + (Math.random() - 0.5) * 1.2; // More random angle
+
+                    newVx = Math.cos(randomAngle) * bounceForce * ball.chaosMultiplier;
+                    newVy = Math.abs(Math.sin(randomAngle) * bounceForce) + Math.random() * 1.5;
+
+                    createParticles(peg.x, peg.y, 'rgba(99, 102, 241, 0.8)');
+                    break;
+                }
+            }
+
+            // NEW: Collision detection with multiplier lines
+            gameState.multiplierLines.forEach(line => {
+                if (line.active && !ball.hitLines.has(line.id)) {
+                    const ballPos = { x: ball.x, y: ball.y };
+                    const distSq = distToSegmentSquared(ballPos, line.peg1, line.peg2);
+                    const collisionThresholdSq = (10 + 5) * (10 + 5); // Ball radius + line thickness/fudge factor
+
+                    if (distSq < collisionThresholdSq) {
+                        // Ball hit the multiplier line!
+                        if (ball.currentMultiplier === 1) { // If it's the first multiplier hit
+                            ball.currentMultiplier = line.multiplier; // Set the multiplier
+                        } else {
+                            ball.currentMultiplier += line.multiplier; // Add to existing multiplier
+                        }
+                        ball.hitLines.add(line.id); // Mark line as hit for this ball
+                        ball.multiplierLineHits = (ball.multiplierLineHits || 0) + 1; // Increment hit counter
+
+                        console.log(`⚡ Ball ${ball.id} hit multiplier line on row ${line.row}! Added ${line.multiplier}x. Current total multiplier: ${ball.currentMultiplier.toFixed(2)}x, Hits: ${ball.multiplierLineHits}`);
+                        createParticles(ball.x, ball.y, 'rgba(255, 255, 0, 1)'); // Yellow particles for line hit
                     }
                 }
-
-                // Wall bounces - More chaotic
-                if (newX < 20 || newX > CANVAS_WIDTH - 20) {
-                    newVx = -newVx * (0.5 + Math.random() * 0.3); // Random bounce dampening
-                    newX = Math.max(20, Math.min(CANVAS_WIDTH - 20, newX));
-                    // Add random vertical component on wall bounce
-                    newVy += (Math.random() - 0.5) * 0.5;
-                }
-
-                // Bottom collision - FIXED: Drop all the way to multiplier container
-                if (newY > CANVAS_HEIGHT - 40) { // Changed from -75 to -40 to reach multiplier top
-                    const slotWidth = CANVAS_WIDTH / MULTIPLIERS.length;
-                    const slotIndex = Math.floor(newX / slotWidth);
-                    const validSlot = Math.max(0, Math.min(MULTIPLIERS.length - 1, slotIndex));
-                    const winAmount = gameState.betAmount * MULTIPLIERS[validSlot];
-                    gameState.balance += winAmount;
-                    gameState.lastWin = winAmount;
-
-                    // Add to recent hits
-                    gameState.recentHits.unshift({
-                        multiplier: MULTIPLIERS[validSlot],
-                        winAmount,
-                        timestamp: Date.now()
-                    });
-                    gameState.recentHits = gameState.recentHits.slice(0, 6);
-
-                    console.log(`🎯 Ball landed in slot ${slotIndex} (${MULTIPLIERS[validSlot]}x) at x:${newX.toFixed(1)}`);
-                    playWinSound(MULTIPLIERS[validSlot]);
-                    createParticles(newX, newY, 'rgba(255, 215, 0, 1)');
-
-                    return { ...ball, active: false };
-                }
-
-                const newTrail = [...ball.trail, { x: ball.x, y: ball.y }].slice(-4);
-                return {
-                    ...ball,
-                    x: newX,
-                    y: newY,
-                    vx: newVx * 0.96, // Less dampening for more chaos
-                    vy: newVy,
-                    trail: newTrail
-                };
             });
 
-            gameState.balls = gameState.balls.filter(ball => ball.active);
+            // Wall bounces - More chaotic
+            if (newX < 20 || newX > CANVAS_WIDTH - 20) {
+                newVx = -newVx * (0.5 + Math.random() * 0.3); // Random bounce dampening
+                newX = Math.max(20, Math.min(CANVAS_WIDTH - 20, newX));
+                // Add random vertical component on wall bounce
+                newVy += (Math.random() - 0.5) * 0.5;
+            }
 
-            // Draw balls
-            gameState.balls.forEach(ball => {
-                if (!ball.active) return;
+            // Bottom collision - FIXED: Drop all the way to multiplier container
+            if (newY > CANVAS_HEIGHT - 40) { // Changed from -75 to -40 to reach multiplier top
+                const slotWidth = CANVAS_WIDTH / MULTIPLIERS.length;
+                const slotIndex = Math.floor(newX / slotWidth);
+                const validSlot = Math.max(0, Math.min(MULTIPLIERS.length - 1, slotIndex));
+                // UPDATED: Use ball's currentMultiplier in final win calculation
+                const winAmount = gameState.betAmount * ball.currentMultiplier * MULTIPLIERS[validSlot];
+                gameState.balance += winAmount;
+                gameState.lastWin = winAmount;
 
-                // Trail
-                ball.trail.forEach((point, index) => {
-                    const opacity = (index / ball.trail.length) * 0.4;
-                    ctx.save();
-                    ctx.globalAlpha = opacity;
-                    ctx.fillStyle = 'rgba(255, 215, 0, 1)';
-                    ctx.beginPath();
-                    ctx.arc(point.x, point.y, 1.5, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.restore();
+                // Add to recent hits
+                gameState.recentHits.unshift({
+                    multiplier: (MULTIPLIERS[validSlot] * ball.currentMultiplier).toFixed(2), // Display combined multiplier
+                    winAmount,
+                    timestamp: Date.now()
                 });
+                gameState.recentHits = gameState.recentHits.slice(0, 6);
 
-                // Ball
+                console.log(`🎯 Ball landed in slot ${slotIndex} (${MULTIPLIERS[validSlot]}x base, ${ball.currentMultiplier.toFixed(2)}x total) at x:${newX.toFixed(1)}`);
+                playWinSound(MULTIPLIERS[validSlot]);
+                createParticles(newX, newY, 'rgba(255, 215, 0, 1)');
+
+                return { ...ball, active: false };
+            }
+
+            const newTrail = [...ball.trail, { x: ball.x, y: ball.y }].slice(-4);
+            return {
+                ...ball,
+                x: newX,
+                y: newY,
+                vx: newVx * 0.96, // Less dampening for more chaos
+                vy: newVy,
+                trail: newTrail
+            };
+        });
+
+        gameState.balls = gameState.balls.filter(ball => ball.active);
+
+        // Draw balls
+        gameState.balls.forEach(ball => {
+            if (!ball.active) return;
+
+            // Trail
+            ball.trail.forEach((point, index) => {
+                const opacity = (index / ball.trail.length) * 0.4;
                 ctx.save();
-                ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
-                ctx.shadowBlur = 15;
-                const gradient = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, 10);
-                gradient.addColorStop(0, 'rgba(255, 215, 0, 1)');
-                gradient.addColorStop(0.7, 'rgba(255, 215, 0, 0.4)');
-                gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
-                ctx.fillStyle = gradient;
+                ctx.globalAlpha = opacity;
+                ctx.fillStyle = 'rgba(255, 215, 0, 1)';
                 ctx.beginPath();
-                ctx.arc(ball.x, ball.y, 10, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-                ctx.beginPath();
-                ctx.arc(ball.x, ball.y, 6, 0, Math.PI * 2);
+                ctx.arc(point.x, point.y, 1.5, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
             });
 
-            // Update particles
-            gameState.particles = gameState.particles.map(p => ({
-                ...p,
-                x: p.x + p.vx,
-                y: p.y + p.vy,
-                vx: p.vx * 0.94,
-                vy: p.vy * 0.94,
-                life: p.life - 1
-            })).filter(p => p.life > 0);
+            // Ball
+            ctx.save();
+            const baseGlow = 15;
+            const glowIncreasePerHit = 10;
+            const maxGlowHits = 4;
+            const currentGlow = baseGlow + Math.min(ball.multiplierLineHits, maxGlowHits) * glowIncreasePerHit;
 
-            gameState.particles.forEach(particle => {
+            // Draw black border
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, 11, 0, Math.PI * 2); // Slightly larger radius for border
+            ctx.strokeStyle = '#000000'; // Black border
+            ctx.lineWidth = 2; // Border thickness
+            ctx.stroke();
+
+            ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+            ctx.shadowBlur = currentGlow; // Dynamic glow
+
+            let ballColor = 'rgba(255, 215, 0, 1)'; // Default gold
+            if (ball.multiplierLineHits > 0) {
+                ballColor = 'rgba(218, 165, 32, 1)'; // Darker gold
+            }
+
+            const gradient = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, 10);
+            gradient.addColorStop(0, ballColor);
+            gradient.addColorStop(0.7, ballColor.replace('1)', '0.4)')); // Adjust opacity for gradient
+            gradient.addColorStop(1, ballColor.replace('1)', '0)')); // Adjust opacity for gradient
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = 'rgba(255, 255, 255, 1)'; // Inner white circle remains
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // Draw ball's current multiplier value
+            if (ball.currentMultiplier > 1) { // Only display if multiplier is active
                 ctx.save();
-                ctx.globalAlpha = particle.life / particle.maxLife;
-                ctx.fillStyle = particle.color;
-                ctx.beginPath();
-                ctx.arc(particle.x, particle.y, 1, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.font = 'bold 12px Orbitron'; // Smaller font for ball
+                ctx.fillStyle = '#000000'; // UPDATED: Black text for contrast
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                // Removed text shadow for better visibility with black font
+                ctx.fillText(`${ball.currentMultiplier.toFixed(0)}x`, ball.x, ball.y);
                 ctx.restore();
-            });
+            }
+        });
 
-            requestAnimationFrame(animate);
-        }
+        // Update particles
+        gameState.particles = gameState.particles.map(p => ({
+            ...p,
+            x: p.x + p.vx,
+            y: p.y + p.vy,
+            vx: p.vx * 0.94,
+            vy: p.vy * 0.94,
+            life: p.life - 1
+        })).filter(p => p.life > 0);
+
+        gameState.particles.forEach(particle => {
+            ctx.save();
+            ctx.globalAlpha = particle.life / particle.maxLife;
+            ctx.fillStyle = particle.color;
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, 1, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        });
+
         requestAnimationFrame(animate);
     }
+    requestAnimationFrame(animate);
+}
 
-    // Initialize start button
-    document.getElementById('start-game').addEventListener('click', startGame);
+// Initialize start button
+document.getElementById('start-game').addEventListener('click', startGame);
 
-    console.log('🎮 Cosmic Plinko ready - click START to begin!');
+console.log('🎮 Cosmic Plinko ready - click START to begin!');
 </script>
 </body>
 </html>
