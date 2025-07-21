@@ -479,7 +479,7 @@ kbd {
 /* UPDATED: Win card positioning - Moved down by 25px */
 .win-section {
     align-self: center;
-    margin-top: 110px; /* UPDATED: Moved down by 25px (85 + 25) */
+    margin-top: 95px; /* UPDATED: Moved down by 25px (85 + 25) */
     margin-bottom: 2rem; /* Space between win card and recent hits */
 }
 
@@ -1474,7 +1474,8 @@ async function dropBall() {
                 hasHitFirstMultiplierLine: false, // Flag to track first multiplier line hit
                 hitLines: new Set(), // NEW: Track lines hit by this specific ball
                 multiplierLineHits: 0, // NEW: Track number of multiplier lines hit
-                isMultiplierBoosted: false // NEW: Flag for ball having hit a multiplier line
+                isMultiplierBoosted: false, // NEW: Flag for ball having hit a multiplier line
+                betAmount: gameState.betAmount // NEW: Store the bet amount for this specific ball
             };
 
             gameState.balls.push(newBall);
@@ -1924,7 +1925,7 @@ function startAnimationLoop() {
 
                 const finalMultiplier = MULTIPLIERS[finalSlotIndex];
                 // Win calculation now uses ball.currentMultiplier (sum of line multipliers)
-                const winAmount = gameState.betAmount * ball.currentMultiplier * finalMultiplier;
+                const winAmount = ball.betAmount * ball.currentMultiplier * finalMultiplier; // CHANGED: Use ball.betAmount
                 gameState.balance += winAmount;
                 gameState.lastWin = winAmount;
 
