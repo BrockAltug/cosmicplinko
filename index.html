@@ -810,16 +810,15 @@ html, body {
 <div class="text-center py-4 px-2">
   <h1 class="text-5xl font-bold gradient-text mb-4">COSMIC PLINKO</h1>
   <p class="text-white mb-6 text-xl font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</p>
-  <p class="text-yellow-300 mb-8 text-2xl font-bold animate-pulse" style="font-family: 'Orbitron', monospace;">WIN UP TO 200 FREE SPINS!</p>
-  <div class="text-blue-200 mb-8 max-w-md mx-auto text-lg text-left">
+  <div class="text-blue-200 mb-8 max-w-md mx-auto text-lg text-center">
       <h2 class="text-yellow-300 font-bold text-center mb-3">HOW TO PLAY:</h2>
       <ol class="list-decimal list-inside space-y-1">
-          <li>Drop balls into the cosmic board from the top.</li>
-          <li>Watch them bounce off pegs and fall into prize slots at the bottom.</li>
-          <li>Random multiplier lines (2x-5x) can appear across the board. If your ball passes through one, its current multiplier increases!</li>
-          <li>These line multipliers stack! Hit all four lines, each with a 5x multiplier, and your ball will carry a massive <span class="text-yellow-300 font-bold">20x multiplier</span> to the final prize slot.</li>
-          <li>The final prize slot multiplier (e.g., 1000x) is then multiplied by your ball's accumulated line multiplier. This means you can achieve an incredible <span class="text-yellow-300 font-bold">20,000x MAX WIN!</span></li>
-          <li>Land on a <span class="text-green-300 font-bold">FREE DROPS</span> slot to earn bonus balls! Your ball's accumulated line multiplier will multiply the free drops awarded, potentially leading to <span class="text-yellow-300 font-bold">up to 200 free spins!</span> These free drops are automatically played for you, giving you more chances to win without spending balance.</li>
+          <li>Drop balls from the top.</li>
+          <li>Balls bounce off pegs into prize slots.</li>
+          <li>Hit multiplier lines (2x-5x) to boost your ball's multiplier!</li>
+          <li>Stack multipliers for huge wins, up to <span class="text-yellow-300 font-bold">20x</span>!</li>
+          <li>Final prize slot multiplier (e.g., 1000x) combines with your ball's multiplier for epic wins, up to <span class="text-yellow-300 font-bold">20,000x MAX WIN!</span></li>
+          <li>Land on a <span class="text-green-300 font-bold">FREE DROPS</span> slot for bonus balls! Your ball's multiplier boosts free drops, up to <span class="text-yellow-300 font-bold">200 spins!</span></li>
       </ol>
       <p class="text-center mt-4">Will the stars align in your favor?</p>
   </div>
@@ -1110,7 +1109,7 @@ async function startGame() {
   }
 }
 
-// Initialize audio system - MUST be called on user interaction
+// Initialize audio system - MUST be called on user gesture
 async function initializeAudio() {
   console.log('🔊 Initializing audio system...');
   
@@ -1596,10 +1595,7 @@ async function dropBall(isFreeDropTrigger = false) { // Added isFreeDropTrigger 
   // Determine cost: 0 for free drops, otherwise normal bet
   let totalBet = isFreeDropTrigger ? 0 : (gameState.betAmount * gameState.ballCount);
 
-  if (isFreeDropTrigger) {
-      console.log(`🎁 Consuming 1 free drop. Remaining: ${gameState.freeDrops - 1}`);
-      gameState.freeDrops--;
-  } else {
+  if (!isFreeDropTrigger) { // Only deduct balance for manual drops
       gameState.balance -= totalBet;
   }
 
@@ -1638,10 +1634,15 @@ async function dropBall(isFreeDropTrigger = false) { // Added isFreeDropTrigger 
 }
 
 // NEW: Function to automatically drop free balls
-async function startAutoDrops(numDrops) {
+async function startAutoDrops() { // No parameter needed, it will consume gameState.freeDrops
+  if (gameState.isAutoDropping || gameState.freeDrops === 0) {
+      return; // Already auto-dropping or no free drops to process
+  }
+
   gameState.isAutoDropping = true;
-  console.log(`Starting auto-drop sequence for ${numDrops} free balls.`);
-  for (let i = 0; i < numDrops; i++) {
+  console.log(`Starting auto-drop sequence for ${gameState.freeDrops} free balls.`);
+
+  while (gameState.freeDrops > 0) {
       // Wait for any currently active balls to finish
       await new Promise(resolve => {
           const checkBalls = setInterval(() => {
@@ -1651,8 +1652,12 @@ async function startAutoDrops(numDrops) {
               }
           }, 50); // Check every 50ms
       });
+
+      // Decrement free drops BEFORE dropping the ball
+      gameState.freeDrops--;
+      console.log(`🎁 Consuming 1 free drop. Remaining: ${gameState.freeDrops}`);
       
-      // Drop one free ball by explicitly passing true
+      // Drop one free ball
       await dropBall(true); 
       
       // Add a small delay between drops
@@ -2221,8 +2226,8 @@ function startAnimationLoop() {
 
               if (typeof landedItem === 'object' && landedItem.type === 'FREE_DROPS') { // NEW: Handle Free Drops object
                   const awardedFreeDrops = Math.round(landedItem.value * ball.currentMultiplier); // Use stored value, multiply by ball's line multiplier
-                  gameState.freeDrops += awardedFreeDrops;
-                  console.log(`🎁 Ball landed on FREE DROPS! Base: ${landedItem.value}, Line Multiplier: ${ball.currentMultiplier.toFixed(2)}x, Awarded: ${awardedFreeDrops} free drops.`);
+                  gameState.freeDrops += awardedFreeDrops; // Accumulate free drops
+                  console.log(`🎁 Ball landed on FREE DROPS! Base: ${landedItem.value}, Line Multiplier: ${ball.currentMultiplier.toFixed(2)}x, Awarded: ${awardedFreeDrops} free drops. Total free drops: ${gameState.freeDrops}`);
                   playBallDropSound(); // Use default ball drop sound
                   createParticles(ball.x, ball.y, 'rgba(0, 255, 0, 1)', 30); // Green particles for free drops
 
@@ -2235,9 +2240,7 @@ function startAnimationLoop() {
                   });
                   gameState.recentHits = gameState.recentHits.slice(0, 20);
                   
-                  // Automatically start dropping free balls
-                  startAutoDrops(awardedFreeDrops);
-
+                  // Removed: startAutoDrops(awardedFreeDrops); -> now triggered centrally
               } else { // Existing win calculation for regular multipliers
                   const finalMultiplier = landedItem; // UPDATED
                   // Win calculation now uses ball.currentMultiplier (sum of line multipliers)
@@ -2274,6 +2277,11 @@ function startAnimationLoop() {
       });
 
       gameState.balls = gameState.balls.filter(ball => ball.active);
+
+      // NEW: Check for free drops to auto-drop after all balls have settled
+      if (gameState.freeDrops > 0 && !gameState.isAutoDropping && !gameState.balls.some(ball => ball.active)) {
+          startAutoDrops();
+      }
 
       // Draw balls
       gameState.balls.forEach(ball => {
