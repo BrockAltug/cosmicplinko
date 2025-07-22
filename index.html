@@ -1094,8 +1094,8 @@ async function startGame() {
       // Initialize game
       gameState.gameStarted = true;
       initializePegs();
-      generateCurrentMultipliersLayout();
-      initializeUI();
+      // generateCurrentMultipliersLayout(); // REMOVED: Free drops should not appear on initial load
+      initializeUI(); // This will now render BASE_MULTIPLIERS initially
       setupEventListeners(); // This now sets up listeners for game controls
       startAnimationLoop();
       startUIUpdateLoop();
@@ -1347,8 +1347,9 @@ function initializeUI() {
 };
 
   // Use gameState.currentMultipliersLayout for rendering
+  // If currentMultipliersLayout is empty (initial load or reset), use BASE_MULTIPLIERS
   const multipliersToRender = gameState.currentMultipliersLayout.length > 0 ? 
-                              gameState.currentMultipliersLayout : BASE_MULTIPLIERS;
+                            gameState.currentMultipliersLayout : BASE_MULTIPLIERS;
 
   multipliersToRender.forEach((item) => {
       const div = document.createElement('div');
@@ -1548,7 +1549,7 @@ function canDropBall() {
   const timeUntilNextDrop = Math.max(0, 300 - (currentTime - gameState.lastDropTime));
   const hasActiveBalls = gameState.balls.some(ball => ball.active);
   const totalBet = gameState.betAmount * gameState.ballCount;
-  
+
   // If auto-dropping, prevent manual drops
   if (gameState.isAutoDropping) {
       return false;
@@ -1559,14 +1560,14 @@ function canDropBall() {
 }
 
 // Drop ball function - UPDATED: Drop multiple balls and handle free drops
-async function dropBall() {
+async function dropBall(isFreeDropTrigger = false) { // Added isFreeDropTrigger parameter
   if (!gameState.gameStarted) return;
 
-  // Use centralized check, but allow if auto-dropping (as auto-drop manages its own flow)
-  if (!canDropBall() && !gameState.isAutoDropping) return;
+  // Only prevent manual drops if conditions aren't met and it's not a free drop trigger
+  if (!isFreeDropTrigger && !canDropBall()) return;
 
-  // Only generate new lines/layout if not currently auto-dropping (i.e., for a new manual drop)
-  if (!gameState.isAutoDropping) {
+  // Only generate new lines/layout if not currently auto-dropping AND not a free drop trigger
+  if (!gameState.isAutoDropping && !isFreeDropTrigger) {
       generateMultiplierLines();
       generateCurrentMultipliersLayout(); // Ensure multiplier layout is generated for each drop
       initializeUI(); // Re-render multipliers to show new FREE DROPS position and value
@@ -1574,25 +1575,22 @@ async function dropBall() {
 
   // Update state
   gameState.lastDropTime = Date.now();
-  let totalBet = gameState.betAmount * gameState.ballCount;
+  
+  // Determine cost: 0 for free drops, otherwise normal bet
+  let totalBet = isFreeDropTrigger ? 0 : (gameState.betAmount * gameState.ballCount);
 
-  // Determine if this is a free drop
-  const isFreeDrop = gameState.freeDrops > 0;
-
-  if (isFreeDrop) {
+  if (isFreeDropTrigger) {
       console.log(`🎁 Consuming 1 free drop. Remaining: ${gameState.freeDrops - 1}`);
       gameState.freeDrops--;
-      totalBet = 0; // No cost for free drop
   } else {
       gameState.balance -= totalBet;
   }
 
-  // Determine delay per ball
-  const delayPerBall = gameState.ballCount > 2 ? 400 : 100; // 400ms if >2 balls, else 100ms
+  // Determine delay per ball (still based on user's ballCount for manual drops)
+  const delayPerBall = gameState.ballCount > 2 ? 400 : 100;
 
-  // Drop multiple balls with slight delays and spacing
-  // If auto-dropping, we only drop one ball at a time via the loop in startAutoDrops
-  const ballsToDrop = gameState.isAutoDropping ? 1 : gameState.ballCount;
+  // Crucial change: If it's a free drop trigger, always drop 1 ball. Otherwise, use gameState.ballCount.
+  const ballsToDrop = isFreeDropTrigger ? 1 : gameState.ballCount;
 
   for (let i = 0; i < ballsToDrop; i++) {
       setTimeout(() => {
@@ -1637,8 +1635,8 @@ async function startAutoDrops(numDrops) {
           }, 50); // Check every 50ms
       });
       
-      // Drop one free ball
-      await dropBall();
+      // Drop one free ball by explicitly passing true
+      await dropBall(true); 
       
       // Add a small delay between drops
       await new Promise(resolve => setTimeout(resolve, 500)); // 0.5 second delay between free drops
@@ -1703,8 +1701,8 @@ function resetGame() {
 
   // Regenerate pegs with new random positions
   initializePegs();
-  generateCurrentMultipliersLayout(); // Ensure layout is generated on reset too
-  initializeUI();
+  // generateCurrentMultipliersLayout(); // REMOVED: Free drops should not appear on reset
+  initializeUI(); // This will now render BASE_MULTIPLIERS after reset
 }
 
 // NEW: Function to update all UI elements
@@ -1750,6 +1748,7 @@ function updateUIElements() {
   } else if (gameState.freeDrops > 0) { // Prioritize free drops text
       dropBtn.textContent = `DROP FREE BALL${gameState.freeDrops > 1 ? 'S' : ''}`;
   } else if (gameState.balance < totalBet) {
+      insufficientBalance.classList.remove('hidden'); // Ensure warning is visible
       dropBtn.textContent = 'INSUFFICIENT BALANCE';
   } else {
       const ballText = gameState.ballCount === 1 ? 'BALL' : 'BALLS';
@@ -1871,7 +1870,7 @@ function setupEventListeners() {
   document.getElementById('drop-ball-btn').addEventListener('click', () => {
       // Only allow manual drop if not currently auto-dropping
       if (!gameState.isAutoDropping) {
-          dropBall();
+          dropBall(false); // Explicitly not a free drop trigger
       }
   });
 
@@ -1887,7 +1886,7 @@ function setupEventListeners() {
   document.addEventListener('keydown', (event) => {
       if (event.code === 'Space' && gameState.gameStarted && canDropBall()) { // Added canDropBall check
           event.preventDefault();
-          dropBall();
+          dropBall(false); // Explicitly not a free drop trigger
       }
   });
 
