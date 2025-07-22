@@ -1478,10 +1478,17 @@ function distToSegmentSquared(p, v, w) {
 // NEW: Generate the current layout of multipliers including the FREE DROPS slot
 function generateCurrentMultipliersLayout() {
   const tempMultipliers = [...BASE_MULTIPLIERS];
-  const freeDropsIndex = Math.floor(Math.random() * (tempMultipliers.length + 1)); // +1 to allow insertion at the end
-  tempMultipliers.splice(freeDropsIndex, 0, { type: 'FREE_DROPS', value: getRandomFreeDrops() }); // Store as object with value
+  
+  // Only add a FREE_DROPS slot if there are no active free drops
+  if (gameState.freeDrops === 0) {
+      const freeDropsIndex = Math.floor(Math.random() * (tempMultipliers.length + 1)); // +1 to allow insertion at the end
+      tempMultipliers.splice(freeDropsIndex, 0, { type: 'FREE_DROPS', value: getRandomFreeDrops() }); // Store as object with value
+      console.log('🎁 Free Drops slot placed at index:', freeDropsIndex);
+  } else {
+      console.log('🚫 Free Drops active, not adding new FREE DROPS slot to layout.');
+  }
+  
   gameState.currentMultipliersLayout = tempMultipliers;
-  console.log('🎁 Free Drops slot placed at index:', freeDropsIndex);
 }
 
 // UPDATED: Generate multiplier lines with specific probabilities
@@ -1550,28 +1557,37 @@ function canDropBall() {
   const hasActiveBalls = gameState.balls.some(ball => ball.active);
   const totalBet = gameState.betAmount * gameState.ballCount;
 
-  // If auto-dropping, prevent manual drops
-  if (gameState.isAutoDropping) {
+  // If there are active balls or still on cooldown, prevent drop.
+  // This applies to both manual and auto-drops, ensuring one ball at a time.
+  if (hasActiveBalls || timeUntilNextDrop > 0) {
       return false;
   }
 
-  // Allow drop if no active balls and either balance is sufficient or free drops are available
-  return timeUntilNextDrop === 0 && !hasActiveBalls && (gameState.balance >= totalBet || gameState.freeDrops > 0);
+  // If it's a manual drop AND we don't have free drops AND balance is insufficient, prevent drop.
+  if (gameState.freeDrops === 0 && gameState.balance < totalBet) {
+      return false;
+  }
+
+  return true;
 }
 
 // Drop ball function - UPDATED: Drop multiple balls and handle free drops
 async function dropBall(isFreeDropTrigger = false) { // Added isFreeDropTrigger parameter
   if (!gameState.gameStarted) return;
 
-  // Only prevent manual drops if conditions aren't met and it's not a free drop trigger
-  if (!isFreeDropTrigger && !canDropBall()) return;
-
-  // Only generate new lines/layout if not currently auto-dropping AND not a free drop trigger
-  if (!gameState.isAutoDropping && !isFreeDropTrigger) {
-      generateMultiplierLines();
-      generateCurrentMultipliersLayout(); // Ensure multiplier layout is generated for each drop
-      initializeUI(); // Re-render multipliers to show new FREE DROPS position and value
+  // Perform the comprehensive canDropBall check
+  if (!canDropBall()) {
+      return;
   }
+
+  // --- Board layout generation logic ---
+  // This should happen for every *new* drop sequence, whether manual or auto.
+  // The board should reflect the *current* free drop state.
+  // If free drops are active, the free drop slot should disappear.
+  // If free drops are 0, it should potentially appear.
+  generateMultiplierLines(); // Always generate new lines for each drop
+  generateCurrentMultipliersLayout(); // This function will now handle the conditional FREE_DROPS slot
+  initializeUI(); // Re-render multipliers based on the new layout
 
   // Update state
   gameState.lastDropTime = Date.now();
