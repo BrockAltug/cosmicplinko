@@ -772,8 +772,6 @@ html, body {
     overflow-y: auto;
     margin: 0;
     padding: 0;
-    width: 100%;
-    touch-action: manipulation; /* FIXED: Added to prevent double-tap zoom on the entire page */
 }
 
 /* Ensure no elements cause horizontal scroll */
@@ -786,6 +784,23 @@ html, body {
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;
+}
+
+/* NEW: Styling for the Free Drops slot */
+.free-drops-slot {
+    background: rgba(0, 128, 0, 0.9); /* Green color for Free Drops */
+    border: 2px solid rgb(0, 255, 0) !important; /* Bright green border */
+    color: #ffffff !important; /* White text */
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+    font-size: clamp(0.3rem, 0.7vw, 0.45rem); /* Adjusted font size for better fit */
+    padding: 0.15rem 0.08rem; /* Adjusted padding */
+    line-height: 1.1; /* Tighter line height for multi-line text */
+    white-space: normal; /* Allow text to wrap */
+    display: flex; /* Use flexbox for centering */
+    flex-direction: column; /* Stack text vertically */
+    justify-content: center; /* Center vertically */
+    align-items: center; /* Center horizontally */
+    text-align: center; /* Ensure text is centered */
 }
 </style>
 </head>
@@ -935,6 +950,11 @@ html, body {
                 $1.00 × 1 ball = $1.00
             </div>
 
+            <!-- Free Drops Display -->
+            <div id="free-drops-display" class="text-center text-green-400 text-sm mb-4 hidden" style="font-family: 'Orbitron', monospace;">
+                FREE DROPS: 0
+            </div>
+
             <!-- Stats - Desktop and Mobile layout -->
             <div class="flex flex-col gap-2 mb-4 stats-mobile lg:flex-row lg:gap-2 lg:justify-center">
                 <div class="game-card rounded-xl balance-box mx-auto lg:mx-0">
@@ -1010,13 +1030,16 @@ let gameState = {
     recentHits: [],
     lastDropTime: 0,
     multiplierLines: [], // NEW: Active multiplier lines for the current drop
-    lineAnimationTime: 0 // NEW: For animating the multiplier lines
+    lineAnimationTime: 0, // NEW: For animating the multiplier lines
+    freeDrops: 0, // NEW: Track free drops
+    currentMultipliersLayout: [], // NEW: Store the randomized multiplier layout for the current drop
+    isAutoDropping: false // NEW: Flag to indicate if free drops are being automatically dropped
 };
 
 // Constants - UPDATED: Added $10 bet option
 const BET_AMOUNTS = [0.5, 1, 2, 3, 4, 5, 10];
 // UPDATED: Multipliers array with 1000x on both sides, symmetrical around 0.5x
-const MULTIPLIERS = [1000, 100, 50, 10, 5, 2, 1, 0.5, 1, 2, 5, 10, 50, 100, 1000];
+const BASE_MULTIPLIERS = [1000, 100, 50, 10, 5, 2, 1, 0.5, 1, 2, 5, 10, 50, 100, 1000]; // Renamed to BASE_MULTIPLIERS
 const CANVAS_WIDTH = 600; // Increased from 520
 const CANVAS_HEIGHT = 500; // Increased from 450
 
@@ -1070,10 +1093,11 @@ async function startGame() {
         // Initialize game
         gameState.gameStarted = true;
         initializePegs();
+        generateCurrentMultipliersLayout();
         initializeUI();
-        setupEventListeners();
+        setupEventListeners(); // This now sets up listeners for game controls
         startAnimationLoop();
-        startUIUpdateLoop(); // Start separate UI update loop
+        startUIUpdateLoop();
         
         document.getElementById('loading-indicator').style.display = 'none';
         console.log('✅ Game started successfully');
@@ -1321,13 +1345,23 @@ function initializeUI() {
     }
 };
 
-    MULTIPLIERS.forEach((multiplier, index) => {
+    // Use gameState.currentMultipliersLayout for rendering
+    const multipliersToRender = gameState.currentMultipliersLayout.length > 0 ? 
+                                gameState.currentMultipliersLayout : BASE_MULTIPLIERS;
+
+    multipliersToRender.forEach((item) => {
         const div = document.createElement('div');
         div.className = 'multiplier-slot flex-1 flex items-center justify-center font-bold border-r-2 border-purple-500 last:border-r-0';
-        div.style.background = getMultiplierColor(multiplier);
-        div.style.border = '2px solid rgb(147, 51, 234)'; // Solid purple border
-        div.style.color = '#ffd700'; // Gold text color
-        div.textContent = `${multiplier}x`;
+        
+        if (typeof item === 'object' && item.type === 'FREE_DROPS') { // Check if it's the FREE_DROPS object
+            div.classList.add('free-drops-slot');
+            div.innerHTML = `FREE DROPS<br>${item.value}`; // Display "FREE DROPS" and the number
+        } else { // It's a regular multiplier number
+            div.style.background = getMultiplierColor(item);
+            div.style.border = '2px solid rgb(147, 51, 234)'; // Solid purple border
+            div.style.color = '#ffd700'; // Gold text color
+            div.textContent = `${item}x`;
+        }
         multipliersDiv.appendChild(div);
     });
 
@@ -1439,6 +1473,15 @@ function distToSegmentSquared(p, v, w) {
     return (p.x - projectionX) * (p.x - projectionX) + (p.y - projectionY) * (p.y - projectionY);
 }
 
+// NEW: Generate the current layout of multipliers including the FREE DROPS slot
+function generateCurrentMultipliersLayout() {
+    const tempMultipliers = [...BASE_MULTIPLIERS];
+    const freeDropsIndex = Math.floor(Math.random() * (tempMultipliers.length + 1)); // +1 to allow insertion at the end
+    tempMultipliers.splice(freeDropsIndex, 0, { type: 'FREE_DROPS', value: getRandomFreeDrops() }); // Store as object with value
+    gameState.currentMultipliersLayout = tempMultipliers;
+    console.log('🎁 Free Drops slot placed at index:', freeDropsIndex);
+}
+
 // UPDATED: Generate multiplier lines with specific probabilities
 function generateMultiplierLines() {
     gameState.multiplierLines = []; // Clear previous lines
@@ -1498,43 +1541,65 @@ function generateMultiplierLines() {
     }
 }
 
-// FIXED: Check if can drop ball - Updated for multiple balls
+// Check if can drop ball - Updated for multiple balls and free drops, and auto-dropping
 function canDropBall() {
     const currentTime = Date.now();
     const timeUntilNextDrop = Math.max(0, 300 - (currentTime - gameState.lastDropTime));
     const hasActiveBalls = gameState.balls.some(ball => ball.active);
     const totalBet = gameState.betAmount * gameState.ballCount;
-    return timeUntilNextDrop === 0 && gameState.balance >= totalBet && !hasActiveBalls;
+    
+    // If auto-dropping, prevent manual drops
+    if (gameState.isAutoDropping) {
+        return false;
+    }
+
+    // Allow drop if no active balls and either balance is sufficient or free drops are available
+    return timeUntilNextDrop === 0 && !hasActiveBalls && (gameState.balance >= totalBet || gameState.freeDrops > 0);
 }
 
-// Drop ball function - UPDATED: Drop multiple balls
+// Drop ball function - UPDATED: Drop multiple balls and handle free drops
 async function dropBall() {
     if (!gameState.gameStarted) return;
 
-    // Use centralized check
-    if (!canDropBall()) return;
+    // Use centralized check, but allow if auto-dropping (as auto-drop manages its own flow)
+    if (!canDropBall() && !gameState.isAutoDropping) return;
 
-    // NEW: Generate new multiplier lines for this drop
-    generateMultiplierLines();
-
-    // Play ball drop sound
-    playBallDropSound();
+    // Only generate new lines/layout if not currently auto-dropping (i.e., for a new manual drop)
+    if (!gameState.isAutoDropping) {
+        generateMultiplierLines();
+        generateCurrentMultipliersLayout(); // Ensure multiplier layout is generated for each drop
+        initializeUI(); // Re-render multipliers to show new FREE DROPS position and value
+    }
 
     // Update state
     gameState.lastDropTime = Date.now();
-    const totalBet = gameState.betAmount * gameState.ballCount;
-    gameState.balance -= totalBet;
+    let totalBet = gameState.betAmount * gameState.ballCount;
+
+    // Determine if this is a free drop
+    const isFreeDrop = gameState.freeDrops > 0;
+
+    if (isFreeDrop) {
+        console.log(`🎁 Consuming 1 free drop. Remaining: ${gameState.freeDrops - 1}`);
+        gameState.freeDrops--;
+        totalBet = 0; // No cost for free drop
+    } else {
+        gameState.balance -= totalBet;
+    }
 
     // Determine delay per ball
     const delayPerBall = gameState.ballCount > 2 ? 400 : 100; // 400ms if >2 balls, else 100ms
 
     // Drop multiple balls with slight delays and spacing
-    for (let i = 0; i < gameState.ballCount; i++) {
+    // If auto-dropping, we only drop one ball at a time via the loop in startAutoDrops
+    const ballsToDrop = gameState.isAutoDropping ? 1 : gameState.ballCount;
+
+    for (let i = 0; i < ballsToDrop; i++) {
         setTimeout(() => {
+            playBallDropSound(); // MOVED: Play sound for EACH ball
             const newBall = {
                 id: Date.now() + Math.random() + i,
                 // UPDATED: Make balls drop closer to the middle
-                x: CANVAS_WIDTH / 2 + (Math.random() - 0.5) * 30 + (i - gameState.ballCount/2) * 5,
+                x: CANVAS_WIDTH / 2 + (Math.random() - 0.5) * 30 + (i - ballsToDrop/2) * 5,
                 y: 50 + i * 5, // Slight vertical offset
                 // More random initial velocity
                 vx: (Math.random() - 0.5) * 2,
@@ -1551,10 +1616,37 @@ async function dropBall() {
             };
 
             gameState.balls.push(newBall);
-            console.log(`🎾 Ball ${i+1}/${gameState.ballCount} dropped at x:${newBall.x.toFixed(1)}, chaos:${newBall.chaosMultiplier.toFixed(2)}`);
+            console.log(`🎾 Ball ${i+1}/${ballsToDrop} dropped at x:${newBall.x.toFixed(1)}, chaos:${newBall.chaosMultiplier.toFixed(2)}`);
         }, i * delayPerBall); // Use dynamic delay
     }
 }
+
+// NEW: Function to automatically drop free balls
+async function startAutoDrops(numDrops) {
+    gameState.isAutoDropping = true;
+    console.log(`Starting auto-drop sequence for ${numDrops} free balls.`);
+    for (let i = 0; i < numDrops; i++) {
+        // Wait for any currently active balls to finish
+        await new Promise(resolve => {
+            const checkBalls = setInterval(() => {
+                if (!gameState.balls.some(ball => ball.active)) {
+                    clearInterval(checkBalls);
+                    resolve();
+                }
+            }, 50); // Check every 50ms
+        });
+        
+        // Drop one free ball
+        await dropBall();
+        
+        // Add a small delay between drops
+        await new Promise(resolve => setTimeout(resolve, 500)); // 0.5 second delay between free drops
+    }
+    gameState.isAutoDropping = false;
+    console.log('Auto-drop sequence finished.');
+    updateUIElements(); // Ensure UI is fully updated after auto-drops
+}
+
 
 // Set bet amount - WITH BUTTON SOUND
 function setBetAmount(amount) {
@@ -1588,6 +1680,9 @@ function resetGame() {
     gameState.recentHits = [];
     gameState.multiplierLines = []; // NEW: Clear multiplier lines on reset
     gameState.lineAnimationTime = 0; // Reset line animation time
+    gameState.freeDrops = 0; // NEW: Reset free drops
+    gameState.currentMultipliersLayout = []; // NEW: Reset current multiplier layout
+    gameState.isAutoDropping = false; // NEW: Reset auto-dropping flag
 
     // Reset pegs
     gameState.pegs.forEach(peg => {
@@ -1600,61 +1695,81 @@ function resetGame() {
     // Hide win cards on reset
     document.getElementById('win-card').classList.add('hidden');
     document.getElementById('mobile-win-card').classList.add('hidden');
+    document.getElementById('free-drops-display').classList.add('hidden'); // NEW: Hide free drops display
 
     // Reset ball count dropdown
     document.getElementById('ball-count-select').value = '1';
 
     // Regenerate pegs with new random positions
     initializePegs();
+    generateCurrentMultipliersLayout(); // Ensure layout is generated on reset too
     initializeUI();
+}
+
+// NEW: Function to update all UI elements
+function updateUIElements() {
+    // Update balance display
+    document.getElementById('balance').textContent = `$${gameState.balance.toFixed(2)}`;
+    document.getElementById('bet-amount').textContent = `$${gameState.betAmount.toFixed(2)}`;
+
+    // Update win display - ONLY show/update when there's actually a win
+    if (gameState.lastWin > 0) {
+        // Desktop win card
+        document.getElementById('last-win').textContent = `+$${gameState.lastWin.toFixed(2)}`;
+        document.getElementById('win-card').classList.remove('hidden');
+
+        // Mobile win card
+        document.getElementById('mobile-last-win').textContent = `+$${gameState.lastWin.toFixed(2)}`;
+        document.getElementById('mobile-win-card').classList.remove('hidden');
+    }
+
+    // Update free drops display
+    const freeDropsDisplay = document.getElementById('free-drops-display');
+    if (gameState.freeDrops > 0) {
+        freeDropsDisplay.textContent = `FREE DROPS: ${gameState.freeDrops}`;
+        freeDropsDisplay.classList.remove('hidden');
+    } else {
+        freeDropsDisplay.classList.add('hidden');
+    }
+
+    // Update drop button state using centralized check
+    const dropBtn = document.getElementById('drop-ball-btn');
+    const hasActiveBalls = gameState.balls.some(ball => ball.active);
+    const totalBet = gameState.betAmount * gameState.ballCount;
+    
+    // Disable button if auto-dropping or if canDropBall is false
+    dropBtn.disabled = gameState.isAutoDropping || !canDropBall();
+
+    // Update button text based on state
+    if (gameState.isAutoDropping) {
+        dropBtn.textContent = 'AUTO DROPPING...';
+    } else if (hasActiveBalls) {
+        const activeBallCount = gameState.balls.filter(ball => ball.active).length;
+        dropBtn.textContent = `${activeBallCount} BALL${activeBallCount > 1 ? 'S' : ''} IN PLAY...`;
+    } else if (gameState.freeDrops > 0) { // Prioritize free drops text
+        dropBtn.textContent = `DROP FREE BALL${gameState.freeDrops > 1 ? 'S' : ''}`;
+    } else if (gameState.balance < totalBet) {
+        dropBtn.textContent = 'INSUFFICIENT BALANCE';
+    } else {
+        const ballText = gameState.ballCount === 1 ? 'BALL' : 'BALLS';
+        dropBtn.textContent = `DROP ${gameState.ballCount} ${ballText}`;
+    }
+
+    // Show/hide insufficient balance warning
+    const insufficientBalance = document.getElementById('insufficient-balance');
+    if (gameState.balance < totalBet && gameState.freeDrops === 0 && !gameState.isAutoDropping) { // Only show if no free drops and not auto-dropping
+        insufficientBalance.classList.remove('hidden');
+    } else {
+        insufficientBalance.classList.add('hidden');
+    }
+
+    // Update recent hits
+    updateRecentHits();
 }
 
 // Separate UI update loop - runs independently of game physics
 function startUIUpdateLoop() {
-    uiUpdateInterval = setInterval(() => {
-        // Update balance display
-        document.getElementById('balance').textContent = `$${gameState.balance.toFixed(2)}`;
-        document.getElementById('bet-amount').textContent = `$${gameState.betAmount.toFixed(2)}`;
-
-        // Update win display - ONLY show/update when there's actually a win
-        if (gameState.lastWin > 0) {
-            // Desktop win card
-            document.getElementById('last-win').textContent = `+$${gameState.lastWin.toFixed(2)}`;
-            document.getElementById('win-card').classList.remove('hidden');
-
-            // Mobile win card
-            document.getElementById('mobile-last-win').textContent = `+$${gameState.lastWin.toFixed(2)}`;
-            document.getElementById('mobile-win-card').classList.remove('hidden');
-        }
-
-        // Update drop button state using centralized check
-        const dropBtn = document.getElementById('drop-ball-btn');
-        const hasActiveBalls = gameState.balls.some(ball => ball.active);
-        const totalBet = gameState.betAmount * gameState.ballCount;
-        dropBtn.disabled = !canDropBall();
-
-        // Update button text based on state
-        if (hasActiveBalls) {
-            const activeBallCount = gameState.balls.filter(ball => ball.active).length;
-            dropBtn.textContent = `${activeBallCount} BALL${activeBallCount > 1 ? 'S' : ''} IN PLAY...`;
-        } else if (gameState.balance < totalBet) {
-            dropBtn.textContent = 'INSUFFICIENT BALANCE';
-        } else {
-            const ballText = gameState.ballCount === 1 ? 'BALL' : 'BALLS';
-            dropBtn.textContent = `DROP ${gameState.ballCount} ${ballText}`;
-        }
-
-        // Show/hide insufficient balance warning
-        const insufficientBalance = document.getElementById('insufficient-balance');
-        if (gameState.balance < totalBet) {
-            insufficientBalance.classList.remove('hidden');
-        } else {
-            insufficientBalance.classList.add('hidden');
-        }
-
-        // Update recent hits
-        updateRecentHits();
-    }, 16); // ~60fps UI updates
+    uiUpdateInterval = setInterval(updateUIElements, 16); // Call the new function
 }
 
 // Update recent hits display
@@ -1688,12 +1803,22 @@ function updateDesktopRecentHits() {
         div.style.opacity = 1 - index * 0.05; // Slightly less aggressive fade for more items
         div.style.transform = `scale(${1 - index * 0.02})`; // Slightly less aggressive scale
 
-        div.innerHTML = `
-            <div class="flex justify-between items-center">
-                <span class="font-bold text-blue-200">${hit.multiplier}x</span>
-                <span class="text-yellow-300 font-bold">$${hit.winAmount.toFixed(2)}</span>
-            </div>
-        `;
+        // UPDATED: Display for Free Drops
+        if (hit.isFreeDrop) {
+            div.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-green-300">FREE DROPS</span>
+                    <span class="text-green-300 font-bold">${hit.winAmount} BALLS</span>
+                </div>
+            `;
+        } else {
+            div.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-blue-200">${hit.multiplier}x</span>
+                    <span class="text-yellow-300 font-bold">$${hit.winAmount.toFixed(2)}</span>
+                </div>
+            `;
+        }
 
         recentHitsDiv.appendChild(div);
     });
@@ -1722,10 +1847,18 @@ function updateMobileRecentHits() {
         div.style.opacity = 1 - index * 0.05;
         div.style.transform = `scale(${1 - index * 0.02})`;
 
-        div.innerHTML = `
-            <div class="font-bold text-blue-200 text-xs">${hit.multiplier}x</div>
-            <div class="text-yellow-300 font-bold text-xs">$${hit.winAmount.toFixed(2)}</div>
-        `;
+        // UPDATED: Display for Free Drops
+        if (hit.isFreeDrop) {
+            div.innerHTML = `
+                <div class="font-bold text-green-300 text-xs">FREE</div>
+                <div class="text-green-300 font-bold text-xs">${hit.winAmount} BALLS</div>
+            `;
+        } else {
+            div.innerHTML = `
+                <div class="font-bold text-blue-200 text-xs">${hit.multiplier}x</div>
+                <div class="text-yellow-300 font-bold text-xs">$${hit.winAmount.toFixed(2)}</div>
+            `;
+        }
 
         mobileRecentHitsDiv.appendChild(div);
     });
@@ -1734,7 +1867,12 @@ function updateMobileRecentHits() {
 // Setup event listeners
 function setupEventListeners() {
     // Drop ball button
-    document.getElementById('drop-ball-btn').addEventListener('click', dropBall);
+    document.getElementById('drop-ball-btn').addEventListener('click', () => {
+        // Only allow manual drop if not currently auto-dropping
+        if (!gameState.isAutoDropping) {
+            dropBall();
+        }
+    });
 
     // Reset button
     document.getElementById('reset-btn').addEventListener('click', resetGame);
@@ -1746,7 +1884,7 @@ function setupEventListeners() {
 
     // Keyboard controls
     document.addEventListener('keydown', (event) => {
-        if (event.code === 'Space' && gameState.gameStarted) {
+        if (event.code === 'Space' && gameState.gameStarted && canDropBall()) { // Added canDropBall check
             event.preventDefault();
             dropBall();
         }
@@ -1775,6 +1913,72 @@ function getBrightBlueColor(hits, opacity = 1) {
     return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${opacity})`;
 }
 
+// NEW: Function to get a random number of free drops with weighted probability
+function getRandomFreeDrops() {
+    const rand = Math.random();
+    if (rand < 0.50) { // 50% chance for 1 or 2
+        return Math.random() < 0.5 ? 1 : 2; // 25% for 1, 25% for 2
+    } else if (rand < 0.50 + 0.30) { // 30% chance for 3, 4, or 5
+        return Math.floor(Math.random() * 3) + 3; // 3, 4, or 5
+    } else if (rand < 0.50 + 0.15 + 0.30) { // 15% chance for 6 or 7
+        return Math.random() < 0.5 ? 6 : 7; // 7.5% for 6, 7.5% for 7
+    } else { // 5% chance for 8, 9, or 10
+        return Math.floor(Math.random() * 3) + 8; // 8, 9, or 10
+    }
+}
+
+// NEW: Function to get ball color and shadow based on multiplier hits
+function getBallVisuals(hits) {
+    const clampedHits = Math.min(hits, 4); // Max 4 stages of color change
+
+    let color;
+    let shadowColor;
+
+    if (clampedHits === 0) {
+        // Default state, before hitting any multiplier lines
+        color = `rgba(255, 230, 150, 1)`; // Light yellow/gold for the ball body
+        shadowColor = 'rgba(255, 215, 0, 0.8)'; // Gold glow
+    } else if (clampedHits === 1) {
+        // 1 hit: Gold (same as multiplier line color)
+        color = `rgba(255, 215, 0, 1)`; // Gold
+        shadowColor = 'rgba(255, 215, 0, 0.8)'; // Gold glow
+    } else if (clampedHits === 2) {
+        // 2 hits: More reddish
+        color = `rgba(255, 100, 0, 1)`; // Orange-red
+        shadowColor = 'rgba(255, 150, 0, 0.8)'; // Orange glow
+    } else if (clampedHits === 3) {
+        // 3 hits: Even more reddish
+        color = `rgba(255, 50, 0, 1)`; // Stronger red-orange
+        shadowColor = 'rgba(255, 100, 0, 0.8)'; // Red-orange glow
+    } else { // clampedHits === 4
+        // 4 hits: Super glowing red
+        color = `rgba(255, 0, 0, 1)`; // Pure red
+        shadowColor = 'rgba(255, 0, 0, 1)'; // Intense red glow
+    }
+
+    return { color, shadowColor };
+}
+
+// Play multiplier hit sound
+function playMultiplierSound() {
+    if (!gameState.audioInitialized || !audioContext || !audioBuffers.multi) {
+        console.warn('⚠️ Multiplier hit audio not ready');
+        return;
+    }
+
+    try {
+        const source = audioContext.createBufferSource();
+        const gainNode = audioContext.createGain();
+        source.buffer = audioBuffers.multi;
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        gainNode.gain.setValueAtTime(0.4, audioContext.currentTime); // Adjust volume as needed
+        source.start(audioContext.currentTime);
+        console.log('⚡ Multiplier hit sound played');
+    } catch (error) {
+        console.error('❌ Error playing multiplier hit sound:', error);
+    }
+}
 
 // Animation loop (120fps) - FIXED: Much more chaotic physics
 function startAnimationLoop() {
@@ -1967,12 +2171,13 @@ function startAnimationLoop() {
             const repulsionForce = 0.05; // Small force to push away
 
             if (ball.y > repulsionThresholdY) {
-                const slotWidth = CANVAS_WIDTH / MULTIPLIERS.length;
+                const slotWidth = CANVAS_WIDTH / gameState.currentMultipliersLayout.length;
                 const currentSlotIndex = Math.floor(ball.x / slotWidth);
 
                 // Check if current slot is a high-value slot (10x or higher)
-                const currentMultiplierValue = MULTIPLIERS[currentSlotIndex];
-                if (currentMultiplierValue >= 10) {
+                const currentMultiplierValue = gameState.currentMultipliersLayout[currentSlotIndex];
+                // Ensure currentMultiplierValue is a number before comparison
+                if (typeof currentMultiplierValue === 'number' && currentMultiplierValue >= 10) {
                     const slotCenterX = slotWidth * (currentSlotIndex + 0.5);
                     
                     // Determine direction to push: away from the center of the high-value slot
@@ -1989,32 +2194,54 @@ function startAnimationLoop() {
 
             // Bottom collision - determine slot based on final X position
             if (newY > CANVAS_HEIGHT - 40) {
-                const slotWidth = CANVAS_WIDTH / MULTIPLIERS.length;
+                const slotWidth = CANVAS_WIDTH / gameState.currentMultipliersLayout.length; // UPDATED: Use currentMultipliersLayout
                 let finalSlotIndex = Math.floor(ball.x / slotWidth);
 
                 // Ensure the index is within valid bounds
-                finalSlotIndex = Math.max(0, Math.min(MULTIPLIERS.length - 1, finalSlotIndex));
+                finalSlotIndex = Math.max(0, Math.min(gameState.currentMultipliersLayout.length - 1, finalSlotIndex)); // UPDATED
 
-                const finalMultiplier = MULTIPLIERS[finalSlotIndex];
-                // Win calculation now uses ball.currentMultiplier (sum of line multipliers)
-                const winAmount = ball.betAmount * ball.currentMultiplier * finalMultiplier; // CHANGED: Use ball.betAmount
-                gameState.balance += winAmount;
-                gameState.lastWin = winAmount;
+                const landedItem = gameState.currentMultipliersLayout[finalSlotIndex]; // UPDATED
 
-                // Add to recent hits
-                gameState.recentHits.unshift({
-                    // Display total multiplier (line multiplier * final slot multiplier)
-                    multiplier: (ball.currentMultiplier * finalMultiplier).toFixed(2),
-                    winAmount,
-                    timestamp: Date.now()
-                });
-                // Keep only the most recent 20 hits
-                gameState.recentHits = gameState.recentHits.slice(0, 20);
+                if (typeof landedItem === 'object' && landedItem.type === 'FREE_DROPS') { // NEW: Handle Free Drops object
+                    const awardedFreeDrops = Math.round(landedItem.value * ball.currentMultiplier); // Use stored value, multiply by ball's line multiplier
+                    gameState.freeDrops += awardedFreeDrops;
+                    console.log(`🎁 Ball landed on FREE DROPS! Base: ${landedItem.value}, Line Multiplier: ${ball.currentMultiplier.toFixed(2)}x, Awarded: ${awardedFreeDrops} free drops.`);
+                    playBallDropSound(); // Use default ball drop sound
+                    createParticles(ball.x, ball.y, 'rgba(0, 255, 0, 1)', 30); // Green particles for free drops
 
-                console.log(`🎯 Ball landed in slot ${finalSlotIndex} (${finalMultiplier}x base, ${ball.currentMultiplier.toFixed(2)}x line total, ${(ball.currentMultiplier * finalMultiplier).toFixed(2)}x final total) at x:${ball.x.toFixed(1)}`);
-                playWinSound(finalMultiplier);
-                createParticles(ball.x, ball.y, 'rgba(255, 215, 0, 1)');
+                    // Add to recent hits as a free drop event
+                    gameState.recentHits.unshift({
+                        multiplier: 'FREE',
+                        winAmount: awardedFreeDrops, // Store awarded drops as winAmount for display
+                        timestamp: Date.now(),
+                        isFreeDrop: true // Flag for special display
+                    });
+                    gameState.recentHits = gameState.recentHits.slice(0, 20);
+                    
+                    // Automatically start dropping free balls
+                    startAutoDrops(awardedFreeDrops);
 
+                } else { // Existing win calculation for regular multipliers
+                    const finalMultiplier = landedItem; // UPDATED
+                    // Win calculation now uses ball.currentMultiplier (sum of line multipliers)
+                    const winAmount = ball.betAmount * ball.currentMultiplier * finalMultiplier; // CHANGED: Use ball.betAmount
+                    gameState.balance += winAmount;
+                    gameState.lastWin = winAmount;
+
+                    // Add to recent hits
+                    gameState.recentHits.unshift({
+                        // Display total multiplier (line multiplier * final slot multiplier)
+                        multiplier: (ball.currentMultiplier * finalMultiplier).toFixed(2),
+                        winAmount,
+                        timestamp: Date.now()
+                    });
+                    // Keep only the most recent 20 hits
+                    gameState.recentHits = gameState.recentHits.slice(0, 20);
+
+                    console.log(`🎯 Ball landed in slot ${finalSlotIndex} (${finalMultiplier}x base, ${ball.currentMultiplier.toFixed(2)}x line total, ${(ball.currentMultiplier * finalMultiplier).toFixed(2)}x final total) at x:${ball.x.toFixed(1)}`);
+                    playWinSound(finalMultiplier);
+                    createParticles(ball.x, ball.y, 'rgba(255, 215, 0, 1)');
+                }
                 return { ...ball, active: false };
             }
 
@@ -2120,80 +2347,8 @@ function startAnimationLoop() {
     requestAnimationFrame(animate);
 }
 
-// Function to get progressively brighter blue color based on hits
-function getBrightBlueColor(hits, opacity = 1) {
-    const clampedHits = Math.min(hits, 4); // Max 4 stages of brightness
-    
-    // Base blue (original peg color): RGB(99, 102, 241)
-    const r1 = 99;  const g1 = 102; const b1 = 241;
-    // Target brightest blue (e.g., a light, almost cyan blue): RGB(150, 220, 255)
-    const r2 = 150; const g2 = 220; const b2 = 255;
-
-    // Linear interpolation for each color component
-    const r = r1 + (r2 - r1) * (clampedHits / 4);
-    const g = g1 + (g2 - g1) * (clampedHits / 4);
-    const b = b1 + (b2 - b1) * (clampedHits / 4);
-
-    return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${opacity})`;
-}
-
-// NEW: Function to get ball color and shadow based on multiplier hits
-function getBallVisuals(hits) {
-    const clampedHits = Math.min(hits, 4); // Max 4 stages of color change
-
-    let color;
-    let shadowColor;
-
-    if (clampedHits === 0) {
-        // Default state, before hitting any multiplier lines
-        color = `rgba(255, 230, 150, 1)`; // Light yellow/gold for the ball body
-        shadowColor = 'rgba(255, 215, 0, 0.8)'; // Gold glow
-    } else if (clampedHits === 1) {
-        // 1 hit: Gold (same as multiplier line color)
-        color = `rgba(255, 215, 0, 1)`; // Gold
-        shadowColor = 'rgba(255, 215, 0, 0.8)'; // Gold glow
-    } else if (clampedHits === 2) {
-        // 2 hits: More reddish
-        color = `rgba(255, 100, 0, 1)`; // Orange-red
-        shadowColor = 'rgba(255, 150, 0, 0.8)'; // Orange glow
-    } else if (clampedHits === 3) {
-        // 3 hits: Even more reddish
-        color = `rgba(255, 50, 0, 1)`; // Stronger red-orange
-        shadowColor = 'rgba(255, 100, 0, 0.8)'; // Red-orange glow
-    } else { // clampedHits === 4
-        // 4 hits: Super glowing red
-        color = `rgba(255, 0, 0, 1)`; // Pure red
-        shadowColor = 'rgba(255, 0, 0, 1)'; // Intense red glow
-    }
-
-    return { color, shadowColor };
-}
-
-// Play multiplier hit sound
-function playMultiplierSound() {
-    if (!gameState.audioInitialized || !audioContext || !audioBuffers.multi) {
-        console.warn('⚠️ Multiplier hit audio not ready');
-        return;
-    }
-
-    try {
-        const source = audioContext.createBufferSource();
-        const gainNode = audioContext.createGain();
-        source.buffer = audioBuffers.multi;
-        source.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        gainNode.gain.setValueAtTime(0.4, audioContext.currentTime); // Adjust volume as needed
-        source.start(audioContext.currentTime);
-        console.log('⚡ Multiplier hit sound played');
-    } catch (error) {
-        console.error('❌ Error playing multiplier hit sound:', error);
-    }
-}
-
-// Initialize start button
+// NEW: Event listener for the "START COSMIC EXPERIENCE" button
 document.getElementById('start-game').addEventListener('click', startGame);
-
-console.log('🎮 Cosmic Plinko ready - click START to begin!');
 </script>
 </body>
 </html>
