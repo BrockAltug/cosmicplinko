@@ -7,7 +7,7 @@
 <meta name="description" content="Professional Cosmic Plinko game with realistic physics and immersive audio">
 
 <!-- Preload critical assets for optimal performance -->
-<link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BackGround-mxRb0rKXSqoh1DHNoh7HMJMnl40Ut8.mp4" as="video" type="video/mp4">
+<link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BackGround-mxRb0rKXSqoh1DHNoh7HMJMJMnl40Ut8.mp4" as="video" type="video/mp4">
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1-2blBIg4gAwWnvcOcAfJ18csMkgrmpR.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/2-DRu5ntJp8KOAyep8t2NrS0u4K8m0uz.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3-Xl9zw4BwCvupErIVwySJUpAGUw7Ia1.mp3" as="audio" type="audio/mpeg">
@@ -309,7 +309,15 @@ align-items: center;
 justify-content: center; /* Ensure it's centered on desktop too */
 width: 100%;
 max-width: 100%;
-flex-wrap: nowrap; /* Keep on one line by default */
+flex-wrap: nowrap; /* Keep on one line by default for desktop */
+}
+
+/* NEW: Turbo button active state */
+.turbo-active {
+  background: linear-gradient(135deg, #3b82f6, #9333ea); /* Bright gradient */
+  border-color: #a78bfa; /* Matching border */
+  color: white;
+  box-shadow: 0 0 25px rgba(147, 51, 234, 0.8); /* Stronger glow */
 }
 
 /* Text styling */
@@ -616,6 +624,7 @@ width: 192px; /* Match sidebar width minus padding */
 /* NEW: Mobile adjustments for game control buttons */
 #game-controls-container {
     gap: 0.5rem; /* Smaller gap for mobile */
+    flex-wrap: wrap; /* Allow wrapping on mobile */
 }
 .game-control-button-base {
     min-width: 104px; /* Adjusted for tablets/larger phones */
@@ -623,6 +632,21 @@ width: 192px; /* Match sidebar width minus padding */
     padding: 0.4rem 0.8rem; /* Adjusted padding */
     font-size: 0.75rem; /* Keep font size consistent with previous mobile */
 }
+
+/* Force reset button to new line and center it on mobile */
+#reset-btn {
+  width: calc(100% - 1rem); /* Full width minus container gap */
+  margin-top: 0.5rem; /* Add some space above it */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Ensure the first three buttons stay together if possible, or wrap naturally */
+#ball-count-select, #drop-ball-btn, #turbo-btn {
+  flex-basis: auto; /* Allow them to shrink/grow naturally */
+  flex-grow: 1; /* Allow them to grow to fill space */
+}
+
 
 /* Mobile stats layout - FIXED: Better spacing */
 .stats-mobile {
@@ -1020,19 +1044,19 @@ Your browser does not support the video tag.
             >
                 DROP BALL
             </button>
-            <button 
-                id="reset-btn"
-                class="reset-button game-control-button-base rounded-xl transition-all"
-            >
-                <span class="inline-block w-5 h-5 mr-2">↻</span>
-                RESET
-            </button>
             <!-- NEW: Turbo Spin Button -->
             <button 
                 id="turbo-btn"
                 class="reset-button game-control-button-base rounded-xl transition-all"
             >
                 &gt;
+            </button>
+            <button 
+                id="reset-btn"
+                class="reset-button game-control-button-base rounded-xl transition-all"
+            >
+                <span class="inline-block w-5 h-5 mr-2">↻</span>
+                RESET
             </button>
         </div>
 
@@ -2046,10 +2070,16 @@ function updateUIElements() {
       insufficientBalance.classList.add('hidden');
   }
 
-  // NEW: Update Turbo button text
+  // NEW: Update Turbo button text and styling
   const turboBtn = document.getElementById('turbo-btn');
   if (turboBtn) {
-      turboBtn.textContent = gameState.isTurboMode ? '>>>' : '>';
+      if (gameState.isTurboMode) {
+          turboBtn.textContent = '>>> TURBO';
+          turboBtn.classList.add('turbo-active');
+      } else {
+          turboBtn.textContent = '> REGULAR';
+          turboBtn.classList.remove('turbo-active');
+      }
   }
 
   // Update recent hits
@@ -2229,23 +2259,23 @@ function getBallVisuals(hits) {
   if (clampedHits === 0) {
       // Default state, before hitting any multiplier lines
       color = `rgba(255, 230, 150, 1)`; // Light yellow/gold for the ball body
-      shadowColor = 'rgba(255, 215, 0, 0.8)'; // Gold glow
+      shadowColor = `rgba(255, 215, 0, 0.8)`; // Gold glow
   } else if (clampedHits === 1) {
       // 1 hit: Gold (same as multiplier line color)
       color = `rgba(255, 215, 0, 1)`; // Gold
-      shadowColor = 'rgba(255, 215, 0, 0.8)'; // Gold glow
+      shadowColor = `rgba(255, 215, 0, 0.8)`; // Gold glow
   } else if (clampedHits === 2) {
       // 2 hits: More reddish
       color = `rgba(255, 100, 0, 1)`; // Orange-red
-      shadowColor = 'rgba(255, 150, 0, 0.8)'; // Orange glow
+      shadowColor = `rgba(255, 150, 0, 0.8)`; // Orange glow
   } else if (clampedHits === 3) {
       // 3 hits: Even more reddish
       color = `rgba(255, 50, 0, 1)`; // Stronger red-orange
-      shadowColor = 'rgba(255, 100, 0, 0.8)'; // Red-orange glow
+      shadowColor = `rgba(255, 100, 0, 0.8)`; // Red-orange glow
   } else { // clampedHits === 4
       // 4 hits: Super glowing red
       color = `rgba(255, 0, 0, 1)`; // Pure red
-      shadowColor = 'rgba(255, 0, 0, 1)'; // Intense red glow
+      shadowColor = `rgba(255, 0, 0, 1)`; // Intense red glow
   }
 
   return { color, shadowColor };
