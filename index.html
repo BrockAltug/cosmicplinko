@@ -16,6 +16,7 @@
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/buttonchange-zhwkWSbkfOGp9jJXv7jjNtm1wlKYBK.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Alien-uzfEiE9Kl7eFnvILT9jpv6ATb1JQjX.png" as="image" type="image/png">
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/multi-Vx6Sza2V4G6OjyVV8iifmGIT0l93DL.mp3" as="audio" type="audio/mpeg">
+<link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/free%20drops-HEzfYeyhOq8rmTfzRzkOka48CW4AzI.mp3" as="audio" type="audio/mpeg"> <!-- NEW: Preload free drops audio -->
 
 <!-- Google Fonts for Anime/Retro Style -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -26,781 +27,863 @@
 <style>
 /* Custom CSS for enhanced performance and styling */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  /* FIXED: Disable double tap zoom on mobile */
-  touch-action: manipulation;
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+/* FIXED: Disable double tap zoom on mobile */
+touch-action: manipulation;
 }
 
 body {
-  font-family: 'Exo 2', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #000;
-  /* FIXED: Disable double tap zoom */
-  touch-action: manipulation;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+font-family: 'Exo 2', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+background: #000;
+/* FIXED: Disable double tap zoom */
+touch-action: manipulation;
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
 }
 
 /* Video optimization for 120fps */
 #cosmic-video {
-  will-change: transform;
-  backface-visibility: hidden;
-  perspective: 1000px;
-  transform: translateZ(0) scale(1.15);
-  filter: brightness(0.6) saturate(1.2);
+will-change: transform;
+backface-visibility: hidden;
+perspective: 1000px;
+transform: translateZ(0) scale(1.15);
+filter: brightness(0.6) saturate(1.2);
 }
 
 /* Canvas optimization - UPDATED: Solid purple border like multipliers */
 #game-canvas {
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: optimize-contrast;
-  image-rendering: crisp-edges;
-  will-change: contents;
-  border: 4px solid rgb(147, 51, 234) !important; /* Solid purple border matching multipliers */
-  background: rgba(0, 0, 0, 0.3);
-  max-width: 100%;
-  height: auto;
-  position: relative;
-  z-index: 1;
+image-rendering: -webkit-optimize-contrast;
+image-rendering: optimize-contrast;
+image-rendering: crisp-edges;
+will-change: contents;
+border: 4px solid rgb(147, 51, 234) !important; /* Solid purple border matching multipliers */
+background: rgba(0, 0, 0, 0.3);
+max-width: 100%;
+height: auto;
+position: relative;
+z-index: 1;
 }
 
 /* Button hover effects */
 .btn-primary {
-  background: rgba(59, 130, 246, 0.8);
-  border: 3px solid rgba(99, 102, 241, 0.6);
-  transition: all 0.3s ease;
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
-  touch-action: manipulation;
+background: rgba(59, 130, 246, 0.8);
+border: 3px solid rgba(99, 102, 241, 0.6);
+transition: all 0.3s ease;
+font-family: 'Orbitron', monospace;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 1px;
+box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+touch-action: manipulation;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: rgba(59, 130, 246, 1);
-  border-color: rgba(147, 51, 234, 0.8);
-  transform: scale(1.05);
-  box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+background: rgba(59, 130, 246, 1);
+border-color: rgba(147, 51, 234, 0.8);
+transform: scale(1.05);
+box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
 }
 
 .btn-primary:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+opacity: 0.4;
+cursor: not-allowed;
+transform: none;
+box-shadow: none;
 }
 
 /* Card styling */
 .game-card {
-  background: rgba(59, 130, 246, 0.15);
-  backdrop-filter: blur(12px);
-  border: 3px solid;
-  border-image: linear-gradient(135deg, #3b82f6, #9333ea) 1;
+background: rgba(59, 130, 246, 0.15);
+backdrop-filter: blur(12px);
+border: 3px solid;
+border-image: linear-gradient(135deg, #3b82f6, #9333ea) 1;
 }
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #60a5fa, #818cf8, #a78bfa, #c084fc);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: 'Orbitron', monospace;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+background: linear-gradient(135deg, #60a5fa, #818cf8, #a78bfa, #c084fc);
+-webkit-background-clip: text;
+background-clip: text;
+-webkit-text-fill-color: transparent;
+font-family: 'Orbitron', monospace;
+font-weight: 900;
+text-transform: uppercase;
+letter-spacing: 2px;
 }
 
 /* Animation keyframes */
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+0%, 100% { opacity: 1; }
+50% { opacity: 0.6; }
 }
 
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
-  50% { box-shadow: 0 0 40px rgba(147, 51, 234, 0.6); }
+0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+50% { box-shadow: 0 0 40px rgba(147, 51, 234, 0.6); }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
+0%, 100% { transform: translateY(0px); }
+50% { transform: translateY(-15px); }
 }
 
 .animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .animate-glow {
-  animation: glow 3s ease-in-out infinite;
+animation: glow 3s ease-in-out infinite;
 }
 
 .animate-float {
-  animation: float 4s ease-in-out infinite;
+animation: float 4s ease-in-out infinite;
 }
 
 /* Start overlay with space-like gradient */
 #start-overlay {
-  background: linear-gradient(135deg,
-      #1e1b4b 0%,     /* Dark blue */
-      #312e81 25%,    /* Medium blue */
-      #4c1d95 50%,    /* Purple */
-      #6b7280 75%,    /* Grey */
-      #374151 100%    /* Dark grey */
-  );
-  backdrop-filter: blur(15px);
-  z-index: 9999;
+background: linear-gradient(135deg,
+    #1e1b4b 0%,     /* Dark blue */
+    #312e81 25%,    /* Medium blue */
+    #4c1d95 50%,    /* Purple */
+    #6b7280 75%,    /* Grey */
+    #374151 100%    /* Dark grey */
+);
+backdrop-filter: blur(15px);
+z-index: 9999;
 }
 
 .start-button {
-  background: rgba(59, 130, 246, 0.9);
-  border: 4px solid rgba(99, 102, 241, 0.8);
-  transition: all 0.4s ease;
-  box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
-  font-family: 'Orbitron', monospace;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  touch-action: manipulation;
+background: rgba(59, 130, 246, 0.9);
+border: 4px solid rgba(99, 102, 241, 0.8);
+transition: all 0.4s ease;
+box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+font-family: 'Orbitron', monospace;
+font-weight: 900;
+text-transform: uppercase;
+letter-spacing: 2px;
+touch-action: manipulation;
 }
 
 .start-button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 60px rgba(147, 51, 234, 0.8);
-  background: rgba(59, 130, 246, 1);
-  border-color: rgba(147, 51, 234, 1);
+transform: scale(1.1);
+box-shadow: 0 0 60px rgba(147, 51, 234, 0.8);
+background: rgba(59, 130, 246, 1);
+border-color: rgba(147, 51, 234, 1);
 }
 
 /* FIXED: Multiplier styling - Gold text color and ensure visibility above canvas */
 .multiplier-slot {
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
-  color: #ffd700 !important; /* UPDATED: Gold yellow text color */
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-  height: 40px;
-  font-size: clamp(0.35rem, 0.8vw, 0.5rem);
-  padding: 0.25rem 0.125rem;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  position: relative;
-  z-index: 10;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  border: 2px solid rgb(147, 51, 234) !important; /* Solid purple border */
+font-family: 'Orbitron', monospace;
+font-weight: 700;
+color: #ffd700 !important; /* UPDATED: Gold yellow text color */
+text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+height: 40px;
+font-size: clamp(0.35rem, 0.8vw, 0.5rem);
+padding: 0.25rem 0.125rem;
+overflow: hidden;
+white-space: nowrap;
+text-overflow: ellipsis;
+display: flex;
+align-items: center;
+justify-content: center;
+min-width: 0;
+position: relative;
+z-index: 10;
+backdrop-filter: blur(8px);
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+border: 2px solid rgb(147, 51, 234) !important; /* Solid purple border */
 }
 
 /* FIXED: Multipliers container - Ensure it's above canvas */
 #multipliers {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  z-index: 10;
+position: absolute;
+bottom: 0;
+left: 0;
+right: 0;
+display: flex;
+z-index: 10;
 }
 
 /* Bet button styling */
 .bet-button {
-  border: 2px solid rgba(99, 102, 241, 0.6);
-  background: rgba(59, 130, 246, 0.2);
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
-  transition: all 0.3s ease;
-  color: #a78bfa;
-  touch-action: manipulation;
+border: 2px solid rgba(99, 102, 241, 0.6);
+background: rgba(59, 130, 246, 0.2);
+font-family: 'Orbitron', monospace;
+font-weight: 700;
+transition: all 0.3s ease;
+color: #a78bfa;
+touch-action: manipulation;
 }
 
 .bet-button:hover {
-  background: rgba(59, 130, 246, 0.4);
-  border-color: #6366f1;
-  transform: scale(1.05);
-  color: white;
+background: rgba(59, 130, 246, 0.4);
+border-color: #6366f1;
+transform: scale(1.05);
+color: white;
 }
 
 .bet-button.active {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  border-color: #a78bfa;
-  color: white;
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+border-color: #a78bfa;
+color: white;
+box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
 }
 
 /* Reset button styling */
 .reset-button {
-  border: 3px solid rgba(147, 51, 234, 0.6);
-  background: rgba(59, 130, 246, 0.1);
-  color: #a78bfa;
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
-  transition: all 0.3s ease;
-  touch-action: manipulation;
+border: 3px solid rgba(147, 51, 234, 0.6);
+background: rgba(59, 130, 246, 0.1);
+color: #a78bfa;
+font-family: 'Orbitron', monospace;
+font-weight: 700;
+transition: all 0.3s ease;
+touch-action: manipulation;
 }
 
 .reset-button:hover {
-  background: rgba(147, 51, 234, 0.2);
-  border-color: #8b5cf6;
-  color: #c084fc;
-  transform: scale(1.05);
+background: rgba(147, 51, 234, 0.2);
+border-color: #8b5cf6;
+color: #c084fc;
+transform: scale(1.05);
 }
 
 /* UPDATED: Ball count dropdown styling - Match reset button exactly */
 .ball-count-dropdown {
-  border: 3px solid rgba(147, 51, 234, 0.6);
-  background: rgba(59, 130, 246, 0.1);
-  color: #a78bfa;
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
-  transition: all 0.3s ease;
-  touch-action: manipulation;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a78bfa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3csvg%3e");
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
-  background-position: right 0.75rem center; /* Adjusted for new padding */
-  text-align: center; /* ADDED: Center text within the dropdown */
-  text-align-last: center; /* ADDED: For cross-browser compatibility with centered dropdown text */
-  text-transform: uppercase; /* ADDED: Make text uppercase */
+border: 3px solid rgba(147, 51, 234, 0.6);
+background: rgba(59, 130, 246, 0.1);
+color: #a78bfa;
+font-family: 'Orbitron', monospace;
+font-weight: 700;
+transition: all 0.3s ease;
+touch-action: manipulation;
+appearance: none;
+background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a78bfa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3csvg%3e");
+background-repeat: no-repeat;
+background-size: 1.5em 1.5em;
+background-position: right 0.75rem center; /* Adjusted for new padding */
+text-align: center; /* ADDED: Center text within the dropdown */
+text-align-last: center; /* ADDED: For cross-browser compatibility with centered dropdown text */
+text-transform: uppercase; /* ADDED: Make text uppercase */
 }
 
 .ball-count-dropdown:hover {
-  background: rgba(147, 51, 234, 0.2);
-  border-color: #8b5cf6;
-  color: #c084fc;
-  transform: scale(1.05);
+background: rgba(147, 51, 234, 0.2);
+border-color: #8b5cf6;
+color: #c084fc;
+transform: scale(1.05);
 }
 
 .ball-count-dropdown:focus {
-  outline: none;
-  border-color: #8b5cf6;
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+outline: none;
+border-color: #8b5cf6;
+box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
 }
 
 /* NEW: Base styling for all game control buttons to ensure consistent size */
 .game-control-button-base {
-  flex-shrink: 0;
-  flex-grow: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-width: 180px; /* Desktop fixed width */
-  height: 50px; /* Desktop fixed height */
-  padding: 0.75rem 1.5rem; /* Standardized padding */
-  font-size: 0.875rem; /* Standardized font size */
+flex-shrink: 0;
+flex-grow: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+text-align: center;
+min-width: 180px; /* Desktop fixed width */
+height: 50px; /* Desktop fixed height */
+padding: 0.75rem 1.5rem; /* Standardized padding */
+font-size: 0.875rem; /* Standardized font size */
 }
 
 /* Game Controls Container */
 #game-controls-container {
-  /* Default desktop styles */
-  display: flex;
-  gap: 1rem; /* Original gap-4 (16px) */
-  margin-bottom: 1rem; /* Original mb-4 (16px) */
-  align-items: center;
-  justify-content: center; /* Ensure it's centered on desktop too */
-  width: 100%;
-  max-width: 100%;
-  flex-wrap: nowrap; /* Keep on one line by default */
+/* Default desktop styles */
+display: flex;
+gap: 1rem; /* Original gap-4 (16px) */
+margin-bottom: 1rem; /* Original mb-4 (16px) */
+align-items: center;
+justify-content: center; /* Ensure it's centered on desktop too */
+width: 100%;
+max-width: 100%;
+flex-wrap: nowrap; /* Keep on one line by default */
 }
 
 /* Text styling */
 .stat-label {
-  color: rgba(168, 162, 158, 0.8);
-  font-family: 'Orbitron', monospace;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+color: rgba(168, 162, 158, 0.8);
+font-family: 'Orbitron', monospace;
+font-weight: 400;
+text-transform: uppercase;
+letter-spacing: 1px;
 }
 
 .stat-value {
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
-  color: #60a5fa;
+font-family: 'Orbitron', monospace;
+font-weight: 700;
+color: #60a5fa;
 }
 
 /* Win card special styling */
 .win-card {
-  background: rgba(255, 215, 0, 0.1);
-  border: 3px solid rgba(255, 215, 0, 0.4);
-  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
+background: rgba(255, 215, 0, 0.1);
+border: 3px solid rgba(255, 215, 0, 0.4);
+box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
 }
 
 .win-value {
-  color: #ffd700;
-  font-family: 'Orbitron', monospace;
-  font-weight: 900;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+color: #ffd700;
+font-family: 'Orbitron', monospace;
+font-weight: 900;
+text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 /* Recent hits styling */
 .recent-hit {
-  background: rgba(59, 130, 246, 0.3);
-  border: 2px solid rgba(99, 102, 241, 0.4);
-  font-family: 'Orbitron', monospace;
-  transition: all 0.3s ease;
+background: rgba(59, 130, 246, 0.3);
+border: 2px solid rgba(99, 102, 241, 0.4);
+font-family: 'Orbitron', monospace;
+transition: all 0.3s ease;
+/* NEW: Allow text to shrink */
+font-size: clamp(0.75rem, 1.2vw, 0.875rem); /* Shrink from 14px to 12px */
 }
 
 .recent-hit:hover {
-  transform: scale(1.02);
-  border-color: rgba(168, 85, 247, 0.6);
+transform: scale(1.02);
+border-color: rgba(168, 85, 247, 0.6);
 }
 
 /* Status indicators */
 .status-indicator {
-  background: rgba(59, 130, 246, 0.8);
-  border: 2px solid rgba(99, 102, 241, 0.6);
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
+background: rgba(59, 130, 246, 0.8);
+border: 2px solid rgba(99, 102, 241, 0.6);
+font-family: 'Orbitron', monospace;
+font-weight: 700;
 }
 
 /* Keyboard key styling */
 kbd {
-  background: rgba(59, 130, 246, 0.3);
-  border: 2px solid rgba(99, 102, 241, 0.5);
-  color: #a78bfa;
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
+background: rgba(59, 130, 246, 0.3);
+border: 2px solid rgba(99, 102, 241, 0.5);
+color: #a78bfa;
+font-family: 'Orbitron', monospace;
+font-weight: 700;
 }
 
 /* Fixed size balance and bet boxes - Desktop sizing */
 .balance-box {
-  min-width: 320px;
-  width: 320px;
+min-width: 320px;
+width: 320px;
 }
 
 .bet-box {
-  min-width: 200px;
-  width: 200px;
+min-width: 200px;
+width: 200px;
 }
 
 /* UPDATED: Fixed size recent hits container - Removed fixed height to allow scrolling for more items */
 .recent-hits-container {
-  /* height: 280px; */ /* REMOVED: Fixed height to allow content to dictate height */
-  max-height: 300px; /* ADDED: Max height to ensure it doesn't grow too large */
-  overflow-y: auto; /* UPDATED: Allow scrolling if needed */
-  overflow-x: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(99, 102, 241, 0.6) transparent;
+/* height: 280px; */ /* REMOVED: Fixed height to allow content to dictate height */
+max-height: 300px; /* ADDED: Max height to ensure it doesn't grow too large */
+overflow-y: auto; /* UPDATED: Allow scrolling if needed */
+overflow-x: hidden;
+scrollbar-width: thin;
+scrollbar-color: rgba(99, 102, 241, 0.6) transparent;
 }
 
 /* Custom scrollbar for recent hits */
 .recent-hits-container::-webkit-scrollbar {
-  width: 4px;
+width: 4px;
 }
 
 .recent-hits-container::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 2px;
+background: rgba(0, 0, 0, 0.1);
+border-radius: 2px;
 }
 
 .recent-hits-container::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.6);
-  border-radius: 2px;
+background: rgba(99, 102, 241, 0.6);
+border-radius: 2px;
 }
 
 .recent-hits-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.8);
+background: rgba(99, 102, 241, 0.8);
 }
 
 /* Mobile stats container */
 .mobile-stats-container {
-  width: 100%;
-  max-width: 600px;
+width: 100%;
+max-width: 600px;
 }
 
 /* Alien floating animation */
 .alien-container {
-  position: absolute;
-  top: -50px; /* Positioned above the header */
-  right: 50%; /* Center horizontally */
-  transform: translateX(50%); /* Adjust for half its width to truly center */
-  z-index: 20; /* Ensure it's above other elements */
-  pointer-events: none;
+position: absolute;
+top: -50px; /* Positioned above the header */
+right: 50%; /* Center horizontally */
+transform: translateX(50%); /* Adjust for half its width to truly center */
+z-index: 20; /* Ensure it's above other elements */
+pointer-events: none;
 }
 
 .alien-image {
-  width: 40px; /* Smaller for desktop */
-  height: 40px; /* Smaller for desktop */
-  filter: drop-shadow(0 0 15px rgba(147, 51, 234, 0.6)) blur(25px); /* Increased blur */
+width: 40px; /* Smaller for desktop */
+height: 40px; /* Smaller for desktop */
+filter: drop-shadow(0 0 15px rgba(147, 51, 234, 0.6)) blur(25px); /* Increased blur */
 }
 
 /* FIXED: Perfect centering layout system */
 .game-layout {
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  box-sizing: border-box;
-  overflow-x: hidden;
+display: flex;
+min-height: 100vh;
+width: 100%;
+align-items: center;
+justify-content: center;
+padding: 1rem;
+box-sizing: border-box;
+overflow-x: hidden;
 }
 
 /* Desktop layout container */
 .desktop-container {
-  display: flex;
-  align-items: flex-start; /* Changed from center to flex-start for better alignment */
-  justify-content: center;
-  gap: 2rem;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+display: flex;
+align-items: flex-start; /* Changed from center to flex-start for better alignment */
+justify-content: center;
+gap: 2rem;
+width: 100%;
+max-width: 1200px;
+margin: 0 auto;
 }
 
 .left-sidebar {
-  width: 200px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* REMOVED: position: relative; */
+width: 200px;
+flex-shrink: 0;
+display: flex;
+flex-direction: column;
+align-items: center;
+/* REMOVED: position: relative; */
 }
 
 .center-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 600px;
-  position: relative;
-  flex-shrink: 0;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+width: 100%;
+max-width: 600px;
+position: relative;
+flex-shrink: 0;
 }
 
 .right-sidebar {
-  width: 200px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+width: 200px;
+flex-shrink: 0;
+display: flex;
+align-items: center;
+justify-content: center;
 }
 
 /* UPDATED: Desktop sidebar alignment - Stacked and moved down 25px */
 .sidebar-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  /* REMOVED: position, top, height, justify-content */
+display: flex;
+flex-direction: column;
+align-items: center;
+width: 100%;
+/* REMOVED: position, top, height, justify-content */
 }
 
 /* UPDATED: Win card positioning - Moved up by 10px more */
 .win-section {
-  align-self: center;
-  margin-top: 95px; /* UPDATED: Moved up by 10px (105 - 10) */
-  margin-bottom: 2rem; /* Space between win card and recent hits */
+align-self: center;
+margin-top: 95px; /* UPDATED: Moved up by 10px (105 - 10) */
+margin-bottom: 2rem; /* Space between win card and recent hits */
 }
 
 /* UPDATED: Recent hits positioning - Now stacks under win-section */
 .recent-hits-section {
-  align-self: center;
-  /* REMOVED: position, bottom */
-  width: 192px; /* Match sidebar width minus padding */
+align-self: center;
+/* REMOVED: position, bottom */
+width: 192px; /* Match sidebar width minus padding */
 }
 
 /* Mobile responsive design - FIXED: Perfect mobile centering */
 @media (max-width: 1024px) {
-  .game-layout {
-      padding: 0.75rem;
-      align-items: flex-start;
-      justify-content: flex-start;
-      min-height: 100vh;
-  }
-  
-  .desktop-container {
-      flex-direction: column;
-      gap: 1rem;
-      width: 100%;
-      max-width: 100%;
-      align-items: center;
-      justify-content: flex-start;
-  }
-  
-  .left-sidebar {
-      display: none; /* Hide desktop sidebar on mobile */
-  }
-  
-  .right-sidebar {
-      display: none; /* Hide right sidebar on mobile */
-  }
-  
-  .center-content {
-      width: 100%;
-      max-width: 100%;
-      padding: 0;
-      margin: 0;
-  }
-  
-  /* FIXED: Mobile element sizing - prevent right-side cutoff */
-  .balance-box {
-      width: min(320px, 100%);
-      min-width: min(320px, 100%);
-      max-width: 100%;
-  }
-  
-  .bet-box {
-      width: min(200px, 100%);
-      min-width: min(200px, 100%);
-      max-width: 100%;
-  }
-  
-  .mobile-stats-container {
-      width: 100%;
-      max-width: 100%;
-  }
-  
-  /* Mobile alien positioning */
-  .alien-container {
-      top: -30px; /* Adjusted for mobile to be above title */
-      right: 50%;
-      transform: translateX(50%);
-  }
-  
-  .alien-image {
-      width: 40px; /* Made smaller for tablet/mobile */
-      height: 40px; /* Made smaller for tablet/mobile */
-  }
-  
-  /* FIXED: Bet controls mobile sizing */
-  #bet-controls {
-      width: 100%;
-      max-width: 100%;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-  }
-  
-  /* Mobile multipliers - UPDATED: Smaller font for better fit on tablets */
-  .multiplier-slot {
-      font-size: clamp(0.25rem, 0.5vw, 0.4rem); /* Adjusted clamp values */
-      height: 32px;
-      padding: 0.1rem 0.05rem; /* Reduced padding */
-      letter-spacing: 0px; /* Adjusted letter spacing to prevent overhang */
-      flex-basis: 0; /* Allow shrinking */
-      flex-grow: 1; /* Allow growing */
-  }
-  
-  /* Mobile header sizing */
-  .gradient-text {
-      font-size: clamp(1.5rem, 4vw, 1.75rem);
-  }
-  
-  /* Mobile button sizing */
-  .btn-primary {
-      /* Inherits from game-control-button-base */
-  }
-  
-  .bet-button {
-      padding: 0.5rem 0.75rem;
-      font-size: 0.75rem;
-      flex: 0 0 auto;
-  }
-  
-  /* UPDATED: Mobile ball count dropdown - Match reset button sizing */
-  .ball-count-dropdown {
-      /* Inherits from game-control-button-base */
-      background-position: right 0.5rem center; /* Adjust arrow position */
-  }
+.game-layout {
+    padding: 0.75rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+    min-height: 100vh;
+}
 
-  /* NEW: Mobile adjustments for game control buttons */
-  #game-controls-container {
-      gap: 0.5rem; /* Smaller gap for mobile */
-  }
-  .game-control-button-base {
-      min-width: 104px; /* Adjusted for tablets/larger phones */
-      height: 38px; /* Slightly smaller height */
-      padding: 0.4rem 0.8rem; /* Adjusted padding */
-      font-size: 0.75rem; /* Keep font size consistent with previous mobile */
-  }
-  
-  /* Mobile stats layout - FIXED: Better spacing */
-  .stats-mobile {
-      display: flex;
-      gap: 0.5rem;
-      width: 100%;
-      justify-content: center;
-      flex-wrap: wrap;
-  }
-  
-  /* Mobile recent hits - HORIZONTAL layout */
-  .mobile-recent-hits-horizontal {
-      display: flex;
-      gap: 0.5rem;
-      overflow-x: auto;
-      padding: 0.5rem 0;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-      width: 100%;
-  }
-  
-  .mobile-recent-hits-horizontal::-webkit-scrollbar {
-      display: none;
-  }
-  
-  .mobile-recent-hit-item {
-      flex: 0 0 auto;
-      min-width: 80px;
-      padding: 0.5rem;
-      border-radius: 0.5rem;
-      text-align: center;
-      font-size: 0.75rem;
-  }
+.desktop-container {
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.left-sidebar {
+    display: none; /* Hide desktop sidebar on mobile */
+}
+
+.right-sidebar {
+    display: none; /* Hide right sidebar on mobile */
+}
+
+.center-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+/* FIXED: Mobile element sizing - prevent right-side cutoff */
+.balance-box {
+    width: min(320px, 100%);
+    min-width: min(320px, 100%);
+    max-width: 100%;
+}
+
+.bet-box {
+    width: min(200px, 100%);
+    min-width: min(200px, 100%);
+    max-width: 100%;
+}
+
+.mobile-stats-container {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Mobile alien positioning */
+.alien-container {
+    top: -30px; /* Adjusted for mobile to be above title */
+    right: 50%;
+    transform: translateX(50%);
+}
+
+.alien-image {
+    width: 40px; /* Made smaller for tablet/mobile */
+    height: 40px; /* Made smaller for tablet/mobile */
+}
+
+/* FIXED: Bet controls mobile sizing */
+#bet-controls {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Mobile multipliers - UPDATED: Smaller font for better fit on tablets */
+.multiplier-slot {
+    font-size: clamp(0.25rem, 0.5vw, 0.4rem); /* Adjusted clamp values */
+    height: 32px;
+    padding: 0.1rem 0.05rem; /* Reduced padding */
+    letter-spacing: 0px; /* Adjusted letter spacing to prevent overhang */
+    flex-basis: 0; /* Allow shrinking */
+    flex-grow: 1; /* Allow growing */
+}
+
+/* Mobile header sizing */
+.gradient-text {
+    font-size: clamp(1.5rem, 4vw, 1.75rem);
+}
+
+/* Mobile button sizing */
+.btn-primary {
+    /* Inherits from game-control-button-base */
+}
+
+.bet-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    flex: 0 0 auto;
+}
+
+/* UPDATED: Mobile ball count dropdown - Match reset button sizing */
+.ball-count-dropdown {
+    /* Inherits from game-control-button-base */
+    background-position: right 0.5rem center; /* Adjust arrow position */
+}
+
+/* NEW: Mobile adjustments for game control buttons */
+#game-controls-container {
+    gap: 0.5rem; /* Smaller gap for mobile */
+}
+.game-control-button-base {
+    min-width: 104px; /* Adjusted for tablets/larger phones */
+    height: 38px; /* Slightly smaller height */
+    padding: 0.4rem 0.8rem; /* Adjusted padding */
+    font-size: 0.75rem; /* Keep font size consistent with previous mobile */
+}
+
+/* Mobile stats layout - FIXED: Better spacing */
+.stats-mobile {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Mobile recent hits - HORIZONTAL layout */
+.mobile-recent-hits-horizontal {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: 100%;
+}
+
+.mobile-recent-hits-horizontal::-webkit-scrollbar {
+    display: none;
+}
+
+.mobile-recent-hit-item {
+    flex: 0 0 auto;
+    min-width: 80px;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    /* NEW: Allow text to shrink */
+    font-size: clamp(0.65rem, 1.5vw, 0.75rem); /* Shrink from 12px to 10.4px */
+}
 }
 
 /* Small screen adjustments for intro overlay */
 @media (max-width: 640px) {
-  .game-layout {
-      padding: 0.5rem;
-  }
-  
-  .gradient-text {
-      font-size: clamp(1.25rem, 5vw, 1.5rem);
-  }
-  
-  .btn-primary {
-      /* Inherits from game-control-button-base */
-  }
-  
-  /* Very small screen sizing */
-  .balance-box {
-      width: 100%;
-      min-width: 100%;
-      max-width: 100%;
-  }
-  
-  .bet-box {
-      width: 100%;
-      min-width: 100%;
-      max-width: 100%;
-  }
-  
-  .mobile-stats-container {
-      width: 100%;
-      max-width: 100%;
-  }
-  
-  .alien-image {
-      width: 40px;
-      height: 40px;
-  }
-  
-  /* Smaller multiplier text for very small screens */
-  .multiplier-slot {
-      font-size: clamp(0.2rem, 0.6vw, 0.35rem); /* Slightly smaller font */
-      height: 28px;
-      padding: 0.05rem 0.025rem; /* Even smaller padding */
-      letter-spacing: 0px;
-  }
-  
-  /* Canvas fits perfectly on small screens */
-  #game-canvas {
-      width: 100%;
-      max-width: 100%;
-  }
+.game-layout {
+    padding: 0.5rem;
+}
 
-  /* UPDATED: Small screen ball count dropdown */
-  .ball-count-dropdown {
-      /* Inherits from game-control-button-base */
-  }
+.gradient-text {
+    font-size: clamp(1.25rem, 5vw, 1.5rem);
+}
 
-  #game-controls-container {
-      gap: 0.25rem; /* Even smaller gap for very small screens */
-  }
-  .game-control-button-base {
-      min-width: 100px; /* Adjusted for very small phones (3 * 100 + 2 * 4 = 308px, fits 320px screen) */
-      height: 36px; /* Slightly smaller height */
-      font-size: 0.7rem; /* Slightly smaller font */
-  }
+.btn-primary {
+    /* Inherits from game-control-button-base */
+}
 
-  /* Intro overlay specific adjustments for small screens */
-  #start-overlay .text-center {
-      padding-top: 1rem; /* Reduced top padding */
-      padding-bottom: 1rem; /* Reduced bottom padding */
-  }
+/* Very small screen sizing */
+.balance-box {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+}
 
-  #start-overlay h1 {
-      font-size: clamp(2.5rem, 8vw, 3rem); /* Smaller title */
-      margin-bottom: 1rem; /* Reduced margin */
-  }
+.bet-box {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+}
 
-  #start-overlay p.text-white {
-      font-size: clamp(1rem, 3vw, 1.25rem); /* Smaller subtitle */
-      margin-bottom: 1.5rem; /* Reduced margin */
-  }
+.mobile-stats-container {
+    width: 100%;
+    max-width: 100%;
+}
 
-  #start-overlay .text-blue-200 {
-      margin-bottom: 1.5rem; /* Reduced margin */
-  }
+.alien-image {
+    width: 40px;
+    height: 40px;
+}
 
-  #start-overlay h2 {
-      font-size: clamp(1rem, 3.5vw, 1.25rem); /* Smaller "HOW TO PLAY" */
-      margin-bottom: 0.75rem; /* Reduced margin */
-  }
+/* Smaller multiplier text for very small screens */
+.multiplier-slot {
+    font-size: clamp(0.2rem, 0.6vw, 0.35rem); /* Slightly smaller font */
+    height: 28px;
+    padding: 0.05rem 0.025rem; /* Even smaller padding */
+    letter-spacing: 0px;
+}
 
-  #start-overlay ol {
-      font-size: clamp(0.875rem, 2.5vw, 1rem); /* Smaller instructions text */
-      line-height: 1.4; /* Tighter line height */
-      margin-bottom: 1rem; /* Reduced margin */
-  }
+/* Canvas fits perfectly on small screens */
+#game-canvas {
+    width: 100%;
+    max-width: 100%;
+}
 
-  #start-overlay ol li {
-      margin-bottom: 0.25rem; /* Reduced space between list items */
-  }
+/* UPDATED: Small screen ball count dropdown */
+.ball-count-dropdown {
+    /* Inherits from game-control-button-base */
+}
 
-  #start-overlay p.text-center.mt-6 {
-      margin-top: 1rem; /* Reduced margin */
-  }
+#game-controls-container {
+    gap: 0.25rem; /* Even smaller gap for very small screens */
+}
+.game-control-button-base {
+    min-width: 100px; /* Adjusted for very small phones (3 * 100 + 2 * 4 = 308px, fits 320px screen) */
+    height: 36px; /* Slightly smaller height */
+    font-size: 0.7rem; /* Slightly smaller font */
+}
 
-  #start-overlay button#start-game {
-      font-size: clamp(1.25rem, 4vw, 1.5rem); /* Smaller button text */
-      padding: 1rem 2rem; /* Smaller button padding */
-  }
+/* Intro overlay specific adjustments for small screens */
+#start-overlay .text-center {
+    padding-top: 1rem; /* Reduced top padding */
+    padding-bottom: 1rem; /* Reduced bottom padding */
+}
+
+#start-overlay h1 {
+    font-size: clamp(2.5rem, 8vw, 3rem); /* Smaller title */
+    margin-bottom: 1rem; /* Reduced margin */
+}
+
+#start-overlay p.text-white {
+    font-size: clamp(1rem, 3vw, 1.25rem); /* Smaller subtitle */
+    margin-bottom: 1.5rem; /* Reduced margin */
+}
+
+#start-overlay .text-blue-200 {
+    margin-bottom: 1.5rem; /* Reduced margin */
+}
+
+#start-overlay h2 {
+    font-size: clamp(1rem, 3.5vw, 1.25rem); /* Smaller "HOW TO PLAY" */
+    margin-bottom: 0.75rem; /* Reduced margin */
+}
+
+#start-overlay ol {
+    font-size: clamp(0.875rem, 2.5vw, 1rem); /* Smaller instructions text */
+    line-height: 1.4; /* Tighter line height */
+    margin-bottom: 1rem; /* Reduced margin */
+}
+
+#start-overlay ol li {
+    margin-bottom: 0.25rem; /* Reduced space between list items */
+}
+
+#start-overlay p.text-center.mt-6 {
+    margin-top: 1rem; /* Reduced margin */
+}
+
+#start-overlay button#start-game {
+    font-size: clamp(1.25rem, 4vw, 1.5rem); /* Smaller button text */
+    padding: 1rem 2rem; /* Smaller button padding */
+}
 }
 
 /* Enable proper scrolling without horizontal overflow */
 html, body {
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  margin: 0;
-  padding: 0;
+height: 100%;
+overflow-x: hidden;
+overflow-y: auto;
+margin: 0;
+padding: 0;
 }
 
 /* Ensure no elements cause horizontal scroll */
 * {
-  max-width: 100%;
+max-width: 100%;
 }
 
 /* Container to prevent any overflow */
 #app {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
+width: 100%;
+max-width: 100%;
+overflow-x: hidden;
 }
 
 /* NEW: Styling for the Free Drops slot */
 .free-drops-slot {
-  background: rgba(0, 128, 0, 0.9); /* Green color for Free Drops */
-  border: 2px solid rgb(0, 255, 0) !important; /* Bright green border */
-  color: #ffffff !important; /* White text */
-  text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
-  font-size: clamp(0.3rem, 0.7vw, 0.45rem); /* Adjusted font size for better fit */
-  padding: 0.15rem 0.08rem; /* Adjusted padding */
-  line-height: 1.1; /* Tighter line height for multi-line text */
-  white-space: normal; /* Allow text to wrap */
-  display: flex; /* Use flexbox for centering */
-  flex-direction: column; /* Stack text vertically */
-  justify-content: center; /* Center vertically */
-  align-items: center; /* Center horizontally */
-  text-align: center; /* Ensure text is centered */
+background: rgba(0, 128, 0, 0.9); /* Green color for Free Drops */
+border: 2px solid rgb(0, 255, 0) !important; /* Bright green border */
+color: #ffffff !important; /* White text */
+text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+font-size: clamp(0.3rem, 0.7vw, 0.45rem); /* Adjusted font size for better fit */
+padding: 0.15rem 0.08rem; /* Adjusted padding */
+line-height: 1.1; /* Tighter line height for multi-line text */
+white-space: normal; /* Allow text to wrap */
+display: flex; /* Use flexbox for centering */
+flex-direction: column; /* Stack text vertically */
+justify-content: center; /* Center vertically */
+align-items: center; /* Center horizontally */
+text-align: center; /* Ensure text is centered */
+}
+
+/* Modal styling */
+.modal-overlay {
+position: fixed;
+inset: 0;
+background: rgba(0, 0, 0, 0.7);
+backdrop-filter: blur(8px);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 10000;
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.active {
+opacity: 1;
+visibility: visible;
+}
+
+.modal-content {
+background: rgba(59, 130, 246, 0.2);
+backdrop-filter: blur(15px);
+border: 3px solid;
+border-image: linear-gradient(135deg, #3b82f6, #9333ea) 1;
+padding: 2rem;
+border-radius: 1rem;
+text-align: center;
+max-width: 90%;
+width: 400px;
+box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+transform: translateY(-20px);
+opacity: 0;
+transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+transform: translateY(0);
+opacity: 1;
+}
+
+.modal-title {
+font-family: 'Orbitron', monospace;
+font-weight: 900;
+font-size: 2.5rem;
+margin-bottom: 1rem;
+background: linear-gradient(135deg, #60a5fa, #818cf8, #a78bfa, #c084fc);
+-webkit-background-clip: text;
+background-clip: text;
+-webkit-text-fill-color: transparent;
+}
+
+.modal-message {
+font-family: 'Exo 2', sans-serif;
+font-size: 1.25rem;
+color: #e0e7ff;
+margin-bottom: 1.5rem;
+}
+
+.modal-button {
+background: rgba(59, 130, 246, 0.9);
+border: 3px solid rgba(99, 102, 241, 0.8);
+color: white;
+font-family: 'Orbitron', monospace;
+font-weight: 700;
+padding: 0.75rem 2rem;
+border-radius: 0.75rem;
+cursor: pointer;
+transition: all 0.3s ease;
+box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.modal-button:hover {
+transform: scale(1.05);
+box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+background: rgba(59, 130, 246, 1);
+border-color: rgba(147, 51, 234, 1);
 }
 </style>
 </head>
@@ -808,210 +891,235 @@ html, body {
 <!-- Start Overlay for Chrome Autoplay Policy -->
 <div id="start-overlay" class="fixed inset-0 flex items-center justify-center">
 <div class="text-center py-4 px-2">
-  <h1 class="text-5xl font-bold gradient-text mb-4">COSMIC PLINKO</h1>
-  <p class="text-white mb-6 text-xl font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</p>
-  <div class="text-blue-200 mb-8 max-w-md mx-auto text-lg text-center">
-      <h2 class="text-yellow-300 font-bold text-center mb-3">HOW TO PLAY:</h2>
-      <ol class="list-decimal list-inside space-y-1">
-          <li>Drop balls from the top.</li>
-          <li>Balls bounce off pegs into prize slots.</li>
-          <li>Hit multiplier lines to boost your ball's multiplier!</li>
-          <li>Stack multipliers for huge wins, up to <span class="text-yellow-300 font-bold">20x</span>!</li>
-          <li>Final prize slot multiplier combines with your ball's multiplier for epic wins, up to <span class="text-yellow-300 font-bold">20,000x MAX WIN!</span></li>
-          <li>Land on a <span class="text-green-300 font-bold">FREE DROPS</span> slot for bonus balls! Your ball's multiplier boosts free drops, up to <span class="text-yellow-300 font-bold">200 spins!</span></li>
-      </ol>
-      <p class="text-center mt-4">Will the stars align in your favor?</p>
-  </div>
-  <button id="start-game" class="start-button text-white font-bold px-8 py-4 rounded-xl text-xl">
-      🚀 START COSMIC EXPERIENCE
-  </button>
+<h1 class="text-5xl font-bold gradient-text mb-4">COSMIC PLINKO</h1>
+<p class="text-white mb-6 text-xl font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</p>
+<div class="text-blue-200 mb-8 max-w-md mx-auto text-lg text-center">
+    <h2 class="text-yellow-300 font-bold text-center mb-3">HOW TO PLAY:</h2>
+    <ol class="list-decimal list-inside space-y-1">
+        <li>Drop balls from the top.</li>
+        <li>Balls bounce off pegs into prize slots.</li>
+        <li>Hit multiplier lines (2x-5x) to boost your ball's multiplier!</li>
+        <li>Stack multipliers for huge wins, up to <span class="text-yellow-300 font-bold">20x</span>!</li>
+        <li>Final prize slot multiplier combines with your ball's multiplier for epic wins, up to <span class="text-yellow-300 font-bold">20,000x MAX WIN!</span></li>
+        <li>Land on a <span class="text-green-300 font-bold">FREE DROPS</span> slot for bonus balls! Your ball's multiplier boosts free drops, up to <span class="text-yellow-300 font-bold">200 spins!</span></li>
+    </ol>
+    <p class="text-center mt-4">Will the stars align in your favor?</p>
+</div>
+<button id="start-game" class="start-button text-white font-bold px-8 py-4 rounded-xl text-xl">
+    🚀 START COSMIC EXPERIENCE
+</button>
 </div>
 </div>
 
 <div id="app" class="h-screen w-screen relative">
 <!-- Cosmic Video Background -->
 <video 
-  id="cosmic-video"
-  class="absolute inset-0 w-full h-full object-cover"
-  loop 
-  playsinline
-  preload="auto"
-  crossorigin="anonymous"
-  style="display: none;"
+id="cosmic-video"
+class="absolute inset-0 w-full h-full object-cover"
+loop 
+playsinline
+preload="auto"
+crossorigin="anonymous"
+style="display: none;"
 >
-  <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BackGround-mxRb0rKXSqoh1DHNoh7HMJMnl40Ut8.mp4" type="video/mp4">
-  Your browser does not support the video tag.
+<source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BackGround-mxRb0rKXSqoh1DHNoh7HMJMnl40Ut8.mp4" type="video/mp4">
+Your browser does not support the video tag.
 </video>
 
 <!-- Loading Indicator -->
 <div id="loading-indicator" class="absolute top-4 left-4 status-indicator text-white px-3 py-2 rounded-lg text-sm" style="display: none;">
-  🚀 Loading cosmic experience...
+🚀 Loading cosmic experience...
 </div>
 
 <!-- FIXED: Perfect centering layout -->
 <div class="game-layout relative z-10">
-  <div class="desktop-container">
-      <!-- Left Sidebar (Hidden on Mobile) -->
-      <div class="left-sidebar">
-          <div class="sidebar-content">
-              <!-- Win Display - UPDATED: Positioned relative to game board start -->
-              <div class="win-section">
-                  <div id="win-card" class="win-card rounded-xl w-48 hidden animate-glow">
-                      <div class="p-4 text-center">
-                          <div id="last-win" class="text-2xl font-bold win-value">$0.00</div>
-                          <div class="stat-label text-xs mt-1">LAST WIN</div>
-                      </div>
-                  </div>
-              </div>
-              
-              <!-- Recent Hits - UPDATED: Bottom aligned with game board bottom -->
-              <div class="recent-hits-section">
-                  <div class="game-card rounded-xl w-48">
-                      <div class="p-4">
-                          <h3 class="stat-value text-sm font-bold mb-3 text-center">RECENT HITS</h3>
-                          <div class="recent-hits-container">
-                              <div id="recent-hits" class="space-y-2">
-                                  <div class="text-blue-300/50 text-xs text-center py-6">No hits yet</div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-      
-      <!-- Center Content -->
-      <div class="center-content">
-          <!-- Floating Alien -->
-          <div class="alien-container animate-float">
-              <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Alien-uzfEiE9Kl7eFnvILT9jpv6ATb1JQjX.png" alt="Cosmic Alien" crossorigin="anonymous" class="alien-image" />
-          </div>
-          <!-- Header -->
-          <div class="text-center mb-4 relative w-full">
-              <h1 class="text-4xl font-bold gradient-text mb-2">COSMIC PLINKO</h1>
-              <div class="text-blue-300 text-lg font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</div>
-          </div>
-          
-          <!-- Game Board -->
-          <div class="relative mb-4">
-              <canvas 
-                  id="game-canvas"
-                  width="600" 
-                  height="500"
-                  class="rounded-xl shadow-2xl backdrop-blur-sm"
-              ></canvas>
-              
-              <!-- FIXED: Prize Multipliers - Now properly visible above canvas -->
-              <div id="multipliers" class="absolute bottom-0 left-0 right-0 flex">
-                  <!-- Multipliers will be generated by JavaScript -->
-              </div>
-          </div>
-          
-          <!-- Bet Controls -->
-          <div id="bet-controls" class="flex gap-2 mb-4 flex-wrap justify-center">
-              <!-- Bet buttons will be generated by JavaScript -->
-          </div>
-          
-          <!-- Game Controls -->
-          <div id="game-controls-container" class="flex gap-4 mb-4 items-center">
-              <!-- Ball Count Dropdown -->
-              <select 
-                  id="ball-count-select"
-                  class="ball-count-dropdown game-control-button-base rounded-xl transition-all"
-              >
-                  <option value="1">1 Ball</option>
-                  <option value="2">2 Balls</option>
-                  <option value="3">3 Balls</option>
-                  <option value="4">4 Balls</option>
-                  <option value="5">5 Balls</option>
-                  <option value="6">6 Balls</option>
-                  <option value="7">7 Balls</option>
-                  <option value="8">8 Balls</option>
-                  <option value="9">9 Balls</option>
-                  <option value="10">10 Balls</option>
-              </select>
-              
-              <button 
-                  id="drop-ball-btn"
-                  class="btn-primary game-control-button-base text-white font-bold rounded-xl shadow-xl"
-              >
-                  DROP BALL
-              </button>
-              <button 
-                  id="reset-btn"
-                  class="reset-button game-control-button-base rounded-xl transition-all"
-              >
-                  <span class="inline-block w-5 h-5 mr-2">↻</span>
-                  RESET
-              </button>
-          </div>
+<div class="desktop-container">
+    <!-- Left Sidebar (Hidden on Mobile) -->
+    <div class="left-sidebar">
+        <div class="sidebar-content">
+            <!-- Win Display - UPDATED: Positioned relative to game board start -->
+            <div class="win-section">
+                <div id="win-card" class="win-card rounded-xl w-48 hidden animate-glow">
+                    <div class="p-4 text-center">
+                        <div id="last-win" class="text-2xl font-bold win-value">$0.00</div>
+                        <div class="stat-label text-xs mt-1">LAST WIN</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Hits - UPDATED: Bottom aligned with game board bottom -->
+            <div class="recent-hits-section">
+                <div class="game-card rounded-xl w-48">
+                    <div class="p-4">
+                        <h3 class="stat-value text-sm font-bold mb-3 text-center">RECENT HITS</h3>
+                        <div class="recent-hits-container">
+                            <div id="recent-hits" class="space-y-2">
+                                <div class="text-blue-300/50 text-xs text-center py-6">No hits yet</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Center Content -->
+    <div class="center-content">
+        <!-- Floating Alien -->
+        <div class="alien-container animate-float">
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Alien-uzfEiE9Kl7eFnvILT9jpv6ATb1JQjX.png" alt="Cosmic Alien" crossorigin="anonymous" class="alien-image" />
+        </div>
+        <!-- Header -->
+        <div class="text-center mb-4 relative w-full">
+            <h1 class="text-4xl font-bold gradient-text mb-2">COSMIC PLINKO</h1>
+            <div class="text-blue-300 text-lg font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</div>
+        </div>
+        
+        <!-- Game Board -->
+        <div class="relative mb-4">
+            <canvas 
+                id="game-canvas"
+                width="600" 
+                height="500"
+                class="rounded-xl shadow-2xl backdrop-blur-sm"
+            ></canvas>
+            
+            <!-- FIXED: Prize Multipliers - Now properly visible above canvas -->
+            <div id="multipliers" class="absolute bottom-0 left-0 right-0 flex">
+                <!-- Multipliers will be generated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Bet Controls -->
+        <div id="bet-controls" class="flex gap-2 mb-4 flex-wrap justify-center">
+            <!-- Bet buttons will be generated by JavaScript -->
+        </div>
+        
+        <!-- Game Controls -->
+        <div id="game-controls-container" class="flex gap-4 mb-4 items-center">
+            <!-- Ball Count Dropdown -->
+            <select 
+                id="ball-count-select"
+                class="ball-count-dropdown game-control-button-base rounded-xl transition-all"
+            >
+                <option value="1">1 Ball</option>
+                <option value="2">2 Balls</option>
+                <option value="3">3 Balls</option>
+                <option value="4">4 Balls</option>
+                <option value="5">5 Balls</option>
+                <option value="6">6 Balls</option>
+                <option value="7">7 Balls</option>
+                <option value="8">8 Balls</option>
+                <option value="9">9 Balls</option>
+                <option value="10">10 Balls</option>
+            </select>
+            
+            <button 
+                id="drop-ball-btn"
+                class="btn-primary game-control-button-base text-white font-bold rounded-xl shadow-xl"
+            >
+                DROP BALL
+            </button>
+            <button 
+                id="reset-btn"
+                class="reset-button game-control-button-base rounded-xl transition-all"
+            >
+                <span class="inline-block w-5 h-5 mr-2">↻</span>
+                RESET
+            </button>
+            <!-- NEW: Turbo Spin Button -->
+            <button 
+                id="turbo-btn"
+                class="reset-button game-control-button-base rounded-xl transition-all"
+            >
+                &gt;
+            </button>
+        </div>
 
-          <!-- Total Bet Display -->
-          <div id="total-bet-display" class="text-center text-blue-300 text-sm mb-4" style="font-family: 'Orbitron', monospace;">
-              $1.00 × 1 ball = $1.00
-          </div>
+        <!-- Total Bet Display -->
+        <div id="total-bet-display" class="text-center text-blue-300 text-sm mb-4" style="font-family: 'Orbitron', monospace;">
+            $1.00 × 1 ball = $1.00
+        </div>
 
-          <!-- Free Drops Display -->
-          <div id="free-drops-display" class="text-center text-green-400 text-sm mb-4 hidden" style="font-family: 'Orbitron', monospace;">
-              FREE DROPS: 0
-          </div>
+        <!-- Free Drops Display -->
+        <div id="free-drops-display" class="text-center text-green-400 text-sm mb-4 hidden" style="font-family: 'Orbitron', monospace;">
+            FREE DROPS: 0
+        </div>
 
-          <!-- Stats - Desktop and Mobile layout -->
-          <div class="flex flex-col gap-2 mb-4 stats-mobile lg:flex-row lg:gap-2 lg:justify-center">
-              <div class="game-card rounded-xl balance-box mx-auto lg:mx-0">
-                  <div class="p-4 text-center">
-                      <div id="balance" class="text-2xl font-bold stat-value">$100.00</div>
-                      <div class="stat-label text-xs mt-1">BALANCE</div>
-                  </div>
-              </div>
-              <div class="game-card rounded-xl bet-box mx-auto lg:mx-0">
-                  <div class="p-4 text-center">
-                      <div id="bet-amount" class="text-2xl font-bold stat-value">$1.00</div>
-                      <div class="stat-label text-xs mt-1">BET PER BALL</div>
-                  </div>
-              </div>
-          </div>
+        <!-- Stats - Desktop and Mobile layout -->
+        <div class="flex flex-col gap-2 mb-4 stats-mobile lg:flex-row lg:gap-2 lg:justify-center">
+            <div class="game-card rounded-xl balance-box mx-auto lg:mx-0">
+                <div class="p-4 text-center">
+                    <div id="balance" class="text-2xl font-bold stat-value">$100.00</div>
+                    <div class="stat-label text-xs mt-1">BALANCE</div>
+                </div>
+            </div>
+            <div class="game-card rounded-xl bet-box mx-auto lg:mx-0">
+                <div class="p-4 text-center">
+                    <div id="bet-amount" class="text-2xl font-bold stat-value">$1.00</div>
+                    <div class="stat-label text-xs mt-1">BET PER BALL</div>
+                </div>
+            </div>
+        </div>
 
-          <!-- Mobile Win Display and Recent Hits (Only visible on mobile) -->
-          <div class="lg:hidden mb-4 mobile-stats-container mx-auto">
-              <!-- Mobile Win Display -->
-              <div class="mb-2">
-                  <div id="mobile-win-card" class="win-card rounded-xl hidden animate-glow">
-                      <div class="p-3 text-center">
-                          <div id="mobile-last-win" class="text-lg font-bold win-value">$0.00</div>
-                          <div class="stat-label text-xs mt-1">LAST WIN</div>
-                      </div>
-                  </div>
-              </div>
-              
-              <!-- Mobile Recent Hits - HORIZONTAL -->
-              <div class="game-card rounded-xl">
-                  <div class="p-3">
-                      <h3 class="stat-value text-sm font-bold mb-2 text-center">RECENT HITS</h3>
-                      <div id="mobile-recent-hits" class="mobile-recent-hits-horizontal">
-                          <div class="text-blue-300/50 text-xs text-center py-4 w-full">No hits yet</div>
-                      </div>
-                  </div>
-              </div>
-          </div>
-          
-          <!-- Instructions -->
-          <div class="text-center text-blue-300/80 text-sm mb-2" style="font-family: 'Orbitron', monospace;">
-              Press <kbd class="px-2 py-1 rounded text-sm">SPACE</kbd> or click DROP BALL
-          </div>
-          
-          <!-- Insufficient Balance Warning -->
-          <div id="insufficient-balance" class="text-purple-300 text-sm font-bold animate-pulse hidden" style="font-family: 'Orbitron', monospace;">
-              INSUFFICIENT BALANCE
-          </div>
-      </div>
-      
-      <!-- Right Sidebar (Hidden for now) -->
-      <div class="right-sidebar hidden lg:block">
-          <!-- Future features can go here -->
-      </div>
-  </div>
+        <!-- Mobile Win Display and Recent Hits (Only visible on mobile) -->
+        <div class="lg:hidden mb-4 mobile-stats-container mx-auto">
+            <!-- Mobile Win Display -->
+            <div class="mb-2">
+                <div id="mobile-win-card" class="win-card rounded-xl hidden animate-glow">
+                    <div class="p-3 text-center">
+                        <div id="mobile-last-win" class="text-lg font-bold win-value">$0.00</div>
+                        <div class="stat-label text-xs mt-1">LAST WIN</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile Recent Hits - HORIZONTAL -->
+            <div class="game-card rounded-xl">
+                <div class="p-3">
+                    <h3 class="stat-value text-sm font-bold mb-2 text-center">RECENT HITS</h3>
+                    <div id="mobile-recent-hits" class="mobile-recent-hits-horizontal">
+                        <div class="text-blue-300/50 text-xs text-center py-4 w-full">No hits yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Instructions -->
+        <div class="text-center text-blue-300/80 text-sm mb-2" style="font-family: 'Orbitron', monospace;">
+            Press <kbd class="px-2 py-1 rounded text-sm">SPACE</kbd> or click DROP BALL
+        </div>
+        
+        <!-- Insufficient Balance Warning -->
+        <div id="insufficient-balance" class="text-purple-300 text-sm font-bold animate-pulse hidden" style="font-family: 'Orbitron', monospace;">
+            INSUFFICIENT BALANCE
+        </div>
+    </div>
+    
+    <!-- Right Sidebar (Hidden for now) -->
+    <div class="right-sidebar hidden lg:block">
+        <!-- Future features can go here -->
+    </div>
 </div>
+</div>
+</div>
+
+<!-- Free Drops Awarded Modal -->
+<div id="free-drops-awarded-modal" class="modal-overlay">
+<div class="modal-content">
+  <h2 class="modal-title">FREE DROPS!</h2>
+  <p id="free-drops-awarded-message" class="modal-message">You've won X free drops!</p>
+  <button id="free-drops-awarded-continue-btn" class="modal-button">CONTINUE</button>
+</div>
+</div>
+
+<!-- Free Drops Summary Modal -->
+<div id="free-drops-summary-modal" class="modal-overlay">
+  <div class="modal-content">
+    <h2 class="modal-title">FREE DROPS SUMMARY</h2>
+    <p id="free-drops-summary-message" class="modal-message">You won $X and Yx total during your free drops!</p>
+    <button id="free-drops-summary-continue-btn" class="modal-button">CONTINUE</button>
+  </div>
 </div>
 
 <script>
@@ -1034,7 +1142,14 @@ let gameState = {
   lineAnimationTime: 0, // NEW: For animating the multiplier lines
   freeDrops: 0, // NEW: Track free drops
   currentMultipliersLayout: [], // NEW: Store the randomized multiplier layout for the current drop
-  isAutoDropping: false // NEW: Flag to indicate if free drops are being automatically dropped
+  isAutoDropping: false, // NEW: Flag to indicate if free drops are being automatically dropped
+  isPausedForModal: false, // NEW: Flag to pause game when modal is active
+  awardedFreeDropsCurrentSpin: 0, // NEW: Accumulate free drops from a single drop sequence
+  totalWinDuringFreeDrops: 0, // NEW: Accumulate wins during a free drop session
+  totalMultiplierDuringFreeDrops: 0, // NEW: Accumulate multipliers during a free drop session
+  isTurboMode: false, // NEW: Flag for turbo spin mode
+  freeDropsSessionActive: false, // NEW: Flag to indicate if a free drop session is ongoing
+  freeDropsPlayedCount: 0 // NEW: Track total free drops played in a session
 };
 
 // Constants - UPDATED: Added $10 bet option
@@ -1053,7 +1168,8 @@ let audioBuffers = {
   ballDrop: null,
   spaceSong: null,
   buttonChange: null,
-  multi: null // NEW: Multiplier hit sound
+  multi: null, // Multiplier hit sound
+  freeDrops: null // NEW: Free drops sound
 };
 
 // Background music source node for looping
@@ -1156,17 +1272,18 @@ async function initializeAudio() {
 
       // Load all sounds in parallel
       console.log('📦 Loading all audio files...');
-      const [sound1, sound2, sound3, ballDrop, spaceSong, buttonChange, multi] = await Promise.all([
+      const [sound1, sound2, sound3, ballDrop, spaceSong, buttonChange, multi, freeDrops] = await Promise.all([
           loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1-2blBIg4gAwWnvcOcAfJ18csMkgrmpR.mp3', 'Sound 1'),
           loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/2-DRu5ntJp8KOAyep8t2NrS0u4K8m0uz.mp3', 'Sound 2'),
           loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3-Xl9zw4BwCvupErIVwySJUpAGUw7Ia1.mp3', 'Sound 3'),
           loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balldrop-hCisqCs6oFv8HlHGRhoc1rKeFevo0M.mp3', 'Ball Drop'),
           loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/space%20-rvNZSIyJXLKZtJ6lczTy1NjfJHRzuH.mp3', 'Space Song'),
           loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/buttonchange-zhwkWSbkfOGp9jJXv7jjNtm1wlKYBK.mp3', 'Button Change'),
-          loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/multi-Vx6Sza2V4G6OjyVV8iifmGIT0l93DL.mp3', 'Multiplier Hit') // NEW: Load multiplier hit sound
+          loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/multi-Vx6Sza2V4G6OjyVV8iifmGIT0l93DL.mp3', 'Multiplier Hit'),
+          loadAudio('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/free%20drops-HEzfYeyhOq8rmTfzRzkOka48CW4AzI.mp3', 'Free Drops') // NEW: Load free drops audio
       ]);
 
-      audioBuffers = { sound1, sound2, sound3, ballDrop, spaceSong, buttonChange, multi };
+      audioBuffers = { sound1, sound2, sound3, ballDrop, spaceSong, buttonChange, multi, freeDrops }; // NEW: Add freeDrops to audioBuffers
       gameState.audioInitialized = true;
       
       console.log('🎉 Audio system fully initialized');
@@ -1238,6 +1355,26 @@ function playButtonChangeSound() {
       console.log('🔘 Button change sound played');
   } catch (error) {
       console.error('❌ Error playing button change sound:', error);
+  }
+}
+
+// NEW: Play free drops sound
+function playFreeDropsSound() {
+  if (!gameState.audioInitialized || !audioContext || !audioBuffers.freeDrops) {
+      console.warn('⚠️ Free drops audio not ready');
+      return;
+  }
+  try {
+      const source = audioContext.createBufferSource();
+      const gainNode = audioContext.createGain();
+      source.buffer = audioBuffers.freeDrops;
+      source.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      gainNode.gain.setValueAtTime(0.6, audioContext.currentTime); // Adjust volume as needed
+      source.start(audioContext.currentTime);
+      console.log('🎉 Free drops sound played');
+  } catch (error) {
+      console.error('❌ Error playing free drops sound:', error);
   }
 }
 
@@ -1353,7 +1490,7 @@ function initializeUI() {
 
   multipliersToRender.forEach((item) => {
       const div = document.createElement('div');
-      div.className = 'multiplier-slot flex-1 flex items-center justify-center font-bold border-r-2 border-purple-500 last:border-r-0';
+      div.className = 'multiplier-slot flex-1 flex items-center justify-content-center font-bold border-r-2 border-purple-500 last:border-r-0';
       
       if (typeof item === 'object' && item.type === 'FREE_DROPS') { // Check if it's the FREE_DROPS object
           div.classList.add('free-drops-slot');
@@ -1573,11 +1710,16 @@ function canDropBall() {
 
 // Drop ball function - UPDATED: Drop multiple balls and handle free drops
 async function dropBall(isFreeDropTrigger = false) { // Added isFreeDropTrigger parameter
-  if (!gameState.gameStarted) return;
+  if (!gameState.gameStarted || gameState.isPausedForModal) return; // Prevent drops if game not started or paused
 
   // Perform the comprehensive canDropBall check
   if (!canDropBall()) {
       return;
+  }
+
+  // NEW: Reset awardedFreeDropsCurrentSpin only for new manual drops
+  if (!isFreeDropTrigger) {
+      gameState.awardedFreeDropsCurrentSpin = 0;
   }
 
   // --- Board layout generation logic ---
@@ -1633,29 +1775,92 @@ async function dropBall(isFreeDropTrigger = false) { // Added isFreeDropTrigger 
   }
 }
 
+// NEW: Function to show a generic modal
+function showModal(modalId, title, message, onContinueCallback) {
+  gameState.isPausedForModal = true;
+  const modalOverlay = document.getElementById(modalId);
+  const modalTitle = modalOverlay.querySelector('.modal-title');
+  const modalMessage = modalOverlay.querySelector('.modal-message');
+  const modalButton = modalOverlay.querySelector('.modal-button');
+
+  modalTitle.textContent = title;
+  modalMessage.innerHTML = message;
+
+  // Remove any existing event listener to prevent duplicates
+  if (modalButton._currentListener) {
+      modalButton.removeEventListener('click', modalButton._currentListener);
+  }
+
+  const newListener = () => {
+      playButtonChangeSound(); // Play sound on click
+      hideModal(modalId);
+      if (onContinueCallback) {
+          onContinueCallback();
+      }
+  };
+  modalButton.addEventListener('click', newListener);
+  modalButton._currentListener = newListener; // Store reference to the current listener
+
+  modalOverlay.classList.add('active');
+  console.log(`Modal "${modalId}" shown.`);
+}
+
+// NEW: Function to hide a generic modal
+function hideModal(modalId) {
+  const modalOverlay = document.getElementById(modalId);
+  modalOverlay.classList.remove('active');
+  gameState.isPausedForModal = false;
+  console.log(`Modal "${modalId}" hidden.`);
+}
+
+
 // NEW: Function to automatically drop free balls
 async function startAutoDrops() { // No parameter needed, it will consume gameState.freeDrops
-  if (gameState.isAutoDropping || gameState.freeDrops === 0) {
-      return; // Already auto-dropping or no free drops to process
+  if (gameState.isAutoDropping) { // Prevent re-entry if already auto-dropping
+      return;
+  }
+
+  // If this is a new free drop session (not a re-trigger within an existing one)
+  if (!gameState.freeDropsSessionActive) {
+      gameState.lastWin = 0; // Reset lastWin display at the start of auto-drops
+      gameState.totalWinDuringFreeDrops = 0;
+      gameState.totalMultiplierDuringFreeDrops = 0;
+      gameState.freeDropsPlayedCount = 0; // Reset count for a new session
+      gameState.freeDropsSessionActive = true; // Mark session as active
+      console.log(`Starting NEW auto-drop sequence with ${gameState.freeDrops} free balls.`);
+  } else {
+      console.log(`Continuing auto-drop sequence. Remaining: ${gameState.freeDrops}`);
   }
 
   gameState.isAutoDropping = true;
-  console.log(`Starting auto-drop sequence for ${gameState.freeDrops} free balls.`);
 
   while (gameState.freeDrops > 0) {
-      // Wait for any currently active balls to finish
+      // Wait for any currently active balls to finish before dropping the next one
       await new Promise(resolve => {
           const checkBalls = setInterval(() => {
-              if (!gameState.balls.some(ball => ball.active)) {
+              if (!gameState.balls.some(ball => ball.active) && !gameState.isPausedForModal) {
                   clearInterval(checkBalls);
                   resolve();
               }
           }, 50); // Check every 50ms
       });
 
+      // If a modal is active, wait for it to be dismissed
+      if (gameState.isPausedForModal) {
+          await new Promise(resolve => {
+              const checkModal = setInterval(() => {
+                  if (!gameState.isPausedForModal) {
+                      clearInterval(checkModal);
+                      resolve();
+                  }
+              }, 100);
+          });
+      }
+
       // Decrement free drops BEFORE dropping the ball
       gameState.freeDrops--;
-      console.log(`🎁 Consuming 1 free drop. Remaining: ${gameState.freeDrops}`);
+      gameState.freeDropsPlayedCount++; // Increment played count for each ball dropped
+      console.log(`🎁 Consuming 1 free drop. Remaining: ${gameState.freeDrops}. Played: ${gameState.freeDropsPlayedCount}`);
       
       // Drop one free ball
       await dropBall(true); 
@@ -1663,9 +1868,35 @@ async function startAutoDrops() { // No parameter needed, it will consume gameSt
       // Add a small delay between drops
       await new Promise(resolve => setTimeout(resolve, 500)); // 0.5 second delay between free drops
   }
+
+  // After all free drops are consumed, wait for any remaining balls to settle
+  await new Promise(resolve => {
+      const checkFinalBalls = setInterval(() => {
+          if (!gameState.balls.some(ball => ball.active) && !gameState.isPausedForModal) {
+              clearInterval(checkFinalBalls);
+              resolve();
+          }
+      }, 50);
+  });
+
   gameState.isAutoDropping = false;
+  gameState.freeDropsSessionActive = false; // End the session
   console.log('Auto-drop sequence finished.');
   updateUIElements(); // Ensure UI is fully updated after auto-drops
+
+  // Show free drops summary modal if there were any wins/multipliers
+  gameState.lastWin = gameState.totalWinDuringFreeDrops; // Set lastWin to total for summary display
+  showModal(
+      'free-drops-summary-modal',
+      'FREE DROPS SUMMARY',
+      `You won <span class="text-yellow-300 font-bold">$${gameState.totalWinDuringFreeDrops.toFixed(2)}</span> from <span class="text-green-300 font-bold">${gameState.freeDropsPlayedCount}</span> Free Drops for a total multiplier of <span class="text-yellow-300 font-bold">${gameState.totalMultiplierDuringFreeDrops.toFixed(2)}x</span>!`,
+      () => {
+          // Reset summary stats after modal is dismissed
+          gameState.totalWinDuringFreeDrops = 0;
+          gameState.totalMultiplierDuringFreeDrops = 0;
+          gameState.freeDropsPlayedCount = 0; // Reset for next session
+      }
+  );
 }
 
 
@@ -1687,6 +1918,14 @@ function setBallCount(count) {
   }
 }
 
+// NEW: Toggle Turbo Mode
+function toggleTurboMode() {
+  playButtonChangeSound();
+  gameState.isTurboMode = !gameState.isTurboMode;
+  updateUIElements(); // Update button text
+  console.log(`Turbo mode: ${gameState.isTurboMode ? 'ON' : 'OFF'}`);
+}
+
 // Reset game - WITH BUTTON SOUND
 function resetGame() {
   playButtonChangeSound();
@@ -1704,6 +1943,13 @@ function resetGame() {
   gameState.freeDrops = 0; // NEW: Reset free drops
   gameState.currentMultipliersLayout = []; // NEW: Reset current multiplier layout
   gameState.isAutoDropping = false; // NEW: Reset auto-dropping flag
+  gameState.isPausedForModal = false; // NEW: Reset modal pause flag
+  gameState.awardedFreeDropsCurrentSpin = 0; // NEW: Reset awarded free drops for current spin
+  gameState.totalWinDuringFreeDrops = 0; // NEW: Reset free drop session wins
+  gameState.totalMultiplierDuringFreeDrops = 0; // NEW: Reset free drop session multipliers
+  gameState.isTurboMode = false; // NEW: Reset turbo mode
+  gameState.freeDropsSessionActive = false; // NEW: Reset session flag
+  gameState.freeDropsPlayedCount = 0; // NEW: Reset played count
 
   // Reset pegs
   gameState.pegs.forEach(peg => {
@@ -1717,6 +1963,10 @@ function resetGame() {
   document.getElementById('win-card').classList.add('hidden');
   document.getElementById('mobile-win-card').classList.add('hidden');
   document.getElementById('free-drops-display').classList.add('hidden'); // NEW: Hide free drops display
+
+  // Hide any active modals
+  hideModal('free-drops-awarded-modal');
+  hideModal('free-drops-summary-modal');
 
   // Reset ball count dropdown
   document.getElementById('ball-count-select').value = '1';
@@ -1734,15 +1984,24 @@ function updateUIElements() {
   document.getElementById('bet-amount').textContent = `$${gameState.betAmount.toFixed(2)}`;
 
   // Update win display - ONLY show/update when there's actually a win
-  if (gameState.lastWin > 0) {
-      // Desktop win card
-      document.getElementById('last-win').textContent = `+$${gameState.lastWin.toFixed(2)}`;
-      document.getElementById('win-card').classList.remove('hidden');
+  if (gameState.isAutoDropping) {
+    // Hide win cards during auto-dropping
+    document.getElementById('win-card').classList.add('hidden');
+    document.getElementById('mobile-win-card').classList.add('hidden');
+} else if (gameState.lastWin > 0) {
+    // Only show/update when not auto-dropping and there's actually a win
+    // Desktop win card
+    document.getElementById('last-win').textContent = `+$${gameState.lastWin.toFixed(2)}`;
+    document.getElementById('win-card').classList.remove('hidden');
 
-      // Mobile win card
-      document.getElementById('mobile-last-win').textContent = `+$${gameState.lastWin.toFixed(2)}`;
-      document.getElementById('mobile-win-card').classList.remove('hidden');
-  }
+    // Mobile win card
+    document.getElementById('mobile-last-win').textContent = `+$${gameState.lastWin.toFixed(2)}`;
+    document.getElementById('mobile-win-card').classList.remove('hidden');
+} else {
+    // Ensure they are hidden if lastWin is 0 and not auto-dropping
+    document.getElementById('win-card').classList.add('hidden');
+    document.getElementById('mobile-win-card').classList.add('hidden');
+}
 
   // Update free drops display
   const freeDropsDisplay = document.getElementById('free-drops-display');
@@ -1758,11 +2017,13 @@ function updateUIElements() {
   const hasActiveBalls = gameState.balls.some(ball => ball.active);
   const totalBet = gameState.betAmount * gameState.ballCount;
   
-  // Disable button if auto-dropping or if canDropBall is false
-  dropBtn.disabled = gameState.isAutoDropping || !canDropBall();
+  // Disable button if auto-dropping or if canDropBall is false or if a modal is active
+  dropBtn.disabled = gameState.isAutoDropping || !canDropBall() || gameState.isPausedForModal;
 
   // Update button text based on state
-  if (gameState.isAutoDropping) {
+  if (gameState.isPausedForModal) {
+      dropBtn.textContent = 'GAME PAUSED';
+  } else if (gameState.isAutoDropping) {
       dropBtn.textContent = 'AUTO DROPPING...';
   } else if (hasActiveBalls) {
       const activeBallCount = gameState.balls.filter(ball => ball.active).length;
@@ -1779,10 +2040,16 @@ function updateUIElements() {
 
   // Show/hide insufficient balance warning
   const insufficientBalance = document.getElementById('insufficient-balance');
-  if (gameState.balance < totalBet && gameState.freeDrops === 0 && !gameState.isAutoDropping) { // Only show if no free drops and not auto-dropping
+  if (gameState.balance < totalBet && gameState.freeDrops === 0 && !gameState.isAutoDropping && !gameState.isPausedForModal) { // Only show if no free drops and not auto-dropping
       insufficientBalance.classList.remove('hidden');
   } else {
       insufficientBalance.classList.add('hidden');
+  }
+
+  // NEW: Update Turbo button text
+  const turboBtn = document.getElementById('turbo-btn');
+  if (turboBtn) {
+      turboBtn.textContent = gameState.isTurboMode ? '>>>' : '>';
   }
 
   // Update recent hits
@@ -1890,8 +2157,8 @@ function updateMobileRecentHits() {
 function setupEventListeners() {
   // Drop ball button
   document.getElementById('drop-ball-btn').addEventListener('click', () => {
-      // Only allow manual drop if not currently auto-dropping
-      if (!gameState.isAutoDropping) {
+      // Only allow manual drop if not currently auto-dropping or paused by modal
+      if (!gameState.isAutoDropping && !gameState.isPausedForModal) {
           dropBall(false); // Explicitly not a free drop trigger
       }
   });
@@ -1904,9 +2171,12 @@ function setupEventListeners() {
       setBallCount(parseInt(event.target.value));
   });
 
+  // NEW: Turbo button
+  document.getElementById('turbo-btn').addEventListener('click', toggleTurboMode);
+
   // Keyboard controls
   document.addEventListener('keydown', (event) => {
-      if (event.code === 'Space' && gameState.gameStarted && canDropBall()) { // Added canDropBall check
+      if (event.code === 'Space' && gameState.gameStarted && canDropBall() && !gameState.isPausedForModal) { // Added canDropBall check and modal check
           event.preventDefault();
           dropBall(false); // Explicitly not a free drop trigger
       }
@@ -2015,6 +2285,12 @@ function startAnimationLoop() {
       }
       lastTime = currentTime;
 
+      // Pause animation if a modal is active
+      if (gameState.isPausedForModal) {
+          requestAnimationFrame(animate);
+          return;
+      }
+
       // Increment line animation time
       gameState.lineAnimationTime += 0.05; // Adjust speed of electricity flow
 
@@ -2117,9 +2393,11 @@ function startAnimationLoop() {
       gameState.balls = gameState.balls.map(ball => {
           if (!ball.active) return ball;
 
-          const speedMultiplier = 0.45; // Changed from 0.6 to 0.45 for slower speed
-          let newX = ball.x + ball.vx * speedMultiplier;
-          const newY = ball.y + ball.vy * speedMultiplier;
+          const baseSpeedMultiplier = 0.45; // Original speed
+          const currentSpeedMultiplier = gameState.isTurboMode ? baseSpeedMultiplier * 2 : baseSpeedMultiplier; // NEW: Apply turbo speed
+          
+          let newX = ball.x + ball.vx * currentSpeedMultiplier;
+          const newY = ball.y + ball.vy * currentSpeedMultiplier;
           let newVx = ball.vx;
           let newVy = ball.vy + 0.2; // Stronger gravity
 
@@ -2226,9 +2504,11 @@ function startAnimationLoop() {
 
               if (typeof landedItem === 'object' && landedItem.type === 'FREE_DROPS') { // NEW: Handle Free Drops object
                   const awardedFreeDrops = Math.round(landedItem.value * ball.currentMultiplier); // Use stored value, multiply by ball's line multiplier
-                  gameState.freeDrops += awardedFreeDrops; // Accumulate free drops
-                  console.log(`🎁 Ball landed on FREE DROPS! Base: ${landedItem.value}, Line Multiplier: ${ball.currentMultiplier.toFixed(2)}x, Awarded: ${awardedFreeDrops} free drops. Total free drops: ${gameState.freeDrops}`);
-                  playBallDropSound(); // Use default ball drop sound
+                  
+                  gameState.awardedFreeDropsCurrentSpin += awardedFreeDrops; // Accumulate for the current spin
+                  
+                  console.log(`🎁 Ball landed on FREE DROPS! Base: ${landedItem.value}, Line Multiplier: ${ball.currentMultiplier.toFixed(2)}x, Awarded: ${awardedFreeDrops} free drops. Total for spin: ${gameState.awardedFreeDropsCurrentSpin}`);
+                  playFreeDropsSound(); // NEW: Play free drops sound
                   createParticles(ball.x, ball.y, 'rgba(0, 255, 0, 1)', 30); // Green particles for free drops
 
                   // Add to recent hits as a free drop event
@@ -2240,13 +2520,20 @@ function startAnimationLoop() {
                   });
                   gameState.recentHits = gameState.recentHits.slice(0, 20);
                   
-                  // Removed: startAutoDrops(awardedFreeDrops); -> now triggered centrally
+                  // DO NOT show modal here, it will be shown after all balls settle
+
               } else { // Existing win calculation for regular multipliers
                   const finalMultiplier = landedItem; // UPDATED
                   // Win calculation now uses ball.currentMultiplier (sum of line multipliers)
                   const winAmount = ball.betAmount * ball.currentMultiplier * finalMultiplier; // CHANGED: Use ball.betAmount
                   gameState.balance += winAmount;
                   gameState.lastWin = winAmount;
+
+                  // If currently in an auto-drop session, accumulate wins and multipliers
+                  if (gameState.isAutoDropping) {
+                      gameState.totalWinDuringFreeDrops += winAmount;
+                      gameState.totalMultiplierDuringFreeDrops += (ball.currentMultiplier * finalMultiplier);
+                  }
 
                   // Add to recent hits
                   gameState.recentHits.unshift({
@@ -2278,8 +2565,24 @@ function startAnimationLoop() {
 
       gameState.balls = gameState.balls.filter(ball => ball.active);
 
-      // NEW: Check for free drops to auto-drop after all balls have settled
-      if (gameState.freeDrops > 0 && !gameState.isAutoDropping && !gameState.balls.some(ball => ball.active)) {
+      // NEW: Check for awarded free drops from the current spin after all balls have settled
+      if (gameState.awardedFreeDropsCurrentSpin > 0 && !gameState.isAutoDropping && !gameState.balls.some(ball => ball.active) && !gameState.isPausedForModal) {
+          showModal(
+              'free-drops-awarded-modal',
+              'FREE DROPS!',
+              `You've won <span class="text-green-300 font-bold">${gameState.awardedFreeDropsCurrentSpin}</span> free drops!`,
+              () => {
+                  gameState.freeDrops += gameState.awardedFreeDropsCurrentSpin; // Add to total free drops after modal dismissed
+                  gameState.awardedFreeDropsCurrentSpin = 0; // Reset for next spin
+                  // If not already auto-dropping, start the sequence
+                  if (!gameState.isAutoDropping && gameState.freeDrops > 0) {
+                      startAutoDrops();
+                  }
+              }
+          );
+      }
+      // NEW: Check for free drops to auto-drop after all balls have settled (if no awarded free drops modal is active)
+      else if (gameState.freeDrops > 0 && !gameState.isAutoDropping && !gameState.balls.some(ball => ball.active) && !gameState.isPausedForModal) {
           startAutoDrops();
       }
 
