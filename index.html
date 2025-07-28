@@ -7,7 +7,8 @@
 <meta name="description" content="Professional Cosmic Plinko game with realistic physics and immersive audio">
 
 <!-- Preload critical assets for optimal performance -->
-<link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BackGround-mxRb0rKXSqoh1DHNoh7HMJMJMnl40Ut8.mp4" as="video" type="video/mp4">
+<link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BackGround-mxRb0rKXSqoh1DHNoh7HMJMnl40Ut8.mp4" as="video" type="video/mp4">
+<link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/plinkoboard-FTo2cMZvLjJ9wi7frhMy1hnhIwlKPg.png" as="image" type="image/png">
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1-2blBIg4gAwWnvcOcAfJ18csMkgrmpR.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/2-DRu5ntJp8KOAyep8t2NrS0u4K8m0uz.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3-Xl9zw4BwCvupErIVwySJUpAGUw7Ia1.mp3" as="audio" type="audio/mpeg">
@@ -16,7 +17,7 @@
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/buttonchange-zhwkWSbkfOGp9jJXv7jjNtm1wlKYBK.mp3" as="audio" type="audio/mpeg">
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Alien-uzfEiE9Kl7eFnvILT9jpv6ATb1JQjX.png" as="image" type="image/png">
 <link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/multi-Vx6Sza2V4G6OjyVV8iifmGIT0l93DL.mp3" as="audio" type="audio/mpeg">
-<link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/free%20drops-HEzfYeyhOq8rmTfzRzkOka48CW4AzI.mp3" as="audio" type="audio/mpeg"> <!-- NEW: Preload free drops audio -->
+<link rel="preload" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/free%20drops-HEzfYeyhOq8rmTfzRzkOka48CW4AzI.mp3" as="audio" type="audio/mpeg">
 
 <!-- Google Fonts for Anime/Retro Style -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -56,18 +57,42 @@ transform: translateZ(0) scale(1.15);
 filter: brightness(0.6) saturate(1.2);
 }
 
-/* Canvas optimization - UPDATED: Solid purple border like multipliers */
+/* NEW: Plinko board background image */
+#plinko-board-background {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-image: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/plinkoboard-FTo2cMZvLjJ9wi7frhMy1hnhIwlKPg.png');
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+border-radius: 0.75rem; /* Match canvas border radius */
+z-index: 0;
+opacity: 0.8;
+}
+
+/* Canvas optimization - UPDATED: Make canvas transparent and positioned above background */
 #game-canvas {
 image-rendering: -webkit-optimize-contrast;
 image-rendering: optimize-contrast;
 image-rendering: crisp-edges;
 will-change: contents;
 border: 4px solid rgb(147, 51, 234) !important; /* Solid purple border matching multipliers */
-background: rgba(0, 0, 0, 0.3);
+background: transparent !important; /* Make canvas transparent to show background */
 max-width: 100%;
 height: auto;
 position: relative;
-z-index: 1;
+z-index: 2; /* Above background but below multipliers */
+}
+
+/* Game board container - NEW: Position relative for background positioning */
+.game-board-container {
+position: relative;
+display: inline-block;
+border-radius: 0.75rem;
+overflow: hidden;
 }
 
 /* Button hover effects */
@@ -200,14 +225,14 @@ box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 border: 2px solid rgb(147, 51, 234) !important; /* Solid purple border */
 }
 
-/* FIXED: Multipliers container - Ensure it's above canvas */
+/* FIXED: Multipliers container - Ensure it's above canvas and background */
 #multipliers {
 position: absolute;
 bottom: 0;
 left: 0;
 right: 0;
 display: flex;
-z-index: 10;
+z-index: 15; /* Above everything else */
 }
 
 /* Bet button styling */
@@ -909,6 +934,23 @@ box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
 background: rgba(59, 130, 246, 1);
 border-color: rgba(147, 51, 234, 1);
 }
+
+/* Fix for button text click issues */
+button * {
+  pointer-events: none;
+}
+
+/* Fix for button text click issues - MORE SPECIFIC */
+#drop-ball-btn *,
+#drop-ball-btn span,
+#drop-ball-btn::before,
+#drop-ball-btn::after {
+  pointer-events: none !important;
+}
+
+#drop-ball-btn {
+  pointer-events: auto !important;
+}
 </style>
 </head>
 <body>
@@ -999,8 +1041,12 @@ Your browser does not support the video tag.
             <div class="text-blue-300 text-lg font-bold" style="font-family: 'Orbitron', monospace;">#BovadaPlinkoChallenge</div>
         </div>
         
-        <!-- Game Board -->
-        <div class="relative mb-4">
+        <!-- Game Board with Background -->
+        <div class="game-board-container mb-4">
+            <!-- Background Image -->
+            <div id="plinko-board-background"></div>
+            
+            <!-- Game Canvas -->
             <canvas 
                 id="game-canvas"
                 width="600" 
@@ -1008,7 +1054,7 @@ Your browser does not support the video tag.
                 class="rounded-xl shadow-2xl backdrop-blur-sm"
             ></canvas>
             
-            <!-- FIXED: Prize Multipliers - Now properly visible above canvas -->
+            <!-- FIXED: Prize Multipliers - Now properly visible above canvas and background -->
             <div id="multipliers" class="absolute bottom-0 left-0 right-0 flex">
                 <!-- Multipliers will be generated by JavaScript -->
             </div>
@@ -2185,13 +2231,32 @@ function updateMobileRecentHits() {
 
 // Setup event listeners
 function setupEventListeners() {
-  // Drop ball button
-  document.getElementById('drop-ball-btn').addEventListener('click', () => {
-      // Only allow manual drop if not currently auto-dropping or paused by modal
-      if (!gameState.isAutoDropping && !gameState.isPausedForModal) {
-          dropBall(false); // Explicitly not a free drop trigger
-      }
-  });
+  // Drop ball button - FIXED: Handle clicks on button text properly
+document.getElementById('drop-ball-btn').addEventListener('click', (event) => {
+    // Prevent any default behavior and stop propagation
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Only allow manual drop if not currently auto-dropping or paused by modal
+    if (!gameState.isAutoDropping && !gameState.isPausedForModal) {
+        dropBall(false); // Explicitly not a free drop trigger
+    }
+});
+
+// ADDITIONAL FIX: Add event listener to the button using event delegation
+document.addEventListener('click', (event) => {
+    // Check if the clicked element is the drop ball button or any of its children
+    const dropButton = document.getElementById('drop-ball-btn');
+    if (dropButton && (event.target === dropButton || dropButton.contains(event.target))) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Only allow manual drop if not currently auto-dropping or paused by modal
+        if (!gameState.isAutoDropping && !gameState.isPausedForModal) {
+            dropBall(false); // Explicitly not a free drop trigger
+        }
+    }
+});
 
   // Reset button
   document.getElementById('reset-btn').addEventListener('click', resetGame);
@@ -2661,7 +2726,7 @@ function startAnimationLoop() {
           ctx.arc(ball.x, ball.y, 10, 0, Math.PI * 2);
           ctx.fill();
           ctx.shadowBlur = 0;
-          ctx.fillStyle = 'rgba(255, 255, 255, 1)'; // Inner white circle remains
+          ctx.fillStyle = 'rgba(255, 255,255, 1)'; // Inner white circle remains
           ctx.beginPath();
           ctx.arc(ball.x, ball.y, 6, 0, Math.PI * 2);
           ctx.fill();
