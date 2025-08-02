@@ -1792,6 +1792,9 @@ export default function CosmicPlinko() {
           <p className="text-white mb-6 text-xl font-bold" style={{ fontFamily: "Orbitron, monospace" }}>
             #BovadaPlinkoChallenge
           </p>
+          <p className="text-white mb-6 text-xl font-bold" style={{ fontFamily: "Orbitron, monospace" }}>
+            #1st Place Challanage $5,000 Winner!
+          </p>
           <div className="text-blue-200 mb-8 max-w-md mx-auto text-lg text-center">
             <h2 className="text-yellow-300 font-bold text-center mb-3">HOW TO PLAY:</h2>
             <ol className="list-decimal list-inside space-y-1">
@@ -1896,6 +1899,9 @@ export default function CosmicPlinko() {
                 <h1 className="text-4xl font-bold gradient-text mb-2">COSMIC PLINKO</h1>
                 <div className="text-blue-300 text-lg font-bold" style={{ fontFamily: "Orbitron, monospace" }}>
                   #BovadaPlinkoChallenge
+                </div>
+                 <div className="text-blue-300 text-lg font-bold" style={{ fontFamily: "Orbitron, monospace" }}>
+                  #1st Place Challanage $5,000 Winner!
                 </div>
               </div>
 
