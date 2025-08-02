@@ -1,0 +1,1023 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 3.7% 15.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 3.7% 15.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    /* FIXED: Disable double tap zoom on mobile */
+    touch-action: manipulation;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Exo 2", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #000;
+    /* FIXED: Disable double tap zoom */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+}
+
+/* Video optimization for 120fps */
+#cosmic-video {
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+  transform: translateZ(0) scale(1.15);
+  filter: brightness(0.6) saturate(1.2);
+}
+
+/* NEW: Plinko board background image */
+#plinko-board-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("https://hebbkx1anhila5yf.public.blob.vercel-storage.com/plinkoboard-FTo2cMZvLjJ9wi7frhMy1hnhIwlKPg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 0.75rem; /* Match canvas border radius */
+  z-index: 0;
+  opacity: 0.8;
+}
+
+/* Canvas optimization - UPDATED: Make canvas transparent and positioned above background */
+#game-canvas {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
+  image-rendering: crisp-edges;
+  will-change: contents;
+  border: 4px solid rgb(147, 51, 234) !important; /* Solid purple border matching multipliers */
+  background: transparent !important; /* Make canvas transparent to show background */
+  max-width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 2; /* Above background but below multipliers */
+}
+
+/* Game board container - NEW: Position relative for background positioning */
+.game-board-container {
+  position: relative;
+  display: inline-block;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+/* Button hover effects */
+.btn-primary {
+  background: rgba(59, 130, 246, 0.8);
+  border: 3px solid rgba(99, 102, 241, 0.6);
+  transition: all 0.3s ease;
+  font-family: "Orbitron", monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  touch-action: manipulation;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 1);
+  border-color: rgba(147, 51, 234, 0.8);
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Card styling */
+.game-card {
+  background: rgba(59, 130, 246, 0.15);
+  backdrop-filter: blur(12px);
+  border: 3px solid;
+  border-image: linear-gradient(135deg, #3b82f6, #9333ea) 1;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #60a5fa, #818cf8, #a78bfa, #c084fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: "Orbitron", monospace;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Animation keyframes */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(147, 51, 234, 0.6);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Start overlay with space-like gradient */
+#start-overlay {
+  background: linear-gradient(
+    135deg,
+    #1e1b4b 0% /* Dark blue */,
+    #312e81 25% /* Medium blue */,
+    #4c1d95 50% /* Purple */,
+    #6b7280 75% /* Grey */,
+    #374151 100% /* Dark grey */
+  );
+  backdrop-filter: blur(15px);
+  z-index: 9999;
+}
+
+.start-button {
+  background: rgba(59, 130, 246, 0.9);
+  border: 4px solid rgba(99, 102, 241, 0.8);
+  transition: all 0.4s ease;
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+  font-family: "Orbitron", monospace;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  touch-action: manipulation;
+}
+
+.start-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 60px rgba(147, 51, 234, 0.8);
+  background: rgba(59, 130, 246, 1);
+  border-color: rgba(147, 51, 234, 1);
+}
+
+/* FIXED: Multiplier styling - Gold text color and ensure visibility above canvas */
+.multiplier-slot {
+  font-family: "Orbitron", monospace;
+  font-weight: 700;
+  color: #ffd700 !important; /* UPDATED: Gold yellow text color */
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+  height: 40px;
+  font-size: clamp(0.35rem, 0.8vw, 0.5rem);
+  padding: 0.25rem 0.125rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  position: relative;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgb(147, 51, 234) !important; /* Solid purple border */
+}
+
+/* FIXED: Multipliers container - Ensure it's above canvas and background */
+#multipliers {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  z-index: 15; /* Above everything else */
+}
+
+/* Bet button styling */
+.bet-button {
+  border: 2px solid rgba(99, 102, 241, 0.6);
+  background: rgba(59, 130, 246, 0.2);
+  font-family: "Orbitron", monospace;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  color: #a78bfa;
+  touch-action: manipulation;
+}
+
+.bet-button:hover {
+  background: rgba(59, 130, 246, 0.4);
+  border-color: #6366f1;
+  transform: scale(1.05);
+  color: white;
+}
+
+.bet-button.active {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-color: #a78bfa;
+  color: white;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+/* Reset button styling */
+.reset-button {
+  border: 3px solid rgba(147, 51, 234, 0.6);
+  background: rgba(59, 130, 246, 0.1);
+  color: #a78bfa;
+  font-family: "Orbitron", monospace;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  touch-action: manipulation;
+}
+
+.reset-button:hover {
+  background: rgba(147, 51, 234, 0.2);
+  border-color: #8b5cf6;
+  color: #c084fc;
+  transform: scale(1.05);
+}
+
+/* UPDATED: Ball count dropdown styling - Match reset button exactly */
+.ball-count-dropdown {
+  border: 3px solid rgba(147, 51, 234, 0.6);
+  background: rgba(59, 130, 246, 0.1);
+  color: #a78bfa;
+  font-family: "Orbitron", monospace;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  touch-action: manipulation;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a78bfa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3csvg%3e");
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  background-position: right 0.75rem center; /* Adjusted for new padding */
+  text-align: center; /* ADDED: Center text within the dropdown */
+  text-align-last: center; /* ADDED: For cross-browser compatibility with centered dropdown text */
+  text-transform: uppercase; /* ADDED: Make text uppercase */
+}
+
+.ball-count-dropdown:hover {
+  background: rgba(147, 51, 234, 0.2);
+  border-color: #8b5cf6;
+  color: #c084fc;
+  transform: scale(1.05);
+}
+
+.ball-count-dropdown:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+/* NEW: Base styling for all game control buttons to ensure consistent size */
+.game-control-button-base {
+  flex-shrink: 0;
+  flex-grow: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-width: 180px; /* Desktop fixed width */
+  height: 50px; /* Desktop fixed height */
+  padding: 0.75rem 1.5rem; /* Standardized padding */
+  font-size: 0.875rem; /* Standardized font size */
+}
+
+/* Game Controls Container */
+#game-controls-container {
+  /* Default desktop styles */
+  display: flex;
+  gap: 1rem; /* Original gap-4 (16px) */
+  margin-bottom: 1rem; /* Original mb-4 (16px) */
+  align-items: center;
+  justify-content: center; /* Ensure it's centered on desktop too */
+  width: 100%;
+  max-width: 100%;
+  flex-wrap: nowrap; /* Keep on one line by default for desktop */
+}
+
+/* NEW: Turbo button active state */
+.turbo-active {
+  background: linear-gradient(135deg, #3b82f6, #9333ea); /* Bright gradient */
+  border-color: #a78bfa; /* Matching border */
+  color: white;
+  box-shadow: 0 0 25px rgba(147, 51, 234, 0.8); /* Stronger glow */
+}
+
+/* Text styling */
+.stat-label {
+  color: rgba(168, 162, 158, 0.8);
+  font-family: "Orbitron", monospace;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-value {
+  font-family: "Orbitron", monospace;
+  font-weight: 700;
+  color: #60a5fa;
+}
+
+/* Win card special styling */
+.win-card {
+  background: rgba(255, 215, 0, 0.1);
+  border: 3px solid rgba(255, 215, 0, 0.4);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
+}
+
+.win-value {
+  color: #ffd700;
+  font-family: "Orbitron", monospace;
+  font-weight: 900;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+/* Recent hits styling */
+.recent-hit {
+  background: rgba(59, 130, 246, 0.3);
+  border: 2px solid rgba(99, 102, 241, 0.4);
+  font-family: "Orbitron", monospace;
+  transition: all 0.3s ease;
+  /* NEW: Allow text to shrink */
+  font-size: clamp(0.75rem, 1.2vw, 0.875rem); /* Shrink from 14px to 12px */
+}
+
+.recent-hit:hover {
+  transform: scale(1.02);
+  border-color: rgba(168, 85, 247, 0.6);
+}
+
+/* Status indicators */
+.status-indicator {
+  background: rgba(59, 130, 246, 0.8);
+  border: 2px solid rgba(99, 102, 241, 0.6);
+  font-family: "Orbitron", monospace;
+  font-weight: 700;
+}
+
+/* Keyboard key styling */
+kbd {
+  background: rgba(59, 130, 246, 0.3);
+  border: 2px solid rgba(99, 102, 241, 0.5);
+  color: #a78bfa;
+  font-family: "Orbitron", monospace;
+  font-weight: 700;
+}
+
+/* Fixed size balance and bet boxes - Desktop sizing */
+.balance-box {
+  min-width: 320px;
+  width: 320px;
+}
+
+.bet-box {
+  min-width: 200px;
+  width: 200px;
+}
+
+/* UPDATED: Fixed size recent hits container - Removed fixed height to allow scrolling for more items */
+.recent-hits-container {
+  /* height: 280px; */ /* REMOVED: Fixed height to allow content to dictate height */
+  max-height: 300px; /* ADDED: Max height to ensure it doesn't grow too large */
+  overflow-y: auto; /* UPDATED: Allow scrolling if needed */
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 102, 241, 0.6) transparent;
+}
+
+/* Custom scrollbar for recent hits */
+.recent-hits-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.recent-hits-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+}
+
+.recent-hits-container::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.6);
+  border-radius: 2px;
+}
+
+.recent-hits-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.8);
+}
+
+/* Mobile stats container */
+.mobile-stats-container {
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Alien floating animation */
+.alien-container {
+  position: absolute;
+  top: -50px; /* Positioned above the header */
+  right: 50%; /* Center horizontally */
+  transform: translateX(50%); /* Adjust for half its width to truly center */
+  z-index: 20; /* Ensure it's above other elements */
+  pointer-events: none;
+}
+
+.alien-image {
+  width: 40px; /* Smaller for desktop */
+  height: 40px; /* Smaller for desktop */
+  filter: drop-shadow(0 0 15px rgba(147, 51, 234, 0.6)) blur(25px); /* Increased blur */
+}
+
+/* UPDATED: Perfect centering layout system */
+.game-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Desktop layout container */
+.desktop-container {
+  display: flex;
+  align-items: flex-start; /* Changed from center to flex-start for better alignment */
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.left-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* REMOVED: position: relative; */
+}
+
+.center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.right-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* UPDATED: Desktop sidebar alignment - Stacked and moved down 25px */
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  /* REMOVED: position, top, height, justify-content */
+}
+
+/* UPDATED: Win card positioning - Moved up by 10px more */
+.win-section {
+  align-self: center;
+  margin-top: 95px; /* UPDATED: Moved up by 10px (105 - 10) */
+  margin-bottom: 2rem; /* Space between win card and recent hits */
+}
+
+/* UPDATED: Recent hits positioning - Now stacks under win-section */
+.recent-hits-section {
+  align-self: center;
+  /* REMOVED: position, bottom */
+  width: 192px; /* Match sidebar width minus padding */
+}
+
+/* Mobile responsive design - FIXED: Perfect mobile centering */
+@media (max-width: 1024px) {
+  .game-layout {
+    padding: 0.75rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+    min-height: 100vh;
+  }
+
+  .desktop-container {
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .left-sidebar {
+    display: none; /* Hide desktop sidebar on mobile */
+  }
+
+  .right-sidebar {
+    display: none; /* Hide right sidebar on mobile */
+  }
+
+  .center-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* FIXED: Mobile element sizing - prevent right-side cutoff */
+  .balance-box {
+    width: min(320px, 100%);
+    min-width: min(320px, 100%);
+    max-width: 100%;
+  }
+
+  .bet-box {
+    width: min(200px, 100%);
+    min-width: min(200px, 100%);
+    max-width: 100%;
+  }
+
+  .mobile-stats-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Mobile alien positioning */
+  .alien-container {
+    top: -30px; /* Adjusted for mobile to be above title */
+    right: 50%;
+    transform: translateX(50%);
+  }
+
+  .alien-image {
+    width: 40px; /* Made smaller for tablet/mobile */
+    height: 40px; /* Made smaller for tablet/mobile */
+  }
+
+  /* FIXED: Bet controls mobile sizing */
+  #bet-controls {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Mobile multipliers - UPDATED: Smaller font for better fit on tablets */
+  .multiplier-slot {
+    font-size: clamp(0.25rem, 0.5vw, 0.4rem); /* Adjusted clamp values */
+    height: 32px;
+    padding: 0.1rem 0.05rem; /* Reduced padding */
+    letter-spacing: 0px; /* Adjusted letter spacing to prevent overhang */
+    flex-basis: 0; /* Allow shrinking */
+    flex-grow: 1; /* Allow growing */
+  }
+
+  /* Mobile header sizing */
+  .gradient-text {
+    font-size: clamp(1.5rem, 4vw, 1.75rem);
+  }
+
+  /* Mobile button sizing */
+  .btn-primary {
+    /* Inherits from game-control-button-base */
+  }
+
+  .bet-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    flex: 0 0 auto;
+  }
+
+  /* UPDATED: Mobile ball count dropdown - Match reset button sizing */
+  .ball-count-dropdown {
+    /* Inherits from game-control-button-base */
+    background-position: right 0.5rem center; /* Adjust arrow position */
+  }
+
+  /* NEW: Mobile adjustments for game control buttons */
+  #game-controls-container {
+    gap: 0.5rem; /* Smaller gap for mobile */
+    flex-wrap: wrap; /* Allow wrapping on mobile */
+  }
+  .game-control-button-base {
+    min-width: 104px; /* Adjusted for tablets/larger phones */
+    height: 38px; /* Slightly smaller height */
+    padding: 0.4rem 0.8rem; /* Adjusted padding */
+    font-size: 0.75rem; /* Keep font size consistent with previous mobile */
+  }
+
+  /* Force reset button to new line and center it on mobile */
+  #reset-btn {
+    width: calc(100% - 1rem); /* Full width minus container gap */
+    margin-top: 0.5rem; /* Add some space above it */
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Ensure the first three buttons stay together if possible, or wrap naturally */
+  #ball-count-select,
+  #drop-ball-btn,
+  #turbo-btn {
+    flex-basis: auto; /* Allow them to shrink/grow naturally */
+    flex-grow: 1; /* Allow them to grow to fill space */
+  }
+
+  /* Mobile stats layout - FIXED: Better spacing */
+  .stats-mobile {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* Mobile recent hits - HORIZONTAL layout */
+  .mobile-recent-hits-horizontal {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: 100%;
+  }
+
+  .mobile-recent-hit-item {
+    flex: 0 0 auto;
+    min-width: 80px;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    /* NEW: Allow text to shrink */
+    font-size: clamp(0.65rem, 1.5vw, 0.75rem); /* Shrink from 12px to 10.4px */
+  }
+}
+
+/* Small screen adjustments for intro overlay */
+@media (max-width: 640px) {
+  .game-layout {
+    padding: 0.5rem;
+  }
+
+  .gradient-text {
+    font-size: clamp(1.25rem, 5vw, 1.5rem);
+  }
+
+  .btn-primary {
+    /* Inherits from game-control-button-base */
+  }
+
+  /* Very small screen sizing */
+  .balance-box {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .bet-box {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .mobile-stats-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .alien-image {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Smaller multiplier text for very small screens */
+  .multiplier-slot {
+    font-size: clamp(0.2rem, 0.6vw, 0.35rem); /* Slightly smaller font */
+    height: 28px;
+    padding: 0.05rem 0.025rem; /* Even smaller padding */
+    letter-spacing: 0px;
+  }
+
+  /* Canvas fits perfectly on small screens */
+  #game-canvas {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* UPDATED: Small screen ball count dropdown */
+  .ball-count-dropdown {
+    /* Inherits from game-control-button-base */
+  }
+
+  #game-controls-container {
+    gap: 0.25rem; /* Even smaller gap for very small screens */
+  }
+  .game-control-button-base {
+    min-width: 100px; /* Adjusted for very small phones (3 * 100 + 2 * 4 = 308px, fits 320px screen) */
+    height: 36px; /* Slightly smaller height */
+    font-size: 0.7rem; /* Slightly smaller font */
+  }
+
+  /* Intro overlay specific adjustments for small screens */
+  #start-overlay .text-center {
+    padding-top: 1rem; /* Reduced top padding */
+    padding-bottom: 1rem; /* Reduced bottom padding */
+  }
+
+  #start-overlay h1 {
+    font-size: clamp(2.5rem, 8vw, 3rem); /* Smaller title */
+    margin-bottom: 1rem; /* Reduced margin */
+  }
+
+  #start-overlay p.text-white {
+    font-size: clamp(1rem, 3vw, 1.25rem); /* Smaller subtitle */
+    margin-bottom: 1.5rem; /* Reduced margin */
+  }
+
+  #start-overlay .text-blue-200 {
+    margin-bottom: 1.5rem; /* Reduced margin */
+  }
+
+  #start-overlay h2 {
+    font-size: clamp(1rem, 3.5vw, 1.25rem); /* Smaller "HOW TO PLAY" */
+    margin-bottom: 0.75rem; /* Reduced margin */
+  }
+
+  #start-overlay ol {
+    font-size: clamp(0.875rem, 2.5vw, 1rem); /* Smaller instructions text */
+    line-height: 1.4; /* Tighter line height */
+    margin-bottom: 1rem; /* Reduced margin */
+  }
+
+  #start-overlay ol li {
+    margin-bottom: 0.25rem; /* Reduced space between list items */
+  }
+
+  #start-overlay p.text-center.mt-6 {
+    margin-top: 1rem; /* Reduced margin */
+  }
+
+  #start-overlay button#start-game {
+    font-size: clamp(1.25rem, 4vw, 1.5rem); /* Smaller button text */
+    padding: 1rem 2rem; /* Smaller button padding */
+  }
+}
+
+/* Enable proper scrolling without horizontal overflow */
+html,
+body {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure no elements cause horizontal scroll */
+* {
+  max-width: 100%;
+}
+
+/* Container to prevent any overflow */
+#app {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* NEW: Styling for the Free Drops slot */
+.free-drops-slot {
+  background: rgba(0, 128, 0, 0.9); /* Green color for Free Drops */
+  border: 2px solid rgb(0, 255, 0) !important; /* Bright green border */
+  color: #ffffff !important; /* White text */
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+  font-size: clamp(0.3rem, 0.7vw, 0.45rem); /* Adjusted font size for better fit */
+  padding: 0.15rem 0.08rem; /* Adjusted padding */
+  line-height: 1.1; /* Tighter line height for multi-line text */
+  white-space: normal; /* Allow text to wrap */
+  display: flex; /* Use flexbox for centering */
+  flex-direction: column; /* Stack text vertically */
+  justify-content: center; /* Center vertically */
+  align-items: center; /* Center horizontally */
+  text-align: center; /* Ensure text is centered */
+}
+
+/* Modal styling */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background: rgba(59, 130, 246, 0.2);
+  backdrop-filter: blur(15px);
+  border: 3px solid;
+  border-image: linear-gradient(135deg, #3b82f6, #9333ea) 1;
+  padding: 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  max-width: 90%;
+  width: 400px;
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+  transform: translateY(-20px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.modal-title {
+  font-family: "Orbitron", monospace;
+  font-weight: 900;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #60a5fa, #818cf8, #a78bfa, #c084fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.modal-message {
+  font-family: "Exo 2", sans-serif;
+  font-size: 1.25rem;
+  color: #e0e7ff;
+  margin-bottom: 1.5rem;
+}
+
+.modal-button {
+  background: rgba(59, 130, 246, 0.9);
+  border: 3px solid rgba(99, 102, 241, 0.8);
+  color: white;
+  font-family: "Orbitron", monospace;
+  font-weight: 700;
+  padding: 0.75rem 2rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.modal-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+  background: rgba(59, 130, 246, 1);
+  border-color: rgba(147, 51, 234, 1);
+}
+
+/* Fix for button text click issues */
+button * {
+  pointer-events: none;
+}
+
+/* Fix for button text click issues - MORE SPECIFIC */
+#drop-ball-btn *,
+#drop-ball-btn span,
+#drop-ball-btn::before,
+#drop-ball-btn::after {
+  pointer-events: none !important;
+}
+
+#drop-ball-btn {
+  pointer-events: auto !important;
+}
