@@ -64,7 +64,6 @@ npm run build
 npm start
 ```
 
-Or deploy instantly using [Vercel](https://vercel.com) or [Netlify](https://netlify.com).
 
 ---
 
@@ -123,11 +122,6 @@ Or deploy instantly using [Vercel](https://vercel.com) or [Netlify](https://netl
 | Safari   | Limited PWA | ✅ |
 | Firefox  | Full | ✅ |
 
----
-
-## 📄 License
-
-**MIT License** — Use freely, modify, and distribute with attribution.
 
 ---
 
