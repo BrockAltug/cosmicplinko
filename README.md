@@ -49,7 +49,7 @@ The game combines fast-paced, physics-based ball simulation with electric multip
 ### Getting Started
 
 ```bash
-git clone https://github.com/yourusername/cosmic-plinko.git
+git clone https://github.com/brockaltug/cosmic-plinko.git
 cd cosmic-plinko
 npm install
 npm run dev
